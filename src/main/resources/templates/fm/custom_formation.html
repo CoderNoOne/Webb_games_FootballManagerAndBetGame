@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <link rel="stylesheet" type="text/css"
+          href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.6/themes/cupertino/jquery-ui.css"/>
+    <script src="../../static/js/jquery-1.6.2.min.js" type="text/javascript"></script>
+    <script src="../../static/js/jquery-ui-1.8.16.custom.min.js" type="type/javascript"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <!--    <script src="/webjars/jquery/3.4.1/jquery.min.js"></script>-->
+    <script src="/webjars/bootstrap/4.3.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/webjars/bootstrap/4.3.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/442_formation.css}">
+    <link rel="stylesheet" th:href="@{/css/352_formation.css}">
+    <link rel="stylesheet" th:href="@{/css/formation_general.css}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Team formation</title>
+    <style>
+        .logo {
+            height: 6vw;
+            width: 6vw
+        }
+
+    </style>
+
+</head>
+
+
+<body th:style="|background-image:url(${session.backgroundUrl});|">
+
+<nav class="navbar navbar-expand-lg" style=" color: darkgoldenrod ;font-size: 2vmin">
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/userPage}" style="color: burlywood">Back to user panel</a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/fm/teamManagement}" style="color:blueviolet;">Player management</a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/fm/leagueBoard}" style="color:goldenrod;">League board</a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/fm/upcomingMatches}" style="color:tomato;">Upcoming matches</a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{'/fm/playerStats?attributes&option'}" style="color:greenyellow;">Player statistics</a>
+            </li>
+
+            <li style="justify-items: right; font-size: 1.5vmin;position:fixed; right: 5vmin">
+                <h2 id="c_t"
+                    th:text="${#dates.createNow().getHours() + ':' + #dates.createNow().getMinutes() + ':' + #dates.createNow().getSeconds()}"></h2>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="pitch">
+    <div class="top-box"></div>
+    <div class="centre-circle"></div>
+    <div class="centre-line"></div>
+    <div class="bottom-box"></div>
+    <div th:class="${chosenFormation.getCssClassName()}">
+
+        <div style="position: absolute; z-index: 100; width: 60vmin">
+            <div th:if="${errors != null && errors.containsKey('formationDto')}"
+                 class="alert alert-danger text-center mt-1" role="alert"
+                 th:text="${errors.get('formationDto')}">
+            </div>
+
+            <div th:if="${errors != null && errors.containsKey('name')}"
+                 class="alert alert-danger text-center mt-1" role="alert"
+                 th:text="${errors.get('name')}">
+            </div>
+
+            <div th:if="${errors != null && errors.containsKey('notValidLoadedSquad')}"
+                 class="alert alert-danger text-center mt-1" role="alert"
+                 th:text="${errors.get('notValidLoadedSquad')}">
+            </div>
+
+            <div th:if="${squadSaved}"
+                 class="alert alert-success text-center mt-1" role="alert"
+                 th:text="${squadSaved}">
+            </div>
+        </div>
+
+        <div id="circle_1" class="circle"
+             th:style="${colors} != null ? 'background: ' + ${colors['first']} + '; border: 0.3vmin solid ' + ${colors['second']} : ''"
+             th:text="${eleven} == null ? '' : (${eleven.players[__${positionForInputIdMap['input_1']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_1']}__].number} : '')">
+        </div>
+        <input id="input_1" type="text" readonly="true"
+               th:placeholder="${eleven} == null ? ${positionForInputIdMap['input_1']} : (${eleven.players[__${positionForInputIdMap['input_1']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_1']}__].lastName} : ${positionForInputIdMap['input_1']})">
+
+        <div id="circle_2" class="circle"
+             th:style="${colors} != null ? 'background: ' + ${colors['first']} + '; border: 0.3vmin solid ' + ${colors['second']} : ''"
+             th:text="${eleven} == null ? '' : (${eleven.players[__${positionForInputIdMap['input_2']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_2']}__].number} : '')">
+        </div>
+        <input id="input_2" type="text"
+               th:placeholder="${eleven} == null ? ${positionForInputIdMap['input_2']} : (${eleven.players[__${positionForInputIdMap['input_2']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_2']}__].lastName} : ${positionForInputIdMap['input_2']})"
+               readonly="true">
+
+        <div id="circle_3" class="circle"
+             th:style="${colors} != null ? 'background: ' + ${colors['first']} + '; border: 0.3vmin solid ' + ${colors['second']} : ''"
+             th:text="${eleven} == null ? '' : (${eleven.players[__${positionForInputIdMap['input_3']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_3']}__].number} : '')">
+        </div>
+        <input id="input_3" type="text"
+               th:placeholder="${eleven} == null ? ${positionForInputIdMap['input_3']} : (${eleven.players[__${positionForInputIdMap['input_3']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_3']}__].lastName} : ${positionForInputIdMap['input_3']})"
+               readonly="true">
+
+
+        <div id="circle_4" class="circle"
+             th:style="${colors} != null ? 'background: ' + ${colors['first']} + '; border: 0.3vmin solid ' + ${colors['second']} : ''"
+             th:text="${eleven} == null ? '' : (${eleven.players[__${positionForInputIdMap['input_4']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_4']}__].number} : '')">
+        </div>
+
+        <input id="input_4" type="text"
+               th:placeholder="${eleven} == null ? ${positionForInputIdMap['input_4']} : (${eleven.players[__${positionForInputIdMap['input_4']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_4']}__].lastName} : ${positionForInputIdMap['input_4']})"
+               readonly="true">
+
+
+        <div id="circle_5" class="circle"
+             th:style="${colors} != null ? 'background: ' + ${colors['first']} + '; border: 0.3vmin solid ' + ${colors['second']} : ''"
+             th:text="${eleven} == null ? '' : (${eleven.players[__${positionForInputIdMap['input_5']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_5']}__].number} : '')">
+        </div>
+
+        <input id="input_5" type="text"
+               th:placeholder="${eleven} == null ? ${positionForInputIdMap['input_5']} : (${eleven.players[__${positionForInputIdMap['input_5']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_5']}__].lastName} : ${positionForInputIdMap['input_5']})"
+               readonly="true">
+
+
+        <div id="circle_6" class="circle"
+             th:style="${colors} != null ? 'background: ' + ${colors['first']} + '; border: 0.3vmin solid ' + ${colors['second']} : ''"
+             th:text="${eleven} == null ? '' : (${eleven.players[__${positionForInputIdMap['input_6']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_6']}__].number} : '')">
+        </div>
+        <input id="input_6" type="text"
+               th:placeholder="${eleven} == null ? ${positionForInputIdMap['input_6']} : (${eleven.players[__${positionForInputIdMap['input_6']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_6']}__].lastName} : ${positionForInputIdMap['input_6']})"
+               readonly="true">
+
+
+        <div id="circle_7" class="circle"
+             th:style="${colors} != null ? 'background: ' + ${colors['first']} + '; border: 0.3vmin solid ' + ${colors['second']} : ''"
+             th:text="${eleven} == null ? '' : (${eleven.players[__${positionForInputIdMap['input_7']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_7']}__].number} : '')">
+        </div>
+        <input id="input_7" type="text"
+               th:placeholder="${eleven} == null ? ${positionForInputIdMap['input_7']} : (${eleven.players[__${positionForInputIdMap['input_7']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_7']}__].lastName} : ${positionForInputIdMap['input_7']})"
+               readonly="true">
+
+
+        <div id="circle_8" class="circle"
+             th:style="${colors} != null ? 'background: ' + ${colors['first']} + '; border: 0.3vmin solid ' + ${colors['second']} : ''"
+             th:text="${eleven} == null ? '' : (${eleven.players[__${positionForInputIdMap['input_8']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_8']}__].number} : '')">
+        </div>
+        <input id="input_8" type="text"
+               th:placeholder="${eleven} == null ? ${positionForInputIdMap['input_8']} : (${eleven.players[__${positionForInputIdMap['input_8']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_8']}__].lastName} : ${positionForInputIdMap['input_8']})"
+               readonly="true">
+
+
+        <div id="circle_9" class="circle"
+             th:style="${colors} != null ? 'background: ' + ${colors['first']} + '; border: 0.3vmin solid ' + ${colors['second']} : ''"
+             th:text="${eleven} == null ? '' : (${eleven.players[__${positionForInputIdMap['input_9']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_9']}__].number} : '')">
+        </div>
+        <input id="input_9" type="text"
+               th:placeholder="${eleven} == null ? ${positionForInputIdMap['input_9']} : (${eleven.players[__${positionForInputIdMap['input_9']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_9']}__].lastName} : ${positionForInputIdMap['input_9']})"
+               readonly="true">
+
+
+        <div id="circle_10" class="circle"
+             th:style="${colors} != null ? 'background: ' + ${colors['first']} + '; border: 0.3vmin solid ' + ${colors['second']} : ''"
+             th:text="${eleven} == null ? '' : (${eleven.players[__${positionForInputIdMap['input_10']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_10']}__].number} : '')">
+        </div>
+        <input id="input_10" type="text"
+               th:placeholder="${eleven} == null ? ${positionForInputIdMap['input_10']} : (${eleven.players[__${positionForInputIdMap['input_10']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_10']}__].lastName} : ${positionForInputIdMap['input_10']})"
+               readonly="true">
+
+
+        <div id="circle_11" class="circle"
+             th:style="${colors} != null ? 'background: ' + ${colors['first']} + '; border: 0.3vmin solid ' + ${colors['second']} : ''"
+             th:text="${eleven} == null ? '' : (${eleven.players[__${positionForInputIdMap['input_11']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_11']}__].number} : '')">
+        </div>
+        <input id="input_11" type="text"
+               th:placeholder="${eleven} == null ? ${positionForInputIdMap['input_11']} : (${eleven.players[__${positionForInputIdMap['input_11']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_11']}__].lastName} : ${positionForInputIdMap['input_11']})"
+               readonly="true">
+    </div>
+</div>
+
+<div style="position:absolute; left: 150vmin; top: 15vmin">
+    <form action="#" th:action="@{/fm/loadSquad}" novalidate
+          method="post">
+
+        <h2 style="font-size: 1.75vmin; color: #ff4743">Saved formations</h2>
+        <select th:name="'loadedSquad'" style="height: 4vmin; text-align-last: center">
+            <option th:each="savedSquad : ${savedSquads}"
+                    th:value="${savedSquad.name}"
+                    th:text="${savedSquad.name}">
+            </option>
+        </select>
+        <button type="submit" class="btn btn-success">Load squad/formation</button>
+
+    </form>
+
+</div>
+<div style="position:absolute; left: 90vmin; top: 17.75vmin">
+
+    <form action="#" th:action="@{/fm/changeFormation}" novalidate
+          method="post">
+
+        <button type="submit" class="btn btn-success" style="margin-left: 7.5vmin;" th:text="'ChangeFormation'">
+            Change formation
+        </button>
+        <select th:name="'chosenFormation'" style="text-align-last: center; width: 20vmin; height:  4vmin">
+            <option style="direction: inherit" selected disabled hidden>Choose here</option>
+            <option style="text-align: center;" th:each="formation : ${formations}"
+                    th:value="${formation}"
+                    th:text="${formation.getNumber()}">
+            </option>
+        </select>
+    </form>
+</div>
+
+<div style="position: absolute; top: 39.5vmin; left:100vmin">
+    <form action="#" th:action="@{/fm/saveSquad}" th:object="${elevenPotential}" novalidate
+          method="post">
+        <h2 style="font-size: 3.75vmin; color: #ff4743;">Position &nbsp&nbsp&nbsp&nbsp <span style="color:#f0f600;">Player</span>
+        </h2>
+        <div th:each="pr, stat: *{players}">
+            <input id="position" style="background-color: transparent; border: 0; font-size: 1.75vmin" type="text"
+                   name="value" th:value="${pr.key}" readonly="true"
+                   th:style="${stat.odd}? 'background-color: transparent; border: 0; font-size: 1.75vmin; color: lightsalmon' : 'background-color: transparent; border: 0; font-size: 1.75vmin; color: yellow'"/>
+            <select th:field="*{players[__${pr.key}__]}"
+                    style="font-size: 1.75vmin; width: 20vmin; text-align-last: center;">
+                <option th:if="${eleven != null and eleven.players[__${pr.key}__] != null}"
+                        selected="selected" hidden th:value="${{eleven.players[__${pr.key}__].id}}"
+                        th:text="|${eleven.players[__${pr.key}__].firstName} ${eleven.players[__${pr.key}__].lastName}|"
+                ></option>
+                <option id="asd" th:each="player : ${playersForPosition[__${pr.key}__]}"
+                        th:value="${{player.id}}"
+                        th:text="|${player.firstName} ${player.lastName}|">
+                </option>
+            </select>
+
+        </div>
+
+        <div style="position: fixed;top: 50vmin; margin-left: 50vmin">
+            <h2 style="position: absolute; left: 7.5vmin; top: -10vmin;font-size: 3.75vmin; color: #ca2626">
+                Substitutions</h2>
+            <div th:each="pr, stat: *{substitutions}">
+                <input style="background-color: transparent; border: 0; font-size: 1.75vmin; position: relative;top: -100px; margin-left: -10vmin"
+                       type="text"
+                       name="value" th:value="${pr.key}" readonly="true"
+                       th:style="${stat.odd}? 'background-color: transparent; border: 0; font-size: 1.75vmin; color: lightsalmon' : 'background-color: transparent; border: 0; font-size: 1.75vmin; color: yellow'"/>
+                <select th:field="*{substitutions[__${pr.key}__]}"
+                        style=" font-size:1.75vmin; width: 20vmin; text-align-last: center">
+                    <option th:if="${eleven != null and eleven.substitutions[__${pr.key}__] != null}"
+                            hidden selected="selected"
+                            th:value="${{eleven.substitutions[__${pr.key}__].id}}"
+                            th:text="|${eleven.substitutions[__${pr.key}__].firstName} ${eleven.substitutions[__${pr.key}__].lastName}|"
+                    ></option>
+                    <option th:each="player : ${players}"
+                            th:value="${{player.id}}"
+                            th:text="|${player.firstName} ${player.lastName}|">
+                    </option>
+                </select>
+            </div>
+
+        </div>
+
+        <div style="position:fixed;left: 110vmin; font-size: 1.75vmin; float: bottom;" aria-level="40vmin;">
+            <button type="submit" class="btn btn-success">Save squad</button>
+            <input type="text" hidden th:name="'chosenFormation'" th:value="${chosenFormation}">
+            <input type="text" style="font-size: 1.75vmin" th:field="*{name}" placeholder="Squad name..">
+        </div>
+
+
+    </form>
+
+</div>
+
+<!--<div class="fixed-bottom" th:insert="fragments/footer.html :: footer"></div>-->
+
+
+<script th:src="@{/js/hourTime.js}"></script>
+</body>
+</html>

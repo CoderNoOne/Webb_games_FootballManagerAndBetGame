@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="/webjars/bootstrap/4.3.0/css/bootstrap.min.css"/>
+    <script src="/webjars/jquery/3.4.1/jquery.min.js"></script>
+    <script src="/webjars/bootstrap/4.3.0/js/bootstrap.min.js"></script>
+    <meta charset="UTF-8">
+    <title>League Schedule</title>
+    <style>
+
+        .main1 {
+            width: 80vw;
+            height: 90vh;
+            margin: auto;
+            position: relative;
+            top: 4vh;
+            font-family: 'Oswald', sans-serif
+        }
+
+        .main2 {
+            width: 80vw;
+            height: 90vh;
+            margin: auto;
+            background-color: #9e9e9e;
+            color: white;
+            padding: 0.5vw
+        }
+
+
+        .logo {
+            width: 2vw;
+            height: 2vw
+        }
+
+
+        @media only screen and (max-width: 425px) {
+
+            .main1,
+            .main2 {
+                width: 100vw;
+                height: 220vw
+            }
+
+            .logo {
+                height: 6vw;
+                width: 6vw
+            }
+
+            .cssTable td {
+                text-align: center;
+                vertical-align: middle;
+            }
+
+
+            .paddingBetweenCols td {
+                padding: 0.5vw 3vw;
+            }
+        }
+
+
+    </style>
+</head>
+<body th:style="|background-image:url(${session.backgroundUrl});|">
+
+
+<nav class="navbar navbar-expand-lg" style=" color: darkgoldenrod ;font-size: 2vmin">
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/fm/leagueBoard}" style="color: darkgoldenrod">Back</a>
+            </li>
+
+            <li style="justify-items: right; font-size: 1.5vmin;position:absolute; right: 5vmin">
+                <h2 id="c_t"
+                    th:text="${#dates.createNow().getHours() + ':' + #dates.createNow().getMinutes() + ':' + #dates.createNow().getSeconds()}"></h2>
+
+            </li>
+        </ul>
+    </div>
+</nav>
+
+
+<div class="main1" style="text-align: center">
+
+    <h2 style="text-align: center">Finished matches</h2>
+    <div class="main2 table-responsive">
+
+        <nav aria-label="Page navigation example">
+            <ul class="pagination pg-blue">
+                <li class="page-item"><a class="page-link" th:href="@{/admin(custom)}">Finished</a></li>
+                <li class="page-item"><a class="page-link" th:href="@{/admin(national)}">Scheduled</a></li>
+            </ul>
+        </nav>
+
+        <table class="table" style="border: none;">
+            <tbody>
+            <tr th:each="entry, iStat : ${scheduledMatchesPerMatchDay}">
+                <td style="justify-content: center" th:text="|Matchday: ${entry.key}|"></td>
+                <td th:text="|UTC Date: ${#temporals.format(entry.value.get(0).dateTime, 'dd-MM-yyyy, HH:mm | EEE')}|"></td>
+
+                <td style="text-align: center">
+                    <table class="paddingBetweenCols" style="border: 0; margin-left: auto; margin-right: auto">
+                        <tr th:each="match, stat : ${entry.value}" style="border: 0">
+                            <td style="border: 0"><img class="logo" th:src="${match.homeTeam.logoUrl}"
+                                                       alt="homeTeamLogo"></td>
+                            <td th:text="|${match.homeTeam.name} vs ${match.awayTeam.name}|"></td>
+                            <td><img class="logo" th:src="${match.awayTeam.logoUrl}" alt="awayTeamLogo"></td>
+                        </tr>
+                    </table>
+                    </center>
+                </td>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div th:insert="fragments/footer.html :: footer"></div>
+<script th:src="@{/js/hourTime.js}"></script>
+</body>
+</html>

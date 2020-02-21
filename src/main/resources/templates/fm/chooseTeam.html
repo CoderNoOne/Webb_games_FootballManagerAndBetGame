@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+    <meta charset="UTF-8">
+    <title>Welcome to football manager</title>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg" style=" color: darkgoldenrod ;font-size: 2vmin">
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/userPage}" style="color: burlywood">Back to user page</a>
+            </li>
+
+            <li style="justify-items: right; font-size: 1.5vmin;position:absolute; right: 5vmin">
+                <h2 id="c_t"
+                    th:text="${#dates.createNow().getHours() + ':' + #dates.createNow().getMinutes() + ':' + #dates.createNow().getSeconds()}"></h2>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container">
+
+    <div th:if="${noTeams != null and requestSend == null and requestToShort == null}"
+         class="alert alert-info text-center"
+         role="alert" th:text="${noTeams}">
+    </div>
+
+    <div th:if="${requestSend}" class="alert alert-info text-center"
+         role="alert" th:text="${requestSend}">
+    </div>
+
+    <div th:if="${requestToShort}" class="alert alert-danger text-center"
+         role="alert" th:text="${requestToShort}">
+    </div>
+
+    <div th:if="${teamNotSelected}" class="alert alert-info text-center"
+         role="alert" th:text="${teamNotSelected}">
+    </div>
+
+    <div class="row">
+        <div th:if="${noTeams}">
+            <form method="post" th:action="@{/fm/sendRequestToAdmin}">
+                <center><label class="mt-4 text-center" for="area" style="color: goldenrod;">WRITE A REQUEST</label>
+                </center>
+
+                <textarea name="request" id="area" cols="120" rows="10" placeholder="your request to admin" wrap="soft"
+                          autofocus>
+   </textarea>
+                <center>
+                    <button class="btn btn-info mt-3" type="submit">SEND</button>
+                </center>
+            </form>
+        </div>
+    </div>
+    <h1 class="text-center mt-2" style="color: mediumvioletred" th:unless="${noTeams}">Pick a team</h1>
+
+
+    <div th:unless="${noTeams}" class="table-responsive mt-5" style="text-align: center">
+
+
+        <form th:object="${chooseTeam}" method="post" th:action="@{/fm/chooseTeam}">
+            <table class="table table-hover" style="margin-bottom: 5vmin">
+                <thead class="thead-inverse">
+                <tr style="background-color: #f0f600; color: #0000EE">
+                    <td>Game ID</td>
+                    <td>League name</td>
+                    <td style="text-align: center">Teams and their Users</td>
+                    <td>Choose your team</td>
+                </tr>
+
+                <tr style="color: #ca2626;" th:each="entry, iStat: ${chooseTeam.leagueIdTeamId}">
+
+                    <td th:text="${leaguesInfo[__${entry.key}__].gameId}">Game id</td>
+                    <td th:text="${leaguesInfo[__${entry.key}__].name}">League name</td>
+                    <td>
+
+                        <table class="table">
+                            <tr th:each="team, stat : ${alreadySelectedTeams[__${entry.key}__]}">
+                                <td style="border-top: none"
+                                    th:text="|${team.name} by ${team.username}  |"></td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td th:style="${iStat.odd}? 'color: lightsalmon' : 'color: yellow'">
+                        <select th:field="*{leagueIdTeamId[__${entry.key}__]}" style="height: 4vmin; text-indent: 40%">
+                            <option th:unless="${teamsToSelect[__${entry.key}__].isEmpty()}" class="text-center"
+                                    style="direction: ltr; text-indent: 1vmin" selected disabled
+                                    th:value="''">Pick one
+                            </option>
+                            <option th:if="${teamsToSelect[__${entry.key}__].isEmpty()}" disabled selected="selected"
+                                    th:value="''">ALL TEAMS SELECTED
+                            </option>
+                            <option th:unless="${teamsToSelect[__${entry.key}__].isEmpty()}"
+                                    th:each="team : ${teamsToSelect[__${entry.key}__]}"
+                                    th:value="${team.id}"
+                                    th:text="${team.name}">
+                            </option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <div class="row">
+                <div class="col-6 offset-3" style="font-size: 1.75vmin " aria-level="40vmin;">
+                    <button type="submit" class="btn btn-success mb-2">Become a manager</button>
+                </div>
+            </div>
+        </form>
+
+    </div>
+
+    <div class="fixed-bottom" th:insert="fragments/footer.html :: footer"></div>
+
+</div>
+
+<script th:src="@{/js/hourTime.js}"></script>
+</body>
+</html>

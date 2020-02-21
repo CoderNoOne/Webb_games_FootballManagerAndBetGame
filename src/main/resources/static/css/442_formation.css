@@ -1,0 +1,186 @@
+.ff2 > #circle_1.circle {
+    left: 20vmin;
+    top: 8vmin;
+}
+
+.ff2 > #circle_2.circle {
+    left: 33vmin;
+    top: 1.5vmin;
+}
+
+.ff2 > #circle_3.circle {
+    left: 5vmin;
+    top: 17.5vmin;
+}
+
+.ff2 > #circle_4.circle {
+    left: 18.5vmin;
+    top: 11.5vmin;
+}
+
+.ff2 > #circle_5.circle {
+    left: 35vmin;
+    top: 5vmin;
+}
+
+.ff2 > #circle_6.circle {
+    left: 48.5vmin;
+    top: -1.5vmin;
+}
+
+.ff2 > #circle_7.circle {
+    left: 48.5vmin;
+    top: 20vmin;
+}
+
+.ff2 > #circle_8 {
+    left: 5vmin;
+    top: 14vmin;
+}
+
+.ff2 > #circle_9.circle {
+    left: 18.5vmin;
+    top: 10vmin;
+}
+
+.ff2 > #circle_10.circle {
+    left: 32.5vmin;
+    top: 3.5vmin;
+}
+
+.ff2 > #circle_11.circle {
+    left: 26.5vmin;
+    top: 6vmin;
+}
+
+.ff2 > #input_1 {
+    font-size: 1.5vmin;
+    border: 0;
+    background: transparent;
+    width: 13vmin;
+    height: 2.5vmin;
+    text-align: center;
+    position: absolute;
+    top: 14.5vmin;
+    left: 16vmin;
+}
+
+.ff2 > #input_2 {
+    font-size: 1.5vmin;
+    border: 0;
+    background: transparent;
+    width: 13vmin;
+    height: 2.5vmin;
+    text-align: center;
+    position: absolute;
+    left: 30vmin;
+    top: 14.5vmin;
+}
+
+.ff2 > #input_3 {
+    font-size: 1.75vmin;
+    border: 0;
+    background: transparent;
+    width: 13vmin;
+    height: 2.5vmin;
+    text-align: center;
+    position: absolute;
+    top: 36.5vmin;
+    left: 1.5vmin;
+}
+
+.ff2 > #input_4 {
+    font-size: 1.5vmin;
+    border: 0;
+    background: transparent;
+    width: 13vmin;
+    height: 2.5vmin;
+    text-align: center;
+    position: absolute;
+    left: 15vmin;
+    top: 37.5vmin;
+}
+
+.ff2 > #input_5 {
+    font-size: 1.5vmin;
+    border: 0;
+    background: transparent;
+    width: 13vmin;
+    height: 2.5vmin;
+    text-align: center;
+    position: absolute;
+    left: 31.5vmin;
+    top: 37.5vmin;
+}
+
+.ff2 > #input_6 {
+    font-size: 1.5vmin;
+    border: 0;
+    background: transparent;
+    width: 13vmin;
+    height: 2.5vmin;
+    text-align: center;
+    position: absolute;
+    left: 45vmin;
+    top: 37vmin;
+}
+
+.ff2 > #input_7 {
+    font-size: 1.5vmin;
+    border: 0;
+    background: transparent;
+    width: 13vmin;
+    height: 2.5vmin;
+    text-align: center;
+    position: absolute;
+    left: 45vmin;
+    top: 65vmin;
+}
+
+.ff2 > #input_8 {
+    font-size: 1.5vmin;
+    border: 0;
+    background: transparent;
+    width: 13vmin;
+    height: 2.5vmin;
+    text-align: center;
+    position: absolute;
+    left: 1.5vmin;
+    top: 65vmin;
+}
+
+.ff2 > #input_9 {
+    font-size: 1.5vmin;
+    border: 0;
+    background: transparent;
+    width: 13vmin;
+    height: 2.5vmin;
+    text-align: center;
+    position: absolute;
+    left: 15vmin;
+    top: 67.5vmin;
+}
+
+.ff2 > #input_10 {
+    font-size: 1.5vmin;
+    border: 0;
+    background: transparent;
+    width: 13vmin;
+    height: 2.5vmin;
+    text-align: center;
+    position: absolute;
+    left: 29vmin;
+    top: 67.5vmin;
+}
+
+.ff2 > #input_11 {
+    font-size: 1.5vmin;
+    border: 0;
+    background: transparent;
+    width: 13vmin;
+    height: 2.5vmin;
+    text-align: center;
+    position: absolute;
+    left: 23vmin;
+    top: 76.5vmin;
+}

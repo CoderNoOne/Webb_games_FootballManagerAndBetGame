@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="/webjars/bootstrap/4.3.0/css/bootstrap.min.css"/>
+    <script src="/webjars/jquery/3.4.1/jquery.min.js"></script>
+    <script src="/webjars/bootstrap/4.3.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/442_formation.css}">
+    <link rel="stylesheet" th:href="@{/css/352_formation.css}">
+    <link rel="stylesheet" th:href="@{/css/formation_general.css}">
+    <meta charset="UTF-8">
+    <title>Match Centre</title>
+    <style>
+
+        body {
+            background-image: url("https://wallpapercave.com/wp/wp2011137.jpg");
+            background-size: cover;
+        }
+
+        .main1 {
+            width: 70vw;
+            height: 90vh;
+            margin: auto;
+            position: relative;
+            top: 4vh;
+            font-family: 'Oswald', sans-serif
+        }
+
+        .main2 {
+            width: 70vw;
+            height: 90vh;
+            margin-left: auto;
+            background-color: #9e9e9e;
+            color: white;
+            padding: 0.5vw
+        }
+
+        .flag {
+            width: 5vw;
+            height: 3vw;
+            position: relative;
+            bottom: 0.5vw
+        }
+
+        .pt {
+            font-size: 2vw
+        }
+
+        table {
+            color: white
+        }
+
+        .logo {
+            width: 2vw;
+            height: 2vw
+        }
+
+        td {
+            text-align: center
+        }
+
+        .name {
+            text-align: left
+        }
+
+        thead {
+            background-color: red;
+            border-bottom: 2px solid red
+        }
+
+        .top {
+            background-color: rgb(0, 255, 0, 0.5)
+        }
+
+        .top .logo {
+            animation-name: four;
+            animation-duration: 2s;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite
+        }
+
+        @keyframes four {
+            0% {
+                position: relative;
+                right: 0vw
+            }
+
+            50% {
+                position: relative;
+                right: 2vw
+            }
+
+            100% {
+                position: relative;
+                right: 0vw
+            }
+        }
+
+        @media only screen and (max-width: 425px) {
+
+            .main1,
+            .main2 {
+                width: 100vw;
+                height: 220vw
+            }
+
+            .name {
+                font-size: 4vw
+            }
+
+            .logo {
+                height: 6vw;
+                width: 6vw
+            }
+
+            h2 {
+                font-size: 8vw
+            }
+
+            .flag {
+                width: 10vw;
+                height: 6vw;
+                position: relative;
+                bottom: 1vw
+            }
+
+            .pt {
+                font-size: 5vw
+            }
+        }
+
+        .circle {
+            width: 6.4vmin;
+            height: 6.4vmin;
+            border-radius: 50%;
+            font-size: 3.84vmin;
+            color: #fff;
+            line-height: 6.4vmin;
+            text-align: center;
+            background: #000;
+            border: 0.3vmin solid #73AD21;
+            position: relative;
+        }
+
+        .pitch {
+            background: linear-gradient(
+                    to bottom,
+                    #5d9634,
+                    #5d9634 50%,
+                    #538c2b 50%,
+                    #538c2b
+            );
+            top: 5vmin;
+            bottom: 20vmin;
+            left: 10vmin;
+            background-size: 100% 16vmin;
+            border: solid 0.2vmin #fff;
+            height: 80vmin;
+            position: relative;
+            width: 60vmin;
+
+        }
+
+        .top-box {
+            border: solid 0.1vmin #fff;
+            bottom: 70vmin;
+            left: 20vmin;
+            position: absolute;
+            right: 20vmin;
+            top: 0;
+        }
+
+        .bottom-box {
+            border: solid 0.1vmin #fff;
+            bottom: 0;
+            left: 20vmin;
+            position: absolute;
+            right: 20vmin;
+            top: 70vmin;
+        }
+
+        .centre-circle {
+            border: solid 0.1vmin #fff;
+            border-radius: 100%;
+            bottom: /*40vmin*/ 35vmin;
+            left: 25vmin;
+            position: absolute;
+            right: 25vmin;
+            top: 35vmin;
+        }
+
+        .centre-line {
+            border-bottom: solid 0.1vmin #fff;
+            bottom: 50vmin;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 40vmin;
+        }
+
+        /*foooter*/
+
+        .footer {
+
+            height: 24px;
+            width: 100%;
+            background-repeat: repeat;
+            background-attachment: scroll;
+            background-position: 0% 0%;
+            position: fixed;
+            bottom: 0pt;
+            left: 0pt;
+
+        }
+
+        .footer_content {
+
+            height: 24px;
+            width: 1000px;
+            margin: auto;
+
+        }
+
+    </style>
+</head>
+<body th:style="|background-image:url(${session.backgroundUrl});|" style="margin-bottom: 50vmin">
+
+<nav class="navbar navbar-expand-lg" style=" color: darkgoldenrod ;font-size: 2vmin">
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/fm/upcomingMatches}" style="color: burlywood">Back to match center</a>
+            </li>
+
+            <li style="justify-items: right; font-size: 1.5vmin;position:absolute; right: 5vmin">
+                <h2 id="c_t"
+                    th:text="${#dates.createNow().getHours() + ':' + #dates.createNow().getMinutes() + ':' + #dates.createNow().getSeconds()}"></h2>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<h1 class="text-center mt-5" style="color: #ca2626">Match Centre</h1>
+
+<div class="main1">
+    <div class="main2 mb-5">
+        <div class="pitch">
+            <div class="top-box"></div>
+            <div class="centre-circle"></div>
+            <div class="centre-line"></div>
+            <div class="bottom-box"></div>
+
+            <div th:if="${notValidSquad}" class="alert alert-danger text-center"
+                 th:text="${notValidSquad}"></div>
+
+            <div th:if="${eleven != null and positionForInputIdMap != null}"
+                 th:class="${chosenFormation.getCssClassName()}">
+
+                <div id="circle_1" class="circle"
+                     th:style="${colors} != null ? 'background: ' + ${colors['first']} + '; border: 0.3vmin solid ' + ${colors['second']} : ''"
+                     th:text="${eleven} == null ? '' : (${eleven.players[__${positionForInputIdMap['input_1']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_1']}__].number} : '')">
+                </div>
+                <input id="input_1" type="text" readonly="true"
+                       th:placeholder="${eleven} == null ? ${positionForInputIdMap['input_1']} : (${eleven.players[__${positionForInputIdMap['input_1']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_1']}__].lastName} : ${positionForInputIdMap['input_1']})">
+
+                <div id="circle_2" class="circle"
+                     th:style="${colors} != null ? 'background: ' + ${colors['first']} + '; border: 0.3vmin solid ' + ${colors['second']} : ''"
+                     th:text="${eleven} == null ? '' : (${eleven.players[__${positionForInputIdMap['input_2']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_2']}__].number} : '')">
+                </div>
+                <input id="input_2" type="text"
+                       th:placeholder="${eleven} == null ? ${positionForInputIdMap['input_2']} : (${eleven.players[__${positionForInputIdMap['input_2']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_2']}__].lastName} : ${positionForInputIdMap['input_2']})"
+                       readonly="true">
+
+                <div id="circle_3" class="circle"
+                     th:style="${colors} != null ? 'background: ' + ${colors['first']} + '; border: 0.3vmin solid ' + ${colors['second']} : ''"
+                     th:text="${eleven} == null ? '' : (${eleven.players[__${positionForInputIdMap['input_3']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_3']}__].number} : '')">
+                </div>
+                <input id="input_3" type="text"
+                       th:placeholder="${eleven} == null ? ${positionForInputIdMap['input_3']} : (${eleven.players[__${positionForInputIdMap['input_3']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_3']}__].lastName} : ${positionForInputIdMap['input_3']})"
+                       readonly="true">
+
+
+                <div id="circle_4" class="circle"
+                     th:style="${colors} != null ? 'background: ' + ${colors['first']} + '; border: 0.3vmin solid ' + ${colors['second']} : ''"
+                     th:text="${eleven} == null ? '' : (${eleven.players[__${positionForInputIdMap['input_4']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_4']}__].number} : '')">
+                </div>
+
+                <input id="input_4" type="text"
+                       th:placeholder="${eleven} == null ? ${positionForInputIdMap['input_4']} : (${eleven.players[__${positionForInputIdMap['input_4']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_4']}__].lastName} : ${positionForInputIdMap['input_4']})"
+                       readonly="true">
+
+
+                <div id="circle_5" class="circle"
+                     th:style="${colors} != null ? 'background: ' + ${colors['first']} + '; border: 0.3vmin solid ' + ${colors['second']} : ''"
+                     th:text="${eleven} == null ? '' : (${eleven.players[__${positionForInputIdMap['input_5']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_5']}__].number} : '')">
+                </div>
+
+                <input id="input_5" type="text"
+                       th:placeholder="${eleven} == null ? ${positionForInputIdMap['input_5']} : (${eleven.players[__${positionForInputIdMap['input_5']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_5']}__].lastName} : ${positionForInputIdMap['input_5']})"
+                       readonly="true">
+
+
+                <div id="circle_6" class="circle"
+                     th:style="${colors} != null ? 'background: ' + ${colors['first']} + '; border: 0.3vmin solid ' + ${colors['second']} : ''"
+                     th:text="${eleven} == null ? '' : (${eleven.players[__${positionForInputIdMap['input_6']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_6']}__].number} : '')">
+                </div>
+                <input id="input_6" type="text"
+                       th:placeholder="${eleven} == null ? ${positionForInputIdMap['input_6']} : (${eleven.players[__${positionForInputIdMap['input_6']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_6']}__].lastName} : ${positionForInputIdMap['input_6']})"
+                       readonly="true">
+
+
+                <div id="circle_7" class="circle"
+                     th:style="${colors} != null ? 'background: ' + ${colors['first']} + '; border: 0.3vmin solid ' + ${colors['second']} : ''"
+                     th:text="${eleven} == null ? '' : (${eleven.players[__${positionForInputIdMap['input_7']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_7']}__].number} : '')">
+                </div>
+                <input id="input_7" type="text"
+                       th:placeholder="${eleven} == null ? ${positionForInputIdMap['input_7']} : (${eleven.players[__${positionForInputIdMap['input_7']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_7']}__].lastName} : ${positionForInputIdMap['input_7']})"
+                       readonly="true">
+
+
+                <div id="circle_8" class="circle"
+                     th:style="${colors} != null ? 'background: ' + ${colors['first']} + '; border: 0.3vmin solid ' + ${colors['second']} : ''"
+                     th:text="${eleven} == null ? '' : (${eleven.players[__${positionForInputIdMap['input_8']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_8']}__].number} : '')">
+                </div>
+                <input id="input_8" type="text"
+                       th:placeholder="${eleven} == null ? ${positionForInputIdMap['input_8']} : (${eleven.players[__${positionForInputIdMap['input_8']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_8']}__].lastName} : ${positionForInputIdMap['input_8']})"
+                       readonly="true">
+
+
+                <div id="circle_9" class="circle"
+                     th:style="${colors} != null ? 'background: ' + ${colors['first']} + '; border: 0.3vmin solid ' + ${colors['second']} : ''"
+                     th:text="${eleven} == null ? '' : (${eleven.players[__${positionForInputIdMap['input_9']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_9']}__].number} : '')">
+                </div>
+                <input id="input_9" type="text"
+                       th:placeholder="${eleven} == null ? ${positionForInputIdMap['input_9']} : (${eleven.players[__${positionForInputIdMap['input_9']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_9']}__].lastName} : ${positionForInputIdMap['input_9']})"
+                       readonly="true">
+
+
+                <div id="circle_10" class="circle"
+                     th:style="${colors} != null ? 'background: ' + ${colors['first']} + '; border: 0.3vmin solid ' + ${colors['second']} : ''"
+                     th:text="${eleven} == null ? '' : (${eleven.players[__${positionForInputIdMap['input_10']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_10']}__].number} : '')">
+                </div>
+                <input id="input_10" type="text"
+                       th:placeholder="${eleven} == null ? ${positionForInputIdMap['input_10']} : (${eleven.players[__${positionForInputIdMap['input_10']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_10']}__].lastName} : ${positionForInputIdMap['input_10']})"
+                       readonly="true">
+
+
+                <div id="circle_11" class="circle"
+                     th:style="${colors} != null ? 'background: ' + ${colors['first']} + '; border: 0.3vmin solid ' + ${colors['second']} : ''"
+                     th:text="${eleven} == null ? '' : (${eleven.players[__${positionForInputIdMap['input_11']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_11']}__].number} : '')">
+                </div>
+                <input id="input_11" type="text"
+                       th:placeholder="${eleven} == null ? ${positionForInputIdMap['input_11']} : (${eleven.players[__${positionForInputIdMap['input_11']}__]} != null  ?
+                ${eleven.players[__${positionForInputIdMap['input_11']}__].lastName} : ${positionForInputIdMap['input_11']})"
+                       readonly="true">
+            </div>
+        </div>
+
+        <div style="position: relative; margin-left: 80vmin; margin-top: -75vmin; text-align: center">
+
+            <h2 style="font-size: 2vmin; font-weight: bold; margin-right: auto; margin-left: auto">
+                Remaining time to match start: <span style="color: #ca2626" id="demo"></span></h2>
+
+            <div th:if="${noFormationSelected}" class="alert alert-danger"
+                 role="alert" th:text="${noFormationSelected}"></div>
+            <form th:action="@{'/fm/setStartingSquad/' + ${matchId}}" novalidate method="post">
+
+                <div class="jumbotron">
+                    <h2 style="font-weight:bolder; font-size: large; color: #ff4743; margin-left: auto; margin-right: auto; margin-bottom: 5vmin">
+                        SAVED FORMATIONS</h2>
+
+                    <div>
+                        <div class="form-group" style="margin-right: auto; margin-left: auto">
+                            <label style="color: #0000EE; font-weight: bolder">FORMATION: </label>
+                            <select th:name="'loadedSquad'"
+                                    style="height: 6vmin; width: 25vmin;margin-right: 5vmin; text-align-last: center">
+                                <option style="direction: inherit" selected disabled hidden>Choose formation</option>
+                                <option th:each="savedSquad : ${savedSquads}"
+                                        th:value="${savedSquad.name}"
+                                        th:text="${savedSquad.name}">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+
+                <button type="submit" class="btn btn-info"
+                        style="width: 25vmin; margin-left: auto; margin-right: auto">Load
+                    squad/formation
+                </button>
+
+            </form>
+        </div>
+
+
+    </div>
+
+    <div class="mt-3 mb-2" th:insert="fragments/footer.html :: footer"></div>
+
+<script>
+    let matchDate = "[[${matchDate}]]";
+</script>
+    <script th:src="@{/js/hourTime.js}"></script>
+    <script th:src="@{/js/timeLeftToMatch.js}"></script>
+
+</div>
+</body>
+</html>

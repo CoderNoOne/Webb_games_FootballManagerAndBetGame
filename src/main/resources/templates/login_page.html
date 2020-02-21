@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/4.3.0/css/bootstrap.min.css"/>
+    <script src="/webjars/jquery/3.4.1/jquery.min.js"></script>
+    <script src="/webjars/bootstrap/4.3.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg" style=" color: darkgoldenrod ;font-size: large">
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link align-text-top" href="/home" style=" color: darkgoldenrod">Home <span
+                        class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/register" style="color: burlywood">Register</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/login" style="color:darkseagreen;">Login</a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="/register" style="color: darkviolet" id="navbarDropdown"
+                   role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    About
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="#">About game</a>
+                    <a class="dropdown-item" href="#">Source code</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#">Something else here</a>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Community</a>
+            </li>
+        </ul>
+<!--        <form class="form-inline my-2 my-lg-0">-->
+<!--            <input class="form-control mr-sm-2" type="search" disabled placeholder="Search" aria-label="Search">-->
+<!--            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>-->
+<!--        </form>-->
+    </div>
+</nav>
+<br>
+<br>
+<h2 class="animated bounce infinite mb-5 text-center text-uppercase " style="color: greenyellow ">Football fanatics
+    manager </h2>
+<br>
+<br>
+<div class="container">
+    <div class="d-flex justify-content-center h-100 mb-5">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-center" style="color: darkgoldenrod">Sign In</h3>
+            </div>
+            <div class="card-body">
+                <form name="login" class="align-content-center" th:action="@{/login}" method="post">
+
+                    <div class="alert alert-danger col-xs-offset-1 col-xs-10" th:if="${param.expired}">
+                        Your session has been expired
+                    </div>
+
+                    <div class="alert alert-danger col-xs-offset-1 col-xs-10" th:if="${param.sessionExists}">
+                        There is a session already for user
+                    </div>
+
+                    <div class="alert alert-success col-xs-offset-1 col-xs-10" th:if="${param.logout}">
+                        You have been logged out
+                    </div>
+
+
+                    <div class="alert alert-danger col-xs-offset-1 col-xs-10" th:if="${param.error}">
+                        Invalid username or password.
+                    </div>
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        </div>
+                        <input name="nick" type="text" class="form-control" placeholder="username"
+                               th:required="required">
+
+                    </div>
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-key"></i></span>
+                        </div>
+                        <input name="pass" class="form-control" type="password" placeholder="password"
+                               th:required="required">
+                    </div>
+
+                    <div class="input-group form-group">
+                        <label for="remember" class="form-check-label">Remember me?</label>
+                        <input name="remember-param" type="checkbox" id="remember"
+                        >
+                    </div>
+
+                    <div class="form-group col-5 offset-3">
+                        <input style="color: darkgoldenrod" type="submit" value="Login"
+                               class="btn float-right login_btn">
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer">
+                <div class="d-flex justify-content-center links text-center">
+                    Don't have an account?<a href="/register">&nbspSign Up</a>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <a target="_blank" href="/forgotPassword"
+                       onclick="popUpWindow(this.href, 'Password Recovery', 800,600);return false;">
+                        Forgot your password?
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="fixed-bottom" th:insert="fragments/footer.html :: footer"></div>
+
+<script type="text/javascript">
+
+    const popUpWindow = (url, title, w, h) => {
+        const left = (screen.width / 2) - (w / 2);
+        const top = (screen.height / 2) - (h / 2);
+        return window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=0, copyhistory=no, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
+    };
+</script>
+</body>
+</html>

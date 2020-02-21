@@ -1,0 +1,107 @@
+/** {
+    box-sizing:border-box;
+}*/
+
+body {
+    background-image: url("/images/cl.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    margin: 0;
+    padding: 0;
+
+}
+
+.circle {
+    width: 6.4vmin;
+    height: 6.4vmin;
+    border-radius: 50%;
+    font-size: 3.84vmin;
+    color: #fff;
+    line-height: 6.4vmin;
+    text-align: center;
+    background: #000;
+    border: 0.3vmin solid #73AD21;
+    position: relative;
+}
+
+.pitch {
+    background: linear-gradient(
+            to bottom,
+            #5d9634,
+            #5d9634 50%,
+            #538c2b 50%,
+            #538c2b
+    );
+    top: 5vmin;
+    bottom: 20vmin;
+    left: 20vmin;
+    background-size: 100% 16vmin;
+    border:solid 0.2vmin #fff;
+    height: 80vmin;
+    position:relative;
+    width:60vmin;
+
+}
+
+.top-box {
+    border:solid 0.1vmin #fff;
+    bottom:70vmin;
+    left:20vmin;
+    position:absolute;
+    right:20vmin;
+    top:0;
+}
+
+/*.top-box:before {*/
+/*    border-bottom:solid 1px #fff;*/
+/*    border-left:solid 1px #fff;*/
+/*    border-right:solid 1px #fff;*/
+/*    border-radius:10vmin 10vmin 5vmin 5vmin;*/
+/*    bottom:-5vmin;*/
+/*    content:"";*/
+/*    height:5vmin;*/
+/*    left:10vmin;*/
+/*    position:absolute;*/
+/*    right:10vmin;*/
+/*}*/
+
+.bottom-box {
+    border:solid 0.1vmin #fff;
+    bottom:0;
+    left:20vmin;
+    position:absolute;
+    right:20vmin;
+    top:70vmin;
+}
+
+/*.bottom-box:before {*/
+/*    border-left:solid 1px #fff;*/
+/*    border-right:solid 1px #fff;*/
+/*    border-top:solid 1px #fff;*/
+/*    border-radius:15vmin 15vmin 0 0;*/
+/*    content:"";*/
+/*    height:5vmin;*/
+/*    left:10vmin;*/
+/*    position:absolute;*/
+/*    right:10vmin;*/
+/*    top:-5vmin;*/
+/*}*/
+
+.centre-circle {
+    border:solid 0.1vmin #fff;
+    border-radius:100%;
+    bottom:/*40vmin*/ 35vmin ;
+    left:25vmin;
+    position:absolute;
+    right:25vmin;
+    top:35vmin;
+}
+
+.centre-line {
+    border-bottom:solid 0.1vmin #fff;
+    bottom:50vmin;
+    left:0;
+    position:absolute;
+    right:0;
+    top:40vmin;
+}

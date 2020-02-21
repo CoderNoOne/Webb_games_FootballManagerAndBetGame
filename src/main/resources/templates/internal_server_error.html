@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Internal Server Error</title>
+    <style>
+        body {
+            background: url("https://tagn.files.wordpress.com/2013/09/eve500error.png");
+            background-size: cover;
+        }
+    </style>
+</head>
+<body>
+<h1>Too many request. Wait and try again, <span sec:authentication="name"></span></h1>
+</body>
+</html>
