@@ -29,7 +29,6 @@ public class MatchSquad {
     private Formation formation;
 
     private String formationName;
-
     private Integer substitutionsAvailable;
 
     @ManyToMany
@@ -39,11 +38,5 @@ public class MatchSquad {
     @MapKeyColumn(name = "position")
     private Map<String, Player> players;
 
-    @Enumerated(EnumType.STRING)
-    private Attitude attitude;
-
-    @Enumerated(EnumType.STRING)
-    private AggressionLevel aggressionLevel;
-
-    private LocalDateTime lastSaveTime;
+//    private LocalDateTime lastSaveTime;
 }

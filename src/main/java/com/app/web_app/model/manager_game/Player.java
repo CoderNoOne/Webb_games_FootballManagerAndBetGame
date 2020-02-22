@@ -4,7 +4,6 @@ import com.app.web_app.model.manager_game.enums.Position;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -12,7 +11,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-//@Table(name = "players")
+@Table(name = "players")
 public class Player {
 
     @Id
@@ -31,14 +30,6 @@ public class Player {
     @Enumerated(EnumType.STRING)
     private Set<Position> positions;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    @JoinColumn(name = "player_stats_id")
-    private PlayerStats playerStats;
-
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    @JoinColumn(name = "health_card_id")
-    private HealthCard healthCard;
-
     @ManyToOne
     @JoinColumn(name = "country_id")
     private Country country;
@@ -51,15 +42,5 @@ public class Player {
 
     @OneToOne(mappedBy = "player", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private PlayerAttributes playerAttributes;
-
-    @OneToMany(mappedBy = "player", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private List<Transfer> transfers;
-
-    @OneToMany(mappedBy = "player", cascade = CascadeType.PERSIST)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    List<PlayerStatsPerMatch> playerStatsPerMatches;
 
 }

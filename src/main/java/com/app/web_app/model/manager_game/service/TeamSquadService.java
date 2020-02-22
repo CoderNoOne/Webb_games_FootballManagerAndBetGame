@@ -1,6 +1,6 @@
 package com.app.web_app.model.manager_game.service;
 
-import com.app.web_app.model.manager_game.TeamSquad;
+import com.app.web_app.model.manager_game.TeamStartingSquad;
 import com.app.web_app.model.manager_game.dto.TeamDto;
 import com.app.web_app.model.manager_game.dto.TeamSquadDto;
 import com.app.web_app.model.manager_game.mapper.ManagerMapper;
@@ -32,7 +32,7 @@ public class TeamSquadService {
 
     public TeamSquadDto save(TeamSquadDto teamSquadDto) {
 
-        AtomicReference<TeamSquad> teamSquadReference = new AtomicReference<>();
+        AtomicReference<TeamStartingSquad> teamSquadReference = new AtomicReference<>();
 
         teamSquadRepository
                 .findByTeamId(teamSquadDto.getTeamDto().getId())

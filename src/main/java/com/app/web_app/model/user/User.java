@@ -1,5 +1,6 @@
 package com.app.web_app.model.user;
 
+import com.app.web_app.model.bet_game.BetPoints;
 import com.app.web_app.model.bet_game.ScoreEntity;
 import com.app.web_app.model.manager_game.Game;
 import com.app.web_app.model.manager_game.Team;
@@ -26,12 +27,8 @@ public class User {
     @Id
     private String username;
 
-    @Pattern(regexp = "[A-Z][a-z]+", message = "first name should start with a capital letter Abc")
-    @Size(min = 2, max = 15, message = "first name should contain 2-15 letters")
     private String firstName;
 
-    @Pattern(regexp = "[A-Z][a-z]+", message = "last name should start with a capital letter Abc")
-    @Size(min = 2, max = 15, message = "last name should contain 2-15 letters")
     private String lastName;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -51,7 +48,7 @@ public class User {
     @Column(columnDefinition = "tinyInt")
     private Boolean enabled;
 
-    @ElementCollection(/*fetch = FetchType.LAZY*/)
+    @ElementCollection
     @CollectionTable(name = "authorities", joinColumns = @JoinColumn(name = "username"))
     @Column(name = "authority")
     @Enumerated(EnumType.STRING)
@@ -81,9 +78,7 @@ public class User {
     @ToString.Exclude
     private List<ScoreEntity> scoreEntities;
 
+    @OneToOne(mappedBy = "user")
+    private BetPoints betPoints;
 
-//    @OneToOne(mappedBy = "user")
-//    @EqualsAndHashCode.Exclude
-//    @ToString.Exclude
-//    private VerificationToken confirmationToken;
 }

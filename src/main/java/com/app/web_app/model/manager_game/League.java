@@ -6,11 +6,12 @@ import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
 
-@Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Entity
+@Table(name = "leagues")
 public class League {
 
     @Id

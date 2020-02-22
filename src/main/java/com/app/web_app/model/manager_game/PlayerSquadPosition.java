@@ -1,5 +1,6 @@
 package com.app.web_app.model.manager_game;
 
+import com.app.web_app.model.manager_game.enums.Position;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +14,7 @@ import javax.persistence.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PlayerPosition {
+public class PlayerSquadPosition {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +24,8 @@ public class PlayerPosition {
     @JoinColumn(name = "squad_id")
     private Squad squad;
 
-    private String position;
+    @Enumerated(EnumType.STRING)
+    private Position position;
 
     @ManyToOne
     @JoinColumn(name = "player_id")

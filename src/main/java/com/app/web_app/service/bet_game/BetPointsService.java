@@ -28,7 +28,7 @@ public class BetPointsService {
             throw new AppException("League is null");
         }
 
-        return betPointsRepository.findAllByLeague(league.name())
+        return betPointsRepository.findAllByLeague(league)
                 .stream()
                 .map(mapper::mapBetPointsToDto)
                 .sorted(Comparator.comparing(BetPointsDto::getPointsNumber).reversed())

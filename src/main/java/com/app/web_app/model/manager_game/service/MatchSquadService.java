@@ -36,8 +36,6 @@ public class MatchSquadService {
                                             e -> managerMapper.mapPlayerDtoToPlayerEntity(e.getValue())
                                     )));
                             value.setFormation(matchSquadDto.getFormation());
-                            value.setAggressionLevel(matchSquadDto.getAggressionLevel());
-                            value.setAttitude(matchSquadDto.getAttitude());
                             value.setSubstitutionsAvailable(matchSquadDto.getSubstitutionsNumberAvailable());
                             result.set(Optional.of(value).map(managerMapper::mapMatchSquadToDto));
                         },
@@ -69,4 +67,6 @@ public class MatchSquadService {
 
 
     }
+
+
 }

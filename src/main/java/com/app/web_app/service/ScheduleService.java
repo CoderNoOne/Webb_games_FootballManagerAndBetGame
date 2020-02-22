@@ -8,6 +8,7 @@ import com.app.web_app.model.bet_game.BetScore;
 import com.app.web_app.model.manager_game.*;
 import com.app.web_app.model.manager_game.dto.TeamSquadDto;
 import com.app.web_app.model.manager_game.enums.Formation;
+import com.app.web_app.model.manager_game.enums.Position;
 import com.app.web_app.model.manager_game.repository.MatchSquadRepository;
 import com.app.web_app.model.manager_game.repository.MatchStatisticRepository;
 import com.app.web_app.model.manager_game.repository.TeamSquadRepository;
@@ -204,12 +205,12 @@ public class ScheduleService {
                 ));
 
 
-        List<BetPoints> allByItaly = betPointsRepository.findAllByLeague(league.name());
+        List<BetPoints> allByItaly = betPointsRepository.findAllByLeague(league);
 
         Map<String, BetPoints> betPointByKey = allByItaly.stream()
                 .collect(
                         Collectors.groupingBy(
-                                betPoints -> betPoints.getBetPointsIdentityKey().getUsername(),
+                                betPoints -> betPoints.getUser().getUsername(),
                                 Collectors.reducing(null, (bet1, bet2) -> bet1)
                         )
                 );
@@ -314,8 +315,8 @@ public class ScheduleService {
         Integer homeTeamId = match.getHomeTeam().getId();
         Integer awayTeamId = match.getAwayTeam().getId();
 
-        Optional<TeamSquad> homeTeamSquadOptional = teamSquadRepository.findByTeamIdAndMatchId(homeTeamId, match.getId());
-        Optional<TeamSquad> awayTeamSquadOptional = teamSquadRepository.findByTeamIdAndMatchId(awayTeamId, match.getId());
+        Optional<TeamStartingSquad> homeTeamSquadOptional = teamSquadRepository.findByTeamIdAndMatchId(homeTeamId, match.getId());
+        Optional<TeamStartingSquad> awayTeamSquadOptional = teamSquadRepository.findByTeamIdAndMatchId(awayTeamId, match.getId());
 
         boolean isReadyToSimulate = homeTeamSquadOptional.isPresent() && awayTeamSquadOptional.isPresent();
 
@@ -331,27 +332,26 @@ public class ScheduleService {
         return isReadyToSimulate;
     }
 
-    private MatchSquad createMatchSquadForTeam(TeamSquad teamSquad) {
+    private MatchSquad createMatchSquadForTeam(TeamStartingSquad teamStartingSquad) {
 
         return MatchSquad.builder()
-                .teamId(teamSquad.getTeam().getId())
-                .matchId(teamSquad.getMatch().getId())
-                .lastSaveTime(LocalDateTime.now())
+                .teamId(teamStartingSquad.getTeam().getId())
+                .matchId(teamStartingSquad.getMatch().getId())
                 .substitutionsAvailable(3)
-                .formation(Formation.fromFormationNumber(teamSquad.getSquad().getFormationType()).orElse(null))
-                .formationName(teamSquad.getSquad().getName())
-                .players(getFirstElevenPlayers(teamSquadRepository.findPlayersPositionsForMatchIdAndTeamId(teamSquad.getMatch().getId(), teamSquad.getTeam().getId()),
-                        Objects.requireNonNull(Formation.fromFormationNumber(teamSquad.getSquad().getFormationType()).orElse(null))))
+                .formation(Formation.fromFormationNumber(teamStartingSquad.getSquad().getFormationType()).orElse(null))
+                .formationName(teamStartingSquad.getSquad().getName())
+                .players(getFirstElevenPlayers(teamSquadRepository.findPlayersPositionsForMatchIdAndTeamId(teamStartingSquad.getMatch().getId(), teamStartingSquad.getTeam().getId()),
+                        Objects.requireNonNull(Formation.fromFormationNumber(teamStartingSquad.getSquad().getFormationType()).orElse(null))))
                 .build();
 
     }
 
-    private Map<String, Player> getFirstElevenPlayers(List<PlayerPosition> allPlayersPosition, Formation formation) {
+    private Map<String, Player> getFirstElevenPlayers(List<PlayerSquadPosition> allPlayersPosition, Formation formation) {
 
-        Map<String, Player> allPlayersPos = allPlayersPosition.stream().collect(
+        Map<Position, Player> allPlayersPos = allPlayersPosition.stream().collect(
                 Collectors.toMap(
-                        PlayerPosition::getPosition,
-                        PlayerPosition::getPlayer
+                        PlayerSquadPosition::getPosition,
+                        PlayerSquadPosition::getPlayer
                 )
         );
 

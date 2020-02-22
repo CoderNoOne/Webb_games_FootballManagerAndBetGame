@@ -237,16 +237,8 @@ public class AdminService {
                                                 .leagues(new ArrayList<>())
                                                 .players(new HashSet<>())
                                                 .build())))
-                                .transfers(new ArrayList<>())
                                 .team(team)
                                 .imageUrl(playerBaseDto.getImageUrl())
-                                .playerStatsPerMatches(new ArrayList<>())
-                                .healthCard(HealthCard.builder().description("health Card").injuries(new ArrayList<>()).build())
-                                .playerStats(PlayerStats.builder()
-                                        .assists(0)
-                                        .goals(0)
-                                        .cards(new ArrayList<>())
-                                        .build())
                                 .build();
 
 
@@ -260,9 +252,7 @@ public class AdminService {
 
 
                         team.getPlayers().add(player);
-                        player.getHealthCard().setPlayer(player);
                         player.getCountry().getPlayers().add(player);
-                        player.getPlayerStats().setPlayer(player);
 
                         @SuppressWarnings("OptionalGetWithoutIsPresent")
                         PlayerAttributesBaseDto playerAttributesBaseDto1 = allPlayerAttributesBaseDto.stream()

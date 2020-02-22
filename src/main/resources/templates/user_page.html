@@ -160,7 +160,7 @@
 
 <div style="position:fixed; bottom: 5vmin;left: 45vmin; color: #ca2626">
     <th:block>
-        <tr style="color: #ca2626" th:text="|Logged users (${loggedUsers.size()}):&nbsp|"></tr>
+        <tr style="color: darkred" th:text="|Logged users (${loggedUsers.size()}):&nbsp|"></tr>
         <tr th:each="user, iStat : ${loggedUsers}">
             <td th:style="${iStat.odd} == true ? 'color: red;': 'color: green'" th:text="${user}"></td>
             <td th:text="${iStat.last} == true ? '' :',&nbsp'"></td>

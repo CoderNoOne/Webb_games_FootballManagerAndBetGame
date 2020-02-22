@@ -1,27 +1,29 @@
 package com.app.web_app.model.manager_game.service;
 
+import com.app.web_app.exceptions.AppException;
 import com.app.web_app.model.manager_game.Match;
 import com.app.web_app.model.manager_game.dto.MatchDto;
 import com.app.web_app.model.manager_game.mapper.ManagerMapper;
 import com.app.web_app.repository.MatchRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class MatchService {
 
-    @Autowired
-    private MatchRepository matchRepository;
-
-    @Autowired
-    private ManagerMapper managerMapper;
+    private final MatchRepository matchRepository;
+    private final ManagerMapper managerMapper;
 
     public List<Match> findAllPlayedMatchesForLeagueById(Integer leagueId) {
         return matchRepository.findAllByLeagueId(leagueId);
@@ -66,11 +68,24 @@ public class MatchService {
                 .map(managerMapper::mapMatchToDto);
     }
 
-//    public SquadDto setStartingSquadForTeamByMatch(Integer matchId, Integer teamId, SquadDto startingSquad) {
-//
-//        matchRepository.findByMatchIdAndTeamId(matchId, teamId)
-//                .ifPresentOrElse(
-//                        (value) -> value.getStartingSquads().add()
-//                );
-//    }
+
+    public Map<Integer, List<MatchDto>> getMatchesGroupedByMatchDay(List<MatchDto> matches) {
+
+        if (matches == null) {
+            throw new AppException("Matches list is null");
+        }
+
+        return matches.stream()
+                .collect(Collectors.collectingAndThen(Collectors.groupingBy(MatchDto::getMatchDay),
+                        map -> map.entrySet()
+                                .stream()
+                                .sorted(Map.Entry.comparingByKey())))
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (oldVal, newVal) -> oldVal,
+                        LinkedHashMap::new
+                ));
+
+    }
 }

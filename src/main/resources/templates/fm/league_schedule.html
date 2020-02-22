@@ -84,19 +84,31 @@
 
 <div class="main1" style="text-align: center">
 
-    <h2 style="text-align: center">Finished matches</h2>
-    <div class="main2 table-responsive">
+    <h2 style="text-align: center">League matches</h2>
+    <div class="main2 table-responsive mb-5">
 
         <nav aria-label="Page navigation example">
             <ul class="pagination pg-blue">
-                <li class="page-item"><a class="page-link" th:href="@{/admin(custom)}">Finished</a></li>
-                <li class="page-item"><a class="page-link" th:href="@{/admin(national)}">Scheduled</a></li>
+                <li class="page-item"><a class="page-link"
+                                         th:href="@{'/fm/leagueSchedule?status=finished'}">Finished</a></li>
+                <li class="page-item"><a class="page-link"
+                                         th:href="@{'/fm/leagueSchedule?status=scheduled'}">Scheduled</a></li>
             </ul>
         </nav>
 
+        <div th:if="${notScheduledMatches}"
+             th:text="${notScheduledMatches}"
+             class="alert alert-info">
+        </div>
+
+        <div th:if="${notFinishedMatches}"
+             th:text="${notFinishedMatches}"
+             class="alert alert-info">
+        </div>
+
         <table class="table" style="border: none;">
             <tbody>
-            <tr th:each="entry, iStat : ${scheduledMatchesPerMatchDay}">
+            <tr th:each="entry, iStat : ${scheduledMatchesPerMatchDay != null ? scheduledMatchesPerMatchDay : finishedMatchesPerMatchDay}">
                 <td style="justify-content: center" th:text="|Matchday: ${entry.key}|"></td>
                 <td th:text="|UTC Date: ${#temporals.format(entry.value.get(0).dateTime, 'dd-MM-yyyy, HH:mm | EEE')}|"></td>
 
@@ -109,13 +121,13 @@
                             <td><img class="logo" th:src="${match.awayTeam.logoUrl}" alt="awayTeamLogo"></td>
                         </tr>
                     </table>
-                    </center>
                 </td>
             </tbody>
         </table>
     </div>
+    <div class="fixed-bottom" th:insert="fragments/footer.html :: footer"></div>
 </div>
-<div th:insert="fragments/footer.html :: footer"></div>
+
 <script th:src="@{/js/hourTime.js}"></script>
 </body>
 </html>

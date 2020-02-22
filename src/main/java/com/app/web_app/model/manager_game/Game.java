@@ -12,6 +12,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Data
 @Builder
+@Table(name = "games")
 public class Game {
 
     @Id

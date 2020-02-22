@@ -1,24 +1,23 @@
-package com.app.web_app.controller;
+package com.app.web_app.exceptions;
 
-import com.app.web_app.exceptions.AppException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 
-@ControllerAdvice/*(basePackages = {"com.app.demo.config.security"})*/ //TODO
+@ControllerAdvice
 @Controller
 @Slf4j
 public class CustomExceptionHandler {
 
     @ExceptionHandler(AppException.class)
     public void exceptionHandler(AppException e) {
-        log.info("message: "  + e.getMessage());
-        log.error("Stacktrace: " + Arrays.toString(e.getStackTrace()));
-//        model.addAttribute("message", e.getMessage());
+        log.info(MessageFormat.format("message: {0}", e.getMessage()));
+        log.error(MessageFormat.format("Stacktrace: {0}", Arrays.toString(e.getStackTrace())));
     }
 
     @GetMapping("/notFound")

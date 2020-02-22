@@ -1,7 +1,5 @@
 package com.app.web_app.model.manager_game.dto;
 
-import com.app.web_app.model.manager_game.AggressionLevel;
-import com.app.web_app.model.manager_game.Attitude;
 import com.app.web_app.model.manager_game.enums.Formation;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,10 +23,6 @@ public class MatchSquadDto {
     private Integer substitutionsNumberAvailable;
 
     private Map<String, PlayerDto> players;
-
-    private Attitude attitude;
-
-    private AggressionLevel aggressionLevel;
 
     public Map<String, PlayerDto> substitutions;
 

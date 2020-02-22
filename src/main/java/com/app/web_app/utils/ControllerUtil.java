@@ -2,6 +2,7 @@ package com.app.web_app.utils;
 
 import com.app.web_app.exceptions.AppException;
 import com.app.web_app.model.manager_game.dto.PlayerDto;
+import com.app.web_app.model.manager_game.dto.TeamStandingsDto;
 import com.app.web_app.model.manager_game.service.PlayerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,31 @@ import java.util.stream.Collectors;
 public class ControllerUtil {
 
     private final PlayerService playerService;
+
+
+    public void countPoints(boolean isHome, String result, TeamStandingsDto teamStandingsDto) {
+        String[] scores = result.split("[:]");
+
+        int homeTeam = isHome ? 0 : 1;
+        int awayTeam = isHome ? 1 : 0;
+
+        int score = Integer.parseInt(scores[homeTeam]) - Integer.parseInt(scores[awayTeam]);
+
+
+        if (score > 0) {
+            teamStandingsDto.setWins(teamStandingsDto.getWins() + 1);
+            teamStandingsDto.setPoints(teamStandingsDto.getPoints() + 3);
+
+        } else if (score == 0) {
+            teamStandingsDto.setDraws(teamStandingsDto.getDraws() + 1);
+            teamStandingsDto.setPoints(teamStandingsDto.getPoints() + 1);
+        } else {
+            teamStandingsDto.setLoses(teamStandingsDto.getLoses() + 1);
+        }
+
+        teamStandingsDto.setMatchesNumber(teamStandingsDto.getMatchesNumber() + 1);
+        teamStandingsDto.setGoalDifference(teamStandingsDto.getGoalDifference() + score);
+    }
 
     public Map<String, String> bindErrorsHibernateFields(BindingResult bindingResult) {
 

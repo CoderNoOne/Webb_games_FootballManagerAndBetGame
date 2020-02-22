@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 public class TeamStandingsDto {
 
    private TeamDto team;
-//   private Integer position;
    private Integer points;
    private Integer wins;
    private Integer draws;

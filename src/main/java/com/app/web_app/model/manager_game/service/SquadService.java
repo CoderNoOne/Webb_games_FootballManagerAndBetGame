@@ -1,6 +1,6 @@
 package com.app.web_app.model.manager_game.service;
 
-import com.app.web_app.model.manager_game.PlayerPosition;
+import com.app.web_app.model.manager_game.PlayerSquadPosition;
 import com.app.web_app.model.manager_game.dto.SquadDto;
 import com.app.web_app.model.manager_game.mapper.ManagerMapper;
 import com.app.web_app.model.manager_game.repository.PlayerPositionRepository;
@@ -36,7 +36,7 @@ public class SquadService {
         squadRepository.findByNameAndTeamId(squadDto.getName(), squadDto.getTeamDto().getId())
                 .ifPresent(
                         squad -> {
-                            playerPositionRepository.deleteAllCustom(squad.getPlayerPositions().stream().map(PlayerPosition::getId).collect(Collectors.toList()));
+                            playerPositionRepository.deleteAllCustom(squad.getPlayerSquadPositions().stream().map(PlayerSquadPosition::getId).collect(Collectors.toList()));
                             squadRepository.deleteCustom(squad.getId());
                             isOverridden.set(true);
                         }

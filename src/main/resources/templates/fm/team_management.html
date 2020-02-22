@@ -61,7 +61,7 @@
                 <td th:text="${iStat.index} + 1"></td>
                 <td th:text="|${player.firstName} ${player.lastName}|">fullName</td>
                 <td><img class="logo" th:src="${player.imageUrl}" alt="player image"></td>
-                <td th:text="${playerPositions[__${player.getId()}__]}"></td>
+                <td th:text="${playerSquadPositions[__${player.getId()}__]}"></td>
                 <td>
 
                     <table class="table">

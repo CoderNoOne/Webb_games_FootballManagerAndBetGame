@@ -1,19 +1,19 @@
 package com.app.web_app.model.manager_game;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+        import lombok.AllArgsConstructor;
+        import lombok.Builder;
+        import lombok.Data;
+        import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+        import javax.persistence.*;
 
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Data
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"match_id", "team_id", "squad_id"}))
-public class TeamSquad {
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"match_id", "team_id", "squad_id"}), name = "team_starting_squads")
+public class TeamStartingSquad {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -28,6 +28,6 @@ public class Squad {
     private Integer formationType;
 
     @OneToMany(mappedBy = "squad", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    private List<PlayerPosition> playerPositions;
+    private List<PlayerSquadPosition> playerSquadPositions;
 
 }

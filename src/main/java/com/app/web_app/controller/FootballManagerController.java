@@ -2,8 +2,6 @@ package com.app.web_app.controller;
 
 import com.app.web_app.exceptions.AppException;
 import com.app.web_app.model.FMChooseTeam;
-import com.app.web_app.model.manager_game.AggressionLevel;
-import com.app.web_app.model.manager_game.Attitude;
 import com.app.web_app.model.manager_game.FormationDto;
 import com.app.web_app.model.manager_game.dto.*;
 import com.app.web_app.model.manager_game.enums.Formation;
@@ -45,7 +43,6 @@ public class FootballManagerController {
     private final PlayerService playerService;
     private final LeagueService leagueService;
     private final MatchService matchService;
-    private final PlayerStatsService playerStatsService;
     private final MatchSquadService matchSquadService;
     private final ControllerUtil controllerUtil;
     private final TeamSquadService teamSquadService;
@@ -64,42 +61,40 @@ public class FootballManagerController {
 
 
     @GetMapping("/leagueSchedule")
-    public String getLeagueSchedule(@AuthenticationPrincipal(expression = "username") String username, Model model) {
+    public String getLeagueSchedule(
+            @AuthenticationPrincipal(expression = "username") String username,
+            @RequestParam(required = false) String status,
+            Model model) {
 
-        Integer leagueId = leagueService.getActiveLeagueByUsername(username).get().getId();
+        leagueService.getActiveLeagueByUsername(username).ifPresentOrElse(
+                leagueDto -> {
+                    Integer leagueId = leagueDto.getId();
 
-        var scheduledMatchesPerMatchDay = matchService.getScheduledMatches(leagueId).stream()
-                .collect(Collectors.collectingAndThen(Collectors.groupingBy(MatchDto::getMatchDay),
-                        map -> map.entrySet()
-                                .stream()
-                                .sorted(Comparator.comparing(Map.Entry::getKey))))
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (oldVal, newVal) -> oldVal,
-                        LinkedHashMap::new
-                ));
+                    if (status == null || "scheduled".equals(status)) {
 
-        var finishedMatchesPerMatchDay = matchService.getFinishedMatchesForLeague(leagueId).stream()
-                .collect(Collectors.collectingAndThen(Collectors.groupingBy(MatchDto::getMatchDay),
-                        map -> map.entrySet()
-                                .stream()
-                                .sorted(Comparator.comparing(Map.Entry::getKey))))
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (oldVal, newVal) -> oldVal,
-                        LinkedHashMap::new
-                ));
+                        Map<Integer, List<MatchDto>> matchesGroupedByMatchDay = matchService.getMatchesGroupedByMatchDay(matchService.getScheduledMatches(leagueId));
 
-        model.addAttribute("finishedMatchesPerMatchDay", finishedMatchesPerMatchDay)
-                .addAttribute("scheduledMatchesPerMatchDay", scheduledMatchesPerMatchDay);
+                        model.addAttribute(matchesGroupedByMatchDay.isEmpty() ? "notScheduledMatches" : "scheduledMatchesPerMatchDay",
+                                matchesGroupedByMatchDay.isEmpty() ? "There is not scheduled matches yet" : matchesGroupedByMatchDay);
+
+                    } else if (status.equals("finished")) {
+
+                        Map<Integer, List<MatchDto>> matchesGroupedByMatchDay = matchService.getMatchesGroupedByMatchDay(matchService.getFinishedMatchesForLeague(leagueId));
+
+                        model.addAttribute(matchesGroupedByMatchDay.isEmpty() ? "notFinishedMatches" : "finishedMatchesPerMatchDay",
+                                matchesGroupedByMatchDay.isEmpty() ? "There is not finished matches yet" : matchesGroupedByMatchDay);
+
+                    }
+                }, () -> model.addAttribute("noActiveLeague", "noActiveLeague")
+        );
 
         return "fm/league_schedule";
     }
 
     @GetMapping("/leagueBoard")
-    public String getLeagueBoard(@AuthenticationPrincipal(expression = "username") String username, Model model) {
+    public String getLeagueBoard(
+            @AuthenticationPrincipal(expression = "username") String username,
+            Model model) {
 
         Optional<LeagueDto> activeLeagueByUsername = leagueService.getActiveLeagueByUsername(username);
 
@@ -129,8 +124,8 @@ public class FootballManagerController {
 
         matches
                 .forEach(match -> {
-                    countPoints(true, match.getScore(), map.get(match.getHomeTeam()));
-                    countPoints(false, match.getScore(), map.get(match.getAwayTeam()));
+                    controllerUtil.countPoints(true, match.getScore(), map.get(match.getHomeTeam()));
+                    controllerUtil.countPoints(false, match.getScore(), map.get(match.getAwayTeam()));
                 });
 
         List<TeamStandingsDto> collect = map.values().stream().sorted(Comparator.comparing(TeamStandingsDto::getPoints).reversed()).collect(Collectors.toList());
@@ -139,31 +134,6 @@ public class FootballManagerController {
 
         return "fm/league_board";
     }
-
-    private void countPoints(boolean isHome, String result, TeamStandingsDto teamStandingsDto) {
-        String[] scores = result.split("[:]");
-
-        int homeTeam = isHome ? 0 : 1;
-        int awayTeam = isHome ? 1 : 0;
-
-        int score = Integer.parseInt(scores[homeTeam]) - Integer.parseInt(scores[awayTeam]);
-
-
-        if (score > 0) {
-            teamStandingsDto.setWins(teamStandingsDto.getWins() + 1);
-            teamStandingsDto.setPoints(teamStandingsDto.getPoints() + 3);
-
-        } else if (score == 0) {
-            teamStandingsDto.setDraws(teamStandingsDto.getDraws() + 1);
-            teamStandingsDto.setPoints(teamStandingsDto.getPoints() + 1);
-        } else {
-            teamStandingsDto.setLoses(teamStandingsDto.getLoses() + 1);
-        }
-
-        teamStandingsDto.setMatchesNumber(teamStandingsDto.getMatchesNumber() + 1);
-        teamStandingsDto.setGoalDifference(teamStandingsDto.getGoalDifference() + score);
-    }
-
 
     @GetMapping("/teamManagement")
     public String manageTeam(@AuthenticationPrincipal(expression = "username") String username, Model model) {
@@ -194,8 +164,6 @@ public class FootballManagerController {
 
     @PostMapping("/chooseTeam")
     public String chooseTeam(@AuthenticationPrincipal(expression = "username") String username, RedirectAttributes redirectAttributes, FMChooseTeam chooseTeam) {
-
-        System.out.println(chooseTeam);
 
         if (chooseTeam.getLeagueIdTeamId() == null) {
             redirectAttributes.addFlashAttribute("teamNotSelected", "You must enter team name");
@@ -768,9 +736,6 @@ public class FootballManagerController {
         return "fm/players_stats";
     }
 
-
-
-
     @GetMapping("/matchCentre/{matchId}")
     public String showMatchCentre(
             @RequestParam(required = false) String team,
@@ -829,8 +794,6 @@ public class FootballManagerController {
         }
 
         model.addAttribute("matchSquadDto", MatchSquadDto.builder().matchId(matchId).teamId(teamDto.getId()).build())
-                .addAttribute("aggressionLevels", AggressionLevel.values())
-                .addAttribute("attitudes", Attitude.values())
                 .addAttribute("matchDate", matchService.getMatchById(matchId).orElseThrow().getDateTime());
 
         return "fm/match_centre";
@@ -874,9 +837,7 @@ public class FootballManagerController {
 
         final List<SquadDto> savedSquads = squadService.getSquadsByTeamId(teamDto.getId());
 
-        model.addAttribute("savedSquads", savedSquads)
-                .addAttribute("aggressionLevels", AggressionLevel.values())
-                .addAttribute("attitudes", Attitude.values());
+        model.addAttribute("savedSquads", savedSquads);
 
         return "fm/match_centre";
     }

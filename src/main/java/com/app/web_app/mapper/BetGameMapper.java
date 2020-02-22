@@ -13,8 +13,8 @@ public class BetGameMapper {
 
                 BetPointsDto.builder()
                         .lastUpdateTime(betPoints.getLastUpdateTime())
-                        .league(betPoints.getBetPointsIdentityKey().getLeague())
-                        .username(betPoints.getBetPointsIdentityKey().getUsername())
+                        .league(betPoints.getLeague())
+                        .username(betPoints.getUser().getUsername())
                         .pointsNumber(betPoints.getPointsNumber())
                         .build()
                 : null;
