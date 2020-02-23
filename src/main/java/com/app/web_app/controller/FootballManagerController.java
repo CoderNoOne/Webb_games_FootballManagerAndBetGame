@@ -26,6 +26,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.validation.Valid;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -55,7 +56,8 @@ public class FootballManagerController {
 
 
     @ModelAttribute(name = "username")
-    public String getLoggedUsername(@AuthenticationPrincipal(expression = "username") String username) {
+    public String getLoggedUsername(
+            @AuthenticationPrincipal(expression = "username") String username) {
         return username;
     }
 
@@ -88,6 +90,8 @@ public class FootballManagerController {
                 }, () -> model.addAttribute("noActiveLeague", "noActiveLeague")
         );
 
+        model.addAttribute("currentTime", LocalTime.now());
+
         return "fm/league_schedule";
     }
 
@@ -96,47 +100,42 @@ public class FootballManagerController {
             @AuthenticationPrincipal(expression = "username") String username,
             Model model) {
 
-        Optional<LeagueDto> activeLeagueByUsername = leagueService.getActiveLeagueByUsername(username);
+        leagueService.getActiveLeagueByUsername(username).ifPresentOrElse(
+                leagueDto -> {
 
-        List<MatchDto> matches = activeLeagueByUsername.map(league -> league.getMatches()
-                .stream()
-                .filter(match -> match.getScore() != null)
-                .collect(Collectors.toList())
-        ).orElse(null);
+                    List<MatchDto> matches = leagueDto.getMatches()
+                            .stream()
+                            .filter(match -> match.getScore() != null)
+                            .collect(Collectors.toList());
 
-        model.addAttribute("leagueName", activeLeagueByUsername.get().getName());
+                    Map<TeamDto, TeamStandingsDto> map = controllerUtil
+                            .createTeamStandingsForTeams(teamService.getTeamsByLeague(leagueDto.getId()));
 
-        Map<TeamDto, TeamStandingsDto> map = teamService
-                .getTeamsByLeague(activeLeagueByUsername.get().getId())
-                .stream()
-                .collect(Collectors.toMap(
-                        teamDto -> teamDto,
-                        teamDto -> TeamStandingsDto.builder()
-                                .draws(0)
-                                .wins(0)
-                                .goalDifference(0)
-                                .matchesNumber(0)
-                                .points(0)
-                                .loses(0)
-                                .team(teamDto)
-                                .build()
-                ));
+                    matches
+                            .forEach(match -> {
+                                controllerUtil.countPoints(true, match.getScore(), map.get(match.getHomeTeam()));
+                                controllerUtil.countPoints(false, match.getScore(), map.get(match.getAwayTeam()));
+                            });
 
-        matches
-                .forEach(match -> {
-                    controllerUtil.countPoints(true, match.getScore(), map.get(match.getHomeTeam()));
-                    controllerUtil.countPoints(false, match.getScore(), map.get(match.getAwayTeam()));
-                });
+                    List<TeamStandingsDto> teamStandings = map.values().stream().sorted(Comparator.comparing(TeamStandingsDto::getPoints).reversed()).collect(Collectors.toList());
 
-        List<TeamStandingsDto> collect = map.values().stream().sorted(Comparator.comparing(TeamStandingsDto::getPoints).reversed()).collect(Collectors.toList());
+                    model.addAttribute("teamStandings", teamStandings)
+                            .addAttribute("leagueName", leagueDto.getName());
 
-        model.addAttribute("teamStandings", collect);
+                }, () -> model.addAttribute(
+                        "noActiveLeague",
+                        MessageFormat.format("There is no active league you participate in, {0}", username))
+        );
+
+        model.addAttribute("currentTime", LocalTime.now());
 
         return "fm/league_board";
     }
 
     @GetMapping("/teamManagement")
-    public String manageTeam(@AuthenticationPrincipal(expression = "username") String username, Model model) {
+    public String manageTeam(
+            @AuthenticationPrincipal(expression = "username") String username,
+            Model model) {
 
         Optional<TeamDto> activeTeamByUsername = teamService.getActiveTeamByUsername(username);
 
@@ -163,7 +162,10 @@ public class FootballManagerController {
     }
 
     @PostMapping("/chooseTeam")
-    public String chooseTeam(@AuthenticationPrincipal(expression = "username") String username, RedirectAttributes redirectAttributes, FMChooseTeam chooseTeam) {
+    public String chooseTeam(
+            @AuthenticationPrincipal(expression = "username") String username,
+            RedirectAttributes redirectAttributes,
+            FMChooseTeam chooseTeam) {
 
         if (chooseTeam.getLeagueIdTeamId() == null) {
             redirectAttributes.addFlashAttribute("teamNotSelected", "You must enter team name");
@@ -177,7 +179,8 @@ public class FootballManagerController {
     }
 
     @ModelAttribute(name = "backgroundUrl")
-    public String getBackgroundUrl(@AuthenticationPrincipal(expression = "username") String username) {
+    public String getBackgroundUrl(
+            @AuthenticationPrincipal(expression = "username") String username) {
 
         Optional<TeamDto> activeTeamByUsername = teamService.getActiveTeamByUsername(username);
         return activeTeamByUsername.map(TeamDto::getBackgroundUrl).orElse(null);
@@ -185,7 +188,9 @@ public class FootballManagerController {
     }
 
     @GetMapping("/playerNumbers")
-    public String getPlayerNumbers(@AuthenticationPrincipal(expression = "username") String username, Model model) {
+    public String getPlayerNumbers
+            (@AuthenticationPrincipal(expression = "username") String username,
+             Model model) {
 
         Optional<TeamDto> activeTeamByUsername = teamService.getActiveTeamByUsername(username);
 
@@ -208,7 +213,9 @@ public class FootballManagerController {
     }
 
     @GetMapping("/clearPlayerNumber/{id}")
-    public String clearPlayerNumber(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+    public String clearPlayerNumber(
+            @PathVariable Integer id,
+            RedirectAttributes redirectAttributes) {
 
         playerService.getPlayerById(id).ifPresentOrElse(playerDto -> {
 
@@ -225,7 +232,9 @@ public class FootballManagerController {
     }
 
     @PostMapping("/clearPlayerNumbers")
-    public String clearPlayerNumbers(RedirectAttributes redirectAttributes, @AuthenticationPrincipal(expression = "username") String username) {
+    public String clearPlayerNumbers(
+            RedirectAttributes redirectAttributes,
+            @AuthenticationPrincipal(expression = "username") String username) {
 
         Optional<TeamDto> activeTeamByUsername = teamService.getActiveTeamByUsername(username);
 
@@ -241,7 +250,12 @@ public class FootballManagerController {
     }
 
     @PostMapping("/savePlayerNumbers")
-    public String savePlayerNumbers(@RequestParam(required = false) String randomizedNumbers, @AuthenticationPrincipal(expression = "username") String username, PlayersNumberDto playersNumberDto, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+    public String savePlayerNumbers(
+            @RequestParam(required = false) String randomizedNumbers,
+            @AuthenticationPrincipal(expression = "username") String username,
+            PlayersNumberDto playersNumberDto,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes) {
 
         Optional<TeamDto> activeTeamByUsername = teamService.getActiveTeamByUsername(username);
 
@@ -307,7 +321,12 @@ public class FootballManagerController {
     }
 
     @GetMapping("/start")
-    public String start(@AuthenticationPrincipal(expression = "username") String username, String requestSend, String requestToShort, Model model, String teamNotSelected) {
+    public String start(
+            @AuthenticationPrincipal(expression = "username") String username,
+            String requestSend,
+            String requestToShort,
+            Model model,
+            String teamNotSelected) {
 
 
         if (teamService.doUserHaveActiveTeam(username)) {
@@ -369,7 +388,10 @@ public class FootballManagerController {
     }
 
     @GetMapping("/formation")
-    public String formation(@AuthenticationPrincipal(expression = "username") String username, Model model, Formation formation) {
+    public String formation(
+            @AuthenticationPrincipal(expression = "username") String username,
+            Model model,
+            Formation formation) {
 
         teamService.getTeamByUsername(username).ifPresentOrElse(
                 team -> {
@@ -469,13 +491,13 @@ public class FootballManagerController {
                                     ));
 
                             Map<String, PlayerDto> subs = List.of(
-                                    "First",
-                                    "Second",
-                                    "Third",
-                                    "Fourth",
-                                    "Fifth",
-                                    "Sixth",
-                                    "Seventh"
+                                    Position.FIRST.name(),
+                                    Position.SECOND.name(),
+                                    Position.THIRD.name(),
+                                    Position.FOURTH.name(),
+                                    Position.FIFTH.name(),
+                                    Position.SIXTH.name(),
+                                    Position.SEVENTH.name()
                             )
                                     .stream()
                                     .collect(Collectors.toMap(
@@ -504,7 +526,10 @@ public class FootballManagerController {
     }
 
     @PostMapping("/changeFormation")
-    public String changeFormation(@AuthenticationPrincipal(expression = "username") String username, RedirectAttributes redirectAttributes, Formation chosenFormation) {
+    public String changeFormation(
+            @AuthenticationPrincipal(expression = "username") String username,
+            RedirectAttributes redirectAttributes,
+            Formation chosenFormation) {
 
         redirectAttributes.addAttribute("formation", chosenFormation);
 
@@ -512,7 +537,12 @@ public class FootballManagerController {
     }
 
     @PostMapping("/saveSquad")
-    public String saveFormation(@AuthenticationPrincipal(expression = "username") String username, @Valid FormationDto eleven, BindingResult result, RedirectAttributes redirectAttributes, Formation chosenFormation) {
+    public String saveFormation(
+            @AuthenticationPrincipal(expression = "username") String username,
+            @Valid FormationDto eleven,
+            BindingResult result,
+            RedirectAttributes redirectAttributes,
+            Formation chosenFormation) {
 
         formationDtoValidator.validate(eleven, result);
 
@@ -541,7 +571,11 @@ public class FootballManagerController {
     }
 
     @PostMapping(value = "/loadSquad")
-    public String loadFormation(@AuthenticationPrincipal(expression = "username") String username, String loadedSquad, Model model, RedirectAttributes redirectAttributes) {
+    public String loadFormation(
+            @AuthenticationPrincipal(expression = "username") String username,
+            String loadedSquad,
+            Model model,
+            RedirectAttributes redirectAttributes) {
 
         if (loadedSquad == null) {
             redirectAttributes.addFlashAttribute("notValidLoadedSquad", "You must load a valid, existing squad");
@@ -569,11 +603,11 @@ public class FootballManagerController {
 
             Set<PlayerDto> players = teamDto.getPlayers();
 
-            final List<SquadDto> squadsByTeamId = squadService.getSquadsByTeamId(teamDto.getId());
+            final List<SquadDto> savedSquads = squadService.getSquadsByTeamId(teamDto.getId());
 
 
             Map<String, PlayerDto> subs = List.of(
-                    "First",
+                    "FIRST",
                     "Second",
                     "Third",
                     "Fourth",
@@ -596,6 +630,8 @@ public class FootballManagerController {
                             position -> players.stream().filter(player -> player.getPositions().contains(Position.fromString(position))).collect(Collectors.toList()))
                     );
 
+            System.out.println("subs" + squadByName.getSubstitutions());
+
             model.addAllAttributes(sortedPositions)
                     .addAttribute("eleven", FormationDto.builder().players(squadByName.getPlayers()).substitutions(squadByName.getSubstitutions()).build())
                     .addAttribute("elevenPotential", FormationDto.builder().players(sortedPositions).substitutions(subs).build())
@@ -603,7 +639,7 @@ public class FootballManagerController {
                     .addAttribute("players", players)
                     .addAttribute("chosenFormation", formation)
                     .addAttribute("positionForInputIdMap", formation.getPositionForInputId())
-                    .addAttribute("savedSquads", squadsByTeamId)
+                    .addAttribute("savedSquads", savedSquads)
                     .addAttribute("formations", Formation.values())
                     .addAttribute("colors", teamService.getShirtColors(teamDto));
         }
@@ -612,7 +648,9 @@ public class FootballManagerController {
 
 
     @GetMapping("/upcomingMatches")
-    public String getUpcomingMatches(@AuthenticationPrincipal(expression = "username") String username, Model model) {
+    public String getUpcomingMatches(
+            @AuthenticationPrincipal(expression = "username") String username,
+            Model model) {
 
         Optional<TeamDto> activeTeamByUsername = teamService.getActiveTeamByUsername(username);
 
@@ -641,7 +679,10 @@ public class FootballManagerController {
     }
 
     @GetMapping("/startingSquad/{matchId}")
-    public String startingSquad(@PathVariable Integer matchId, @AuthenticationPrincipal(expression = "username") String username, Model model) {
+    public String startingSquad(
+            @PathVariable Integer matchId,
+            @AuthenticationPrincipal(expression = "username") String username,
+            Model model) {
 
         TeamDto teamDto = teamService.getActiveTeamByUsername(username).orElse(null);
 
@@ -670,7 +711,11 @@ public class FootballManagerController {
     }
 
     @PostMapping("/setStartingSquad/{matchId}")
-    public String setSquad(@PathVariable Integer matchId, @AuthenticationPrincipal(expression = "username") String username, String loadedSquad, Model model) {
+    public String setSquad(
+            @PathVariable Integer matchId,
+            @AuthenticationPrincipal(expression = "username") String username,
+            String loadedSquad,
+            Model model) {
 
         teamService.getActiveTeamByUsername(username).ifPresentOrElse(teamDto -> {
 
@@ -800,9 +845,11 @@ public class FootballManagerController {
     }
 
     @PostMapping("/loadSquadMatchCentre")
-    public String loadSquadInMatchCentre(MatchSquadDto
-                                                 matchSquadDto, @AuthenticationPrincipal(expression = "username") String username, String loadedSquad, Model
-                                                 model) {
+    public String loadSquadInMatchCentre(
+            MatchSquadDto matchSquadDto,
+            @AuthenticationPrincipal(expression = "username") String username,
+            String loadedSquad,
+            Model model) {
 
         final TeamDto teamDto = teamService.getActiveTeamByUsername(username).orElse(null);
 
@@ -843,8 +890,10 @@ public class FootballManagerController {
     }
 
     @PostMapping("/sendRequestToAdmin")
-    public String sendRequestToAdmin(@AuthenticationPrincipal(expression = "username") String username, String
-            request, RedirectAttributes redirectAttributes) {
+    public String sendRequestToAdmin(
+            @AuthenticationPrincipal(expression = "username") String username,
+            String request,
+            RedirectAttributes redirectAttributes) {
 
         String email = userService.getEmailForUsername(username);
 

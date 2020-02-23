@@ -54,7 +54,8 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" th:href="@{'/fm/playerStats?attributes&option'}" style="color:greenyellow;">Player statistics</a>
+                <a class="nav-link" th:href="@{'/fm/playerStats?attributes&option'}" style="color:greenyellow;">Player
+                    statistics</a>
             </li>
 
             <li style="justify-items: right; font-size: 1.5vmin;position:fixed; right: 5vmin">
@@ -282,10 +283,10 @@
                        th:style="${stat.odd}? 'background-color: transparent; border: 0; font-size: 1.75vmin; color: lightsalmon' : 'background-color: transparent; border: 0; font-size: 1.75vmin; color: yellow'"/>
                 <select th:field="*{substitutions[__${pr.key}__]}"
                         style=" font-size:1.75vmin; width: 20vmin; text-align-last: center">
-                    <option th:if="${eleven != null and eleven.substitutions[__${pr.key}__] != null}"
+                    <option th:if="${eleven != null and eleven.substitutions[__${pr.key.toUpperCase()}__] != null}"
                             hidden selected="selected"
-                            th:value="${{eleven.substitutions[__${pr.key}__].id}}"
-                            th:text="|${eleven.substitutions[__${pr.key}__].firstName} ${eleven.substitutions[__${pr.key}__].lastName}|"
+                            th:value="${{eleven.substitutions[__${pr.key.toUpperCase()}__].id}}"
+                            th:text="|${eleven.substitutions[__${pr.key.toUpperCase()}__].firstName} ${eleven.substitutions[__${pr.key.toUpperCase()}__].lastName}|"
                     ></option>
                     <option th:each="player : ${players}"
                             th:value="${{player.id}}"

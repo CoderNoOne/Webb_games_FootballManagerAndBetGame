@@ -138,7 +138,7 @@
 
             <li style="justify-items: right; font-size: 1.5vmin;position:absolute; right: 5vmin">
                 <h2 id="c_t"
-                    th:text="${#dates.createNow().getHours() + ':' + #dates.createNow().getMinutes() + ':' + #dates.createNow().getSeconds()}"></h2>
+                    th:text="${#temporals.format(currentTime, 'HH:mm:ss')}"></h2>
 
             </li>
         </ul>
@@ -151,9 +151,9 @@
         <h2 style="text-align: center" th:text="${leagueName}" class="text-uppercase"></h2>
         <p style="text-align: center;" class="pt">TEAM LEADERBOARD</p>
         <table class="table">
-            <thead>
+            <thead style="font-weight: bold">
             <td>Position</td>
-            <td class="name" style="text-align: center">CLUBS</td>
+            <td class="name" style="text-align: center">Clubs</td>
             <td>Matches</td>
             <td>Wins</td>
             <td>Draws</td>

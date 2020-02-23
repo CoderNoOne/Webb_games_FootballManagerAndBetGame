@@ -27,7 +27,15 @@ public enum Position {
     CF("Central forward"),
     LCF("Left central forward"),
     RCF("Right central forward"),
-    RF("Right forward");
+    RF("Right forward"),
+
+    FIRST("sub one"),
+    SECOND("sub two"),
+    THIRD("sub three"),
+    FOURTH("sub four"),
+    FIFTH("sub five"),
+    SIXTH("sub six"),
+    SEVENTH("sub seven");
 
 
     private String desc;
@@ -35,7 +43,7 @@ public enum Position {
     public static Position fromString(String value) {
 
         try {
-            return Position.valueOf(value);
+            return Position.valueOf(value.toUpperCase());
         } catch (Exception e) {
             log.info(String.format("%s is not a Position type!", value));
             log.error(Arrays.toString(e.getStackTrace()));

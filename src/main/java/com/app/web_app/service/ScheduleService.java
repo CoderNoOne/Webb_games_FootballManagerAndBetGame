@@ -378,7 +378,7 @@ public class ScheduleService {
 
     private void simulateSingleMatch(Match match) {
 
-        System.out.println("SIMULATE MATCH: " + match.getId() + " invoked");
+        log.info("SIMULATE MATCH: {} invoked", match.getId());
 
         Optional<MatchStatistic> matchStatisticOptional = matchStatisticRepository.findByMatchId(match.getId());
 

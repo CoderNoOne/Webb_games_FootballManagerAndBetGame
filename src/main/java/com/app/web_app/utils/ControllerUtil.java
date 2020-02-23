@@ -2,6 +2,7 @@ package com.app.web_app.utils;
 
 import com.app.web_app.exceptions.AppException;
 import com.app.web_app.model.manager_game.dto.PlayerDto;
+import com.app.web_app.model.manager_game.dto.TeamDto;
 import com.app.web_app.model.manager_game.dto.TeamStandingsDto;
 import com.app.web_app.model.manager_game.service.PlayerService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -34,6 +36,26 @@ public class ControllerUtil {
 
     private final PlayerService playerService;
 
+    public Map<TeamDto, TeamStandingsDto> createTeamStandingsForTeams(List<TeamDto> teams) {
+
+        if (teams == null) {
+            throw new AppException("Teams is null");
+        }
+
+        return teams.stream()
+                .collect(Collectors.toMap(
+                        teamDto -> teamDto,
+                        teamDto -> TeamStandingsDto.builder()
+                                .draws(0)
+                                .wins(0)
+                                .goalDifference(0)
+                                .matchesNumber(0)
+                                .points(0)
+                                .loses(0)
+                                .team(teamDto)
+                                .build()
+                ));
+    }
 
     public void countPoints(boolean isHome, String result, TeamStandingsDto teamStandingsDto) {
         String[] scores = result.split("[:]");
