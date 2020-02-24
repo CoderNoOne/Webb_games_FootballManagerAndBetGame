@@ -265,7 +265,7 @@
                         selected="selected" hidden th:value="${{eleven.players[__${pr.key}__].id}}"
                         th:text="|${eleven.players[__${pr.key}__].firstName} ${eleven.players[__${pr.key}__].lastName}|"
                 ></option>
-                <option id="asd" th:each="player : ${playersForPosition[__${pr.key}__]}"
+                <option th:each="player : ${playersForPosition[__${pr.key}__]}"
                         th:value="${{player.id}}"
                         th:text="|${player.firstName} ${player.lastName}|">
                 </option>

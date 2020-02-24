@@ -447,37 +447,72 @@
                 </div>
 
 
-                <div
-                        th:if="${param.team != null and eleven != null and eleven.substitutions != null}"
-                        style="margin-left: 80vmin; margin-top: -75vmin">
-                    <h2 class="text-center">&nbsp;&nbsp;&nbsp;Substitutions</h2><br>
-                    <div th:each="pr, stat: ${eleven.substitutions}">
-                        <input readonly="true" type="text" style="width: 30vmin"
-                               th:value="|${eleven.substitutions[__${pr.key}__].firstName} ${eleven.substitutions[__${pr.key}__].lastName}|"
-                        />
-                    </div>
-                </div>
+<!--                <div-->
+<!--                        th:if="${param.team != null and eleven != null and eleven.substitutions != null}"-->
+<!--                        style="margin-left: 80vmin; margin-top: -75vmin">-->
+<!--                    <h2 class="text-center">&nbsp;&nbsp;&nbsp;Substitutions</h2><br>-->
+<!--                    <div th:each="pr, stat: ${eleven.substitutions}">-->
+<!--                        <input readonly="true" type="text" style="width: 30vmin"-->
+<!--                               th:value="|${eleven.substitutions[__${pr.key}__].firstName} ${eleven.substitutions[__${pr.key}__].lastName}|"-->
+<!--                        />-->
+<!--                    </div>-->
+<!--                </div>-->
 
                 <div th:if="${param.team[0].equals('your')}"
-                     style="float: right;margin-right: -35vmin; margin-top: 5vmin">
+                     style="float: right;margin-right: -60vmin; margin-top: -60vmin; text-align: center">
 
 
-                    <form th:if="${eleven != null && eleven.players != null}" action="#"
-                          th:action="@{/fm/saveSquad}"
+                    <div th:if="${subs}"
+                         class="alert alert-success"
+                         th:text="${subs}">
+                    </div>
+
+                    <div th:if="${noSubs}"
+                         class="alert alert-danger"
+                         th:text="${noSubs}">
+                    </div>
+
+                    <div th:if="${matchNotStarted}"
+                         class="alert alert-info"
+                         th:text="${matchNotStarted}">
+                    </div>
+
+                    <div th:if="${noSubsAvailable}"
+                         class="alert alert-danger"
+                         th:text="${noSubsAvailable}">
+                    </div>
+
+
+                    <form th:if="${eleven != null && eleven.players != null}"
+                          th:action="@{'/fm/makeSubstitutions/' + ${matchId}}"
                           th:object="${eleven}" novalidate
                           method="post">
-                        <h2 style="font-size: 3.75vmin; color: #ff4743;">Position &nbsp&nbsp&nbsp&nbsp <span
-                                style="color:#f0f600;">Player</span>
+                        <h2 style="font-size: 3.75vmin; color: #ff4743; margin-left: -3.5vmin">Position<span
+                                style="color:#f0f600; margin-left: 2.5vmin">Player</span><span
+                                style="margin-left: 3vmin">Subs</span>
                         </h2>
                         <div th:each="pr, stat: *{players}">
-                            <input id="position" style="background-color: transparent; border: 0; font-size: 1.75vm"
+                            <input id="position" style="background-color: transparent; border: 0; font-size: 1.75vm; font-weight: bold"
                                    type="text" th:value="${pr.key}" readonly="true"
                                    th:style="${stat.odd}? 'background-color: transparent; border: 0; font-size: 1.75vmin; color: lightsalmon' : 'background-color: transparent; border: 0; font-size: 1.75vmin; color: yellow'"/>
-                            <input th:value="|${eleven.players[__${pr.key}__].firstName} ${eleven.players[__${pr.key}__].lastName}|"/>
 
+                            <input th:value="|${eleven.players[__${pr.key}__].firstName} ${eleven.players[__${pr.key}__].lastName}|"
+                                   style="width: 20vmin; height: 4vmin; font-size: 2vmin"/>
+
+                            <select th:field="*{players[__${pr.key.toUpperCase()}__]}"
+                                    style="width: 20vmin; height: 4vmin; font-size: 2vmin; text-align-last: center">
+                                <option selected hidden th:value="''">Choose here
+                                </option>
+                                <option th:each="player : ${subsPerPosition[__${pr.key.toUpperCase()}__]}"
+                                        th:value="${{player.id}}"
+                                        th:text="|${player.firstName} ${player.lastName}|">
+                                </option>
                             </select>
-
                         </div>
+
+                            <button style="margin: 5vmin auto 2vmin;" type="submit"
+                                    class="btn btn-success">Confirm substitutions
+                            </button>
 
                     </form>
                 </div>

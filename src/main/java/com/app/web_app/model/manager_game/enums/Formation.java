@@ -1,10 +1,8 @@
 package com.app.web_app.model.manager_game.enums;
 
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.Map.*;
 
@@ -78,7 +76,14 @@ public enum Formation {
     }
 
     public Map<String, String> getPositionForInputId() {
-        return positionForInputId;
+        return positionForInputId.entrySet()
+                .stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (oldVal, newVal) -> oldVal,
+                        LinkedHashMap::new
+                ));
     }
 }
 
