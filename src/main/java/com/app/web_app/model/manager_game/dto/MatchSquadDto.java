@@ -17,7 +17,7 @@ public class MatchSquadDto {
     private Integer id;
 
     private Integer matchId;
-    private Integer teamId;
+    private TeamDto teamDto;
 
     private Formation formation;
     private Integer substitutionsNumberAvailable;

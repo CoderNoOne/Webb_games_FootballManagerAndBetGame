@@ -6,7 +6,6 @@ import com.app.web_app.model.manager_game.enums.Formation;
 import com.app.web_app.model.manager_game.enums.PositionSkillsImportance;
 import com.app.web_app.model.manager_game.repository.MatchSquadRepository;
 import com.app.web_app.model.manager_game.repository.TeamRepository;
-import com.app.web_app.model.manager_game.repository.TeamSquadRepository;
 import com.app.web_app.repository.MatchRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.beanutils.BeanUtils;
@@ -27,7 +26,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SquadStrengthCalculatorService {
 
-    private final TeamSquadRepository teamSquadRepository;
     private final MatchSquadRepository matchSquadRepository;
     private final MatchRepository matchRepository;
     private final TeamRepository teamRepository;
@@ -90,7 +88,7 @@ public class SquadStrengthCalculatorService {
 
     public BigDecimal calculateSquadStrength(MatchSquad matchSquad) {
 
-        Formation formation = matchSquad.getFormation();
+        Formation formation = Formation.fromFormationNumber(matchSquad.getFormationType());
 
         Map<String, Player> playersForPosition = matchSquad.getPlayers();
 
@@ -131,7 +129,7 @@ public class SquadStrengthCalculatorService {
 
         Map<Integer, BigDecimal> squadStrengthPerTeam = matchSquads.stream()
                 .collect(Collectors.toMap(
-                        MatchSquad::getTeamId,
+                        matchSquad -> matchSquad.getTeam().getId(),
                         this::calculateSquadStrength
                 ));
 
@@ -190,33 +188,13 @@ public class SquadStrengthCalculatorService {
     public boolean isGoal(Map<Team, BigDecimal> weightedProbability) {
 
         BigDecimal bigDecimal = weightedProbability.values().stream().findFirst().get();
-
-        System.out.println("value: " + bigDecimal);
-//      0.00 - 1.00  
-
         double randomNumber = new Random().nextInt(101) / 100.0;
-
-        System.out.println("Random number:" + randomNumber);
-
-        BigDecimal divided = bigDecimal.divide(BigDecimal.TEN, new MathContext(2));
         BigDecimal roundedValue = bigDecimal.round(new MathContext(2));
-
-        System.out.println(roundedValue);
-
-        System.out.println("roundedValue: " + roundedValue);
-        System.out.println("divided: " + divided);
-
-        boolean b = new BigDecimal(randomNumber).compareTo(roundedValue) <= 0;
-
-        System.out.println(b);
-        return b;
+        return new BigDecimal(randomNumber).compareTo(roundedValue) <= 0;
     }
 
     private Double getRandomFactor() {
-
-        double v = (new Random().nextInt(201) + 900) / 1000.0;
-        System.out.println(v);
-        return v;
+        return (new Random().nextInt(201) + 900) / 1000.0;
     }
 
     private Integer getPropertyValue(PlayerAttributes playerAttributes, String propertyName) {

@@ -260,10 +260,12 @@
             th:text="${notStarted}" style="font-size: 5vmin; color: darkgoldenrod; margin-top: 10vmin">
         </h2>
 
-        <h3 th:if="${notStarted}" style="justify-content: center" id="demo">Remaining time: </h3>
 
-        <p th:if="${matchStatistic != null and #strings.toString(matchStatistic.status) == 'SCHEDULED'}"
-           th:text="'Match is going to start within 5 minutes'"></p>
+<!--        zrob-->
+        <h3 th:if="${notStarted != null or (matchStatistic != null and #strings.toString(matchStatistic.status) == 'SCHEDULED')}" style="justify-content: center" id="demo">Remaining time: </h3>
+
+<!--        <p th:if="${matchStatistic != null and #strings.toString(matchStatistic.status) == 'SCHEDULED'}"-->
+<!--           th:text="'Match is going to start within 5 minutes'"></p>-->
 
         <p th:if="${matchStatistic != null and #strings.toString(matchStatistic.status) == 'HALF_BREAK'}"
            th:text="'There is a half break'" style="font-size: 2vmin"></p>
@@ -293,6 +295,7 @@
 
         <table th:if="${matchStatistic != null}" class="paddingBetweenCols" style="margin: 0 auto; ">
             <tr th:each="goal, iStat : ${goalsDetails}">
+
                 <td width="50vw">
                     <img class="logo" th:if="${#strings.toString(goal.team) == 'Home'}"
                          th:src="${goal.scorer.imageUrl}" th:alt="'player image'">
@@ -446,21 +449,19 @@
                            readonly="true">
                 </div>
 
-
-<!--                <div-->
-<!--                        th:if="${param.team != null and eleven != null and eleven.substitutions != null}"-->
-<!--                        style="margin-left: 80vmin; margin-top: -75vmin">-->
-<!--                    <h2 class="text-center">&nbsp;&nbsp;&nbsp;Substitutions</h2><br>-->
-<!--                    <div th:each="pr, stat: ${eleven.substitutions}">-->
-<!--                        <input readonly="true" type="text" style="width: 30vmin"-->
-<!--                               th:value="|${eleven.substitutions[__${pr.key}__].firstName} ${eleven.substitutions[__${pr.key}__].lastName}|"-->
-<!--                        />-->
-<!--                    </div>-->
-<!--                </div>-->
+                <div
+                        th:if="${param.team != null and param.team[0].equals('opp') and eleven != null and eleven.substitutions != null}"
+                        style="margin-left: 80vmin; margin-top: -50vmin; text-align: center">
+                    <h2 style="font-size: 5vmin; color: darkgoldenrod">Substitutions</h2><br>
+                    <div style="margin-left: 5vmin" th:each="pr, stat: ${eleven.substitutions}">
+                        <input readonly="true" type="text" style="width: 20vmin; height: 4vmin; font-size: 2vmin"
+                               th:value="|${eleven.substitutions[__${pr.key}__].firstName} ${eleven.substitutions[__${pr.key}__].lastName}|"
+                        />
+                    </div>
+                </div>
 
                 <div th:if="${param.team[0].equals('your')}"
                      style="float: right;margin-right: -60vmin; margin-top: -60vmin; text-align: center">
-
 
                     <div th:if="${subs}"
                          class="alert alert-success"
@@ -497,10 +498,11 @@
                                    th:style="${stat.odd}? 'background-color: transparent; border: 0; font-size: 1.75vmin; color: lightsalmon' : 'background-color: transparent; border: 0; font-size: 1.75vmin; color: yellow'"/>
 
                             <input th:value="|${eleven.players[__${pr.key}__].firstName} ${eleven.players[__${pr.key}__].lastName}|"
+                                   readonly
                                    style="width: 20vmin; height: 4vmin; font-size: 2vmin"/>
 
                             <select th:field="*{players[__${pr.key.toUpperCase()}__]}"
-                                    style="width: 20vmin; height: 4vmin; font-size: 2vmin; text-align-last: center">
+                                    style="width: 20vmin; height: 4vmin; font-size: 2vmin; text-align-last: center;">
                                 <option selected hidden th:value="''">Choose here
                                 </option>
                                 <option th:each="player : ${subsPerPosition[__${pr.key.toUpperCase()}__]}"

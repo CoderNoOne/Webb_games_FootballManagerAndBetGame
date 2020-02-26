@@ -1,6 +1,9 @@
 package com.app.web_app.model.manager_game.enums;
 
 
+import com.app.web_app.exceptions.AppException;
+
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,8 +55,14 @@ public enum Formation {
     }
 
 
-    public static Optional<Formation> fromFormationNumber(Integer formationNumber) {
-        return Arrays.stream(Formation.values()).filter(enumVal -> enumVal.getNumber().equals(formationNumber)).findFirst();
+    public static Formation fromFormationNumber(Integer formationNumber) {
+
+        if (formationNumber == null) {
+            throw new AppException("Formation number is null");
+        }
+        return Arrays.stream(Formation.values()).filter(enumVal -> enumVal.getNumber().equals(formationNumber))
+                .findFirst()
+                .orElseThrow(() -> new AppException(MessageFormat.format("Formation identified with number: {0} doesn't exist", formationNumber)));
     }
 
     Formation(Integer number, String cssClassName, List<String> positions, Map<String, String> positionForInputId) {

@@ -12,6 +12,7 @@ import com.app.web_app.model.manager_game.repository.CountryRepository;
 import com.app.web_app.model.manager_game.repository.PlayerRepository;
 import com.app.web_app.model.manager_game.repository.SquadRepository;
 import com.app.web_app.model.manager_game.repository.TeamRepository;
+import com.app.web_app.model.user.User;
 import com.app.web_app.repository.LeagueRepository;
 import com.app.web_app.repository.MatchRepository;
 import com.app.web_app.repository.UserRepository;
@@ -75,6 +76,14 @@ public class ManagerMapper {
 
                 teamRepository.findById(teamDto.getId())
                         .orElse(null)
+                : null;
+    }
+
+    public Team mapTeamDtoToTeam(TeamDto teamDto) {
+        return teamDto != null ?
+                Team.builder()
+                        .id(teamDto.getId())
+                        .build()
                 : null;
     }
 
@@ -200,17 +209,18 @@ public class ManagerMapper {
                         .name(squad.getName())
                         .teamDto(mapTeamToTeamDto(squad.getTeam()))
                         .players(squad.getPlayerSquadPositions() != null ? squad.getPlayerSquadPositions().stream()
-                                .filter(playerPosition -> Formation.fromFormationNumber(squad.getFormationType()).isPresent() && Formation.fromFormationNumber(squad.getFormationType()).get().getPositions().contains(playerPosition.getPosition().name()))
+                                .filter(playerPosition -> Formation.fromFormationNumber(squad.getFormationType()) != null && Formation.fromFormationNumber(squad.getFormationType()).getPositions().contains(playerPosition.getPosition().name()))
                                 .collect(Collectors.toMap(playerSquadPosition -> playerSquadPosition.getPosition().name(), playerPosition -> mapPlayerToDto(playerPosition.getPlayer())))
                                 : new HashMap<>())
                         .substitutions(squad.getPlayerSquadPositions() != null ?
                                 squad.getPlayerSquadPositions()
                                         .stream()
-                                        .filter(playerPosition -> !Formation.fromFormationNumber(squad.getFormationType()).get().getPositions().contains(playerPosition.getPosition().name()))
+                                        .filter(playerPosition -> !Formation.fromFormationNumber(squad.getFormationType()).getPositions().contains(playerPosition.getPosition().name()))
                                         .collect(Collectors.toMap(
                                                 playerSquadPosition -> playerSquadPosition.getPosition().name(),
                                                 playerPosition -> mapPlayerToDto(playerPosition.getPlayer())))
                                 : new HashMap<>())
+                        .formationType(squad.getFormationType())
                         .build()
                 : null;
     }
@@ -241,7 +251,6 @@ public class ManagerMapper {
                         .leagueId(match.getLeague().getId())
                         .score(match.getScore())
                         .matchDay(match.getMatchDay())
-                        .teamSquads(match.getStartingTeamStartingSquads() != null ? match.getStartingTeamStartingSquads().stream().map(this::mapTeamSquadToDto).collect(Collectors.toList()) : new ArrayList<>())
                         .build()
                 : null;
     }
@@ -257,7 +266,6 @@ public class ManagerMapper {
                         .dateTime(matchDto.getDateTime())
                         .score(matchDto.getScore())
                         .matchDay(matchDto.getMatchDay())
-                        .startingTeamStartingSquads(matchDto.getTeamSquads() != null ? matchDto.getTeamSquads().stream().map(this::mapTeamSquadDtoToTeamSquad).collect(Collectors.toList()) : null)
                         .status(matchDto.getStatus())
                         .league(leagueRepository.findById(matchDto.getId()).orElse(null))
                         .build()
@@ -291,23 +299,35 @@ public class ManagerMapper {
 
     public MatchSquadDto mapMatchSquadToDto(MatchSquad matchSquad) {
 
-        return matchSquad != null ?
+        if (matchSquad == null) {
+            return null;
+        }
 
-                MatchSquadDto.builder()
-                        .id(matchSquad.getId())
-                        .matchId(matchSquad.getMatchId())
-                        .teamId(matchSquad.getTeamId())
-                        .substitutionsNumberAvailable(matchSquad.getSubstitutionsAvailable())
-                        .formation(matchSquad.getFormation())
-                        .players(matchSquad.getPlayers().entrySet()
-                                .stream()
-                                .collect(Collectors.toMap(
-                                        Map.Entry::getKey,
-                                        e -> mapPlayerToDto(e.getValue())
-                                )))
-                        .build()
-                :
-                null;
+        Map<String, PlayerDto> subs = new HashMap<>();
+
+        Map<String, PlayerDto> firstElevenPlayers = matchSquad.getPlayers() != null ? matchSquad.getPlayers().entrySet()
+                .stream()
+                .peek(e -> {
+                    if (!Formation.fromFormationNumber(matchSquad.getFormationType()).getPositions().contains(e.getKey())) {
+                        subs.put(e.getKey(), mapPlayerToDto(e.getValue()));
+                    }
+                })
+                .filter(e -> Formation.fromFormationNumber(matchSquad.getFormationType()).getPositions().contains(e.getKey()))
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        e -> mapPlayerToDto(e.getValue())
+                )) : null;
+
+
+        return MatchSquadDto.builder()
+                .id(matchSquad.getId())
+                .matchId(matchSquad.getMatch().getId())
+                .teamDto(mapTeamToTeamDto(matchSquad.getTeam()))
+                .substitutionsNumberAvailable(matchSquad.getSubstitutionsAvailable())
+                .formation(Formation.fromFormationNumber(matchSquad.getFormationType()))
+                .players(firstElevenPlayers != null ? firstElevenPlayers : new HashMap<>())
+                .substitutions(subs)
+                .build();
 
     }
 
@@ -317,10 +337,10 @@ public class ManagerMapper {
 
                 MatchSquad.builder()
                         .id(matchSquadDto.getId())
-                        .formation(matchSquadDto.getFormation())
+                        .formationType(matchSquadDto.getFormation().getNumber())
                         .substitutionsAvailable(matchSquadDto.getSubstitutionsNumberAvailable())
-                        .matchId(matchSquadDto.getMatchId())
-                        .teamId(matchSquadDto.getTeamId())
+                        .match(Match.builder().id(matchSquadDto.getMatchId()).build())
+                        .team(mapTeamDtoToTeamEntity(matchSquadDto.getTeamDto()))
                         .players(matchSquadDto.getPlayers()
                                 .entrySet()
                                 .stream()
@@ -334,35 +354,35 @@ public class ManagerMapper {
 
     }
 
-    public TeamStartingSquad mapTeamSquadDtoToTeamSquad(TeamSquadDto teamSquadDto) {
-
-        return teamSquadDto != null ?
-
-                TeamStartingSquad.builder()
-                        .id(teamSquadDto.getId())
-                        .match(matchRepository.findById(teamSquadDto.getMatchId()).orElse(null))
-                        .team(mapTeamDtoToTeamEntity(teamSquadDto.getTeamDto()))
-                        .squad(mapSquadDtoToSquad(teamSquadDto.getSquadDto()))
-                        .build()
-
-                : null;
-
-    }
-
-    public TeamSquadDto mapTeamSquadToDto(TeamStartingSquad teamStartingSquad) {
-
-        return teamStartingSquad != null ?
-
-                TeamSquadDto.builder()
-                        .id(teamStartingSquad.getId())
-                        .matchId(teamStartingSquad.getMatch().getId())
-                        .teamDto(mapTeamToTeamDto(teamStartingSquad.getTeam()))
-                        .squadDto(mapSquadToSquadDto(teamStartingSquad.getSquad()))
-                        .build()
-
-                : null;
-
-    }
+//    public TeamStartingSquad mapTeamSquadDtoToTeamSquad(TeamSquadDto teamSquadDto) {
+//
+//        return teamSquadDto != null ?
+//
+//                TeamStartingSquad.builder()
+//                        .id(teamSquadDto.getId())
+//                        .match(matchRepository.findById(teamSquadDto.getMatchId()).orElse(null))
+//                        .team(mapTeamDtoToTeamEntity(teamSquadDto.getTeamDto()))
+//                        .squad(mapSquadDtoToSquad(teamSquadDto.getSquadDto()))
+//                        .build()
+//
+//                : null;
+//
+//    }
+//
+//    public TeamSquadDto mapTeamSquadToDto(TeamStartingSquad teamStartingSquad) {
+//
+//        return teamStartingSquad != null ?
+//
+//                TeamSquadDto.builder()
+//                        .id(teamStartingSquad.getId())
+//                        .matchId(teamStartingSquad.getMatch().getId())
+//                        .teamDto(mapTeamToTeamDto(teamStartingSquad.getTeam()))
+//                        .squadDto(mapSquadToSquadDto(teamStartingSquad.getSquad()))
+//                        .build()
+//
+//                : null;
+//
+//    }
 
 
     public MatchStatisticDto mapMatchStatisticToDto(MatchStatistic matchStatistic) {

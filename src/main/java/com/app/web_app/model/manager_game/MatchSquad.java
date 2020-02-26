@@ -1,13 +1,11 @@
 package com.app.web_app.model.manager_game;
 
-import com.app.web_app.model.manager_game.enums.Formation;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.Map;
 
 @Builder
@@ -15,20 +13,23 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "match_squads", uniqueConstraints = @UniqueConstraint(columnNames = {"matchId", "teamId"}))
+@Table(name = "match_squads", uniqueConstraints = @UniqueConstraint(columnNames = {"match_id", "team_id"}))
 public class MatchSquad {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private Integer matchId;
-    private Integer teamId;
+    @OneToOne
+    @JoinColumn(name = "match_id")
+    private Match match;
 
-    @Enumerated(EnumType.STRING)
-    private Formation formation;
+    @OneToOne
+    @JoinColumn(name = "team_id")
+    private Team team;
 
-    private String formationName;
+    private Integer formationType;
+
     private Integer substitutionsAvailable;
 
     @ManyToMany
@@ -38,5 +39,4 @@ public class MatchSquad {
     @MapKeyColumn(name = "position")
     private Map<String, Player> players;
 
-//    private LocalDateTime lastSaveTime;
 }

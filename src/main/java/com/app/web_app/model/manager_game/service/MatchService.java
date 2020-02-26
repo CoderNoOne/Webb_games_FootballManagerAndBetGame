@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,4 +89,17 @@ public class MatchService {
                 ));
 
     }
+
+    public LocalDateTime getStartingTimeForMatchById(Integer matchId){
+
+        if(matchId == null){
+            throw new AppException("Match id is null");
+        }
+
+        return matchRepository.findById(matchId)
+                .orElseThrow(()-> new AppException("Match with id {0} doesn't exist"))
+                .getDateTime();
+
+    }
+
 }

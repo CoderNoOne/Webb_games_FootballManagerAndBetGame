@@ -19,8 +19,10 @@ public class TeamDto {
     private Integer gameId;
     private String logoUrl;
     private String shirtColors;
+    private LeagueDto leagueDto;
 
     private String username;
+    private CountryDto countryDto;
 
     private Set<PlayerDto> players;
 }

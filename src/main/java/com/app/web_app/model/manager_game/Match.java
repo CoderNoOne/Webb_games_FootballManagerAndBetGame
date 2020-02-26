@@ -39,8 +39,4 @@ public class Match {
     @JoinColumn(name = "league_id")
     private League league;
 
-    @OneToMany(mappedBy = "match", cascade = {CascadeType.REMOVE})
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private List<TeamStartingSquad> startingTeamStartingSquads;
 }

@@ -6,14 +6,11 @@ import com.app.web_app.model.MatchScore;
 import com.app.web_app.model.bet_game.BetPoints;
 import com.app.web_app.model.bet_game.BetScore;
 import com.app.web_app.model.manager_game.*;
-import com.app.web_app.model.manager_game.dto.TeamSquadDto;
 import com.app.web_app.model.manager_game.enums.Formation;
 import com.app.web_app.model.manager_game.enums.Position;
 import com.app.web_app.model.manager_game.repository.MatchSquadRepository;
 import com.app.web_app.model.manager_game.repository.MatchStatisticRepository;
-import com.app.web_app.model.manager_game.repository.TeamSquadRepository;
 import com.app.web_app.model.manager_game.service.SquadStrengthCalculatorService;
-import com.app.web_app.model.manager_game.service.TeamSquadService;
 import com.app.web_app.repository.GoalDetailRepository;
 import com.app.web_app.repository.MatchRepository;
 import com.app.web_app.repository.bet_game.BetPointsRepository;
@@ -49,10 +46,8 @@ public class ScheduleService {
     private final SquadStrengthCalculatorService squadStrengthCalculatorService;
     private final MatchSquadRepository matchSquadRepository;
     private final BetService betService;
-    private final TeamSquadService teamSquadService;
     private final ScoreEntityRepository scoreEntityRepository;
     private final BetPointsRepository betPointsRepository;
-    private final TeamSquadRepository teamSquadRepository;
     private final GoalDetailRepository goalDetailRepository;
 
     private void getTriggersForLiveMatches() {
@@ -281,17 +276,16 @@ public class ScheduleService {
 
     }
 
-    //generate 5 minutes before matches triggers for simulating matches
-
-
-    // TODO: 22.01.2020 triggery do symylacji live matchow jesli padnie serwer w trackie meczow
-
-
     public void simulateFmMatches(List<Integer> matchIds) {
 
         List<Match> matches = matchRepository.findAllById(matchIds);
 
         Map<Match, CronTrigger> cronTriggersToCheckIfTeamsHaveTheirStartingSquadsSet = getCronTriggersToCheckIfTeamsHaveTheirStartingSquadsSet(matches);
+
+        // TODO: 24.02.2020 remove print
+        System.out.println("CronTriggersToCheckIfTeams have their squad set");
+
+        cronTriggersToCheckIfTeamsHaveTheirStartingSquadsSet.forEach((match, trigger) -> System.out.println("match " + match.getId() + "-> " + trigger));
 
         cronTriggersToCheckIfTeamsHaveTheirStartingSquadsSet.forEach((match, trigger) -> executor.schedule(() ->
                 {
@@ -315,50 +309,23 @@ public class ScheduleService {
         Integer homeTeamId = match.getHomeTeam().getId();
         Integer awayTeamId = match.getAwayTeam().getId();
 
-        Optional<TeamStartingSquad> homeTeamSquadOptional = teamSquadRepository.findByTeamIdAndMatchId(homeTeamId, match.getId());
-        Optional<TeamStartingSquad> awayTeamSquadOptional = teamSquadRepository.findByTeamIdAndMatchId(awayTeamId, match.getId());
+        Optional<MatchSquad> homeTeamSquadOptional = matchSquadRepository.findByTeamIdAndMatchId(homeTeamId, match.getId());
+        Optional<MatchSquad> awayTeamSquadOptional = matchSquadRepository.findByTeamIdAndMatchId(awayTeamId, match.getId());
 
         boolean isReadyToSimulate = homeTeamSquadOptional.isPresent() && awayTeamSquadOptional.isPresent();
 
         if (!isReadyToSimulate) {
             setScoreForWalkOverMatches(match);
-        } else {
-            MatchSquad matchSquadForHomeTeam = createMatchSquadForTeam(homeTeamSquadOptional.get());
-            MatchSquad matchSquadForAwayTeam = createMatchSquadForTeam(awayTeamSquadOptional.get());
-
-            matchSquadRepository.saveAll(List.of(matchSquadForHomeTeam, matchSquadForAwayTeam));
         }
-
         return isReadyToSimulate;
     }
 
-    private MatchSquad createMatchSquadForTeam(TeamStartingSquad teamStartingSquad) {
-
-        return MatchSquad.builder()
-                .teamId(teamStartingSquad.getTeam().getId())
-                .matchId(teamStartingSquad.getMatch().getId())
-                .substitutionsAvailable(3)
-                .formation(Formation.fromFormationNumber(teamStartingSquad.getSquad().getFormationType()).orElse(null))
-                .formationName(teamStartingSquad.getSquad().getName())
-                .players(getFirstElevenPlayers(teamSquadRepository.findPlayersPositionsForMatchIdAndTeamId(teamStartingSquad.getMatch().getId(), teamStartingSquad.getTeam().getId()),
-                        Objects.requireNonNull(Formation.fromFormationNumber(teamStartingSquad.getSquad().getFormationType()).orElse(null))))
-                .build();
-
-    }
-
-    private Map<String, Player> getFirstElevenPlayers(List<PlayerSquadPosition> allPlayersPosition, Formation formation) {
-
-        Map<Position, Player> allPlayersPos = allPlayersPosition.stream().collect(
-                Collectors.toMap(
-                        PlayerSquadPosition::getPosition,
-                        PlayerSquadPosition::getPlayer
-                )
-        );
+    private Map<String, Player> getFirstElevenPlayers(Map<String, Player> allPlayerPositions, Formation formation) {
 
         return formation.getPositions().stream()
                 .collect(Collectors.toMap(
                         Function.identity(),
-                        allPlayersPos::get
+                        allPlayerPositions::get
                 ));
     }
 
@@ -400,17 +367,13 @@ public class ScheduleService {
 
         matchStatistic.setMinute(matchMinute);
 
-        Map<String, Player> playersForHomeTeam = matchSquadRepository.findPlayerGroupedByPosition(match.getHomeTeam().getId(), match.getId());
-        Map<String, Player> playersForAwayTeam = matchSquadRepository.findPlayerGroupedByPosition(match.getAwayTeam().getId(), match.getId());
-
-
-        //algorytm do ustawiania wyniku meczu na podstawie siły drużyny + jakiś czynnik losowy
+        Map<String, Player> playersForHomeTeam = matchSquadRepository.findFirstElevenPlayers(match.getHomeTeam().getId(), match.getId());
+        Map<String, Player> playersForAwayTeam = matchSquadRepository.findFirstElevenPlayers(match.getAwayTeam().getId(), match.getId());
 
         Map<Team, BigDecimal> whoScoresWithWhatProb = squadStrengthCalculatorService.goalProbability(match.getId());
 
         boolean isGoal = squadStrengthCalculatorService.isGoal(whoScoresWithWhatProb);
 
-        /*lazy initialization exception*/
         List<GoalDetail> goalsDetails = new ArrayList<>(goalDetailRepository.findAllByMatchStatisticId(matchStatistic.getId()));
 
         if (isGoal) {
@@ -533,7 +496,7 @@ public class ScheduleService {
         //2. Jeżeli któ©as z druzyn nie ma to walkover 2:0
         //3. Jeżeli składy są ustawione to przejdz do własćiwej symulacji meczu
 
-        List<TeamSquadDto> startingSquadsForMatch = teamSquadService.getStartingSquadsForMatch(match.getId());
+        List<MatchSquad> startingSquadsForMatch = matchSquadRepository.findByMatchId(match.getId());
         match.setStatus(FmMatchStatus.FINISHED);
 
         match.setScore(switch (startingSquadsForMatch.size()) {
@@ -541,7 +504,7 @@ public class ScheduleService {
             case 1 -> {
                 @SuppressWarnings("OptionalGetWithoutIsPresent") Integer teamId = startingSquadsForMatch
                         .stream()
-                        .map(teamSquadDto -> teamSquadDto.getTeamDto().getId())
+                        .map(matchSquad -> matchSquad.getTeam().getId())
                         .findFirst().get();
                 yield match.getHomeTeam().getId().equals(teamId) ? "2:0" : "0:2";
             }

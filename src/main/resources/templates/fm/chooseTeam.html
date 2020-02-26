@@ -91,7 +91,7 @@
                         </table>
                     </td>
                     <td th:style="${iStat.odd}? 'color: lightsalmon' : 'color: yellow'">
-                        <select th:field="*{leagueIdTeamId[__${entry.key}__]}" style="height: 4vmin; text-indent: 40%">
+                        <select th:field="*{leagueIdTeamId[__${entry.key}__]}" style="text-align-last: center">
                             <option th:unless="${teamsToSelect[__${entry.key}__].isEmpty()}" class="text-center"
                                     style="direction: ltr; text-indent: 1vmin" selected disabled
                                     th:value="''">Pick one
