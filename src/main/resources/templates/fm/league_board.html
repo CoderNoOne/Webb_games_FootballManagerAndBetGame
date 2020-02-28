@@ -164,8 +164,7 @@
             <tbody>
             <tr th:class="${iStat.index == 0} ? 'top'" th:each="teamStanding, iStat : ${teamStandings} ">
                 <td th:text="${iStat.index + 1}"></td>
-                <td th:class="'name'"><img class="logo" th:src="${teamStanding.team.logoUrl}"
-                                           src="https://res.cloudinary.com/dxfq3iotg/image/upload/v1561260926/1200px-Manchester_City_FC_badge.svg.png">&nbsp;&nbsp;
+                <td th:class="'name'"><img class="logo" th:src="${teamStanding.team.logoUrl}">
                     <span th:text="|${teamStanding.team.name}|"></span></td>
                 <td th:text="${teamStanding.matchesNumber}"></td>
                 <td th:text="${teamStanding.wins}"></td>

@@ -152,12 +152,12 @@
 </div>
 
 <div class="main1">
-    <div class="main2 table-responsive">
+    <div class="main2 table-responsive mb-5">
         <h2 style="text-align: center">
             <img class="flag"
                  src="https://vignette.wikia.nocookie.net/manager-fdf/images/c/c2/Serie_A.png/revision/latest?cb=20190605132552&path-prefix=es">
             Premier League leaderboard <img class="flag"
-                                      src="https://vignette.wikia.nocookie.net/manager-fdf/images/c/c2/Serie_A.png/revision/latest?cb=20190605132552&path-prefix=es">
+                                            src="https://vignette.wikia.nocookie.net/manager-fdf/images/c/c2/Serie_A.png/revision/latest?cb=20190605132552&path-prefix=es">
         </h2>
         <p style="text-align: center;" class="pt">Points table</p>
         <table class="table">
@@ -179,9 +179,9 @@
             </tbody>
         </table>
     </div>
+    <div style="float: bottom" th:insert="fragments/footer.html :: footer"></div>
 </div>
 
-<div th:insert="fragments/footer.html :: footer"></div>
 <script th:src="@{/js/hourTime.js}"></script>
 </body>
 </html>

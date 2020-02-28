@@ -449,8 +449,7 @@
                            readonly="true">
                 </div>
 
-                <div
-                        th:if="${param.team != null and param.team[0].equals('opp') and eleven != null and eleven.substitutions != null}"
+                <div th:if="${param.team != null and param.team[0].equals('opp') and eleven != null and eleven.substitutions != null}"
                         style="margin-left: 80vmin; margin-top: -50vmin; text-align: center">
                     <h2 style="font-size: 5vmin; color: darkgoldenrod">Substitutions</h2><br>
                     <div style="margin-left: 5vmin" th:each="pr, stat: ${eleven.substitutions}">
@@ -488,9 +487,9 @@
                           th:action="@{'/fm/makeSubstitutions/' + ${matchId}}"
                           th:object="${eleven}" novalidate
                           method="post">
-                        <h2 style="font-size: 3.75vmin; color: #ff4743; margin-left: -3.5vmin">Position<span
-                                style="color:#f0f600; margin-left: 2.5vmin">Player</span><span
-                                style="margin-left: 3vmin">Subs</span>
+                        <h2 style="font-size: 3.75vmin; color: #ff4743; margin-left: -6.5vmin">Position<span
+                                style="color:#f0f600; margin-left: 5.5vmin">Player</span><span
+                                style="margin-left: 10vmin; color: greenyellow">Subs</span>
                         </h2>
                         <div th:each="pr, stat: *{players}">
                             <input id="position" style="background-color: transparent; border: 0; font-size: 1.75vm; font-weight: bold"

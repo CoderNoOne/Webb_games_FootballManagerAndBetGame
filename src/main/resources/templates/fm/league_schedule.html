@@ -90,7 +90,8 @@
             <ul class="pagination pg-blue">
                 <li class="page-item"><a class="page-link"
                                          th:href="@{'/fm/leagueSchedule?status=finished'}">Finished</a></li>
-                <li class="page-item"><a class="page-link" th:href="@{'/fm/leagueSchedule?status=scheduled'}">Scheduled</a></li>
+                <li class="page-item"><a class="page-link"
+                                         th:href="@{'/fm/leagueSchedule?status=scheduled'}">Scheduled</a></li>
 
             </ul>
 
@@ -117,7 +118,11 @@
                         <tr th:each="match, stat : ${entry.value}" style="border: 0">
                             <td style="border: 0"><img class="logo" th:src="${match.homeTeam.logoUrl}"
                                                        alt="homeTeamLogo"></td>
-                            <td th:text="|${match.homeTeam.name} vs ${match.awayTeam.name}|"></td>
+                            <td>
+                                <span th:text="${match.homeTeam.name}"></span>
+                                <span th:text="${status} == 'finished' ? ${match.score} :' vs. '"></span>
+                                <span th:text="${match.awayTeam.name}"></span>
+                            </td>
                             <td><img class="logo" th:src="${match.awayTeam.logoUrl}" alt="awayTeamLogo"></td>
                         </tr>
                     </table>

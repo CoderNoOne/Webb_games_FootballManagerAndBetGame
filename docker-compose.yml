@@ -1,0 +1,40 @@
+version: '3.3'
+services:
+  web-application:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      DB_HOSTNAME: mysql
+      DB_PORT: 3306
+      DB_NAME: db
+      DB_USERNAME: user
+      DB_PASSWORD: pass
+    networks:
+      - web-application-network
+
+  mysql:
+    image: mysql:5.7
+    ports:
+      - "3000:3306"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+      MYSQL_DATABASE: db
+    volumes:
+      - mysql-database-data-volume:/var/lib/mysql
+    networks:
+      - web-application-network
+
+volumes:
+  mysql-database-data-volume:
+
+networks:
+  web-application-network:

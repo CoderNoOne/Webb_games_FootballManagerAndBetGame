@@ -297,19 +297,17 @@
 
         </div>
 
-        <div style="position:fixed;left: 110vmin; font-size: 1.75vmin; float: bottom;" aria-level="40vmin;">
+        <div style="position:fixed;left: 145vmin; font-size: 1.75vmin;" aria-level="40vmin;">
             <button type="submit" class="btn btn-success">Save squad</button>
             <input type="text" hidden th:name="'chosenFormation'" th:value="${chosenFormation}">
             <input type="text" style="font-size: 1.75vmin" th:field="*{name}" placeholder="Squad name..">
         </div>
 
-
     </form>
 
 </div>
 
-<!--<div class="fixed-bottom" th:insert="fragments/footer.html :: footer"></div>-->
-
+<div class="fixed-bottom" th:insert="fragments/footer.html :: footer"></div>
 
 <script th:src="@{/js/hourTime.js}"></script>
 </body>

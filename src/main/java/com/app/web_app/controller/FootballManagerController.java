@@ -77,14 +77,16 @@ public class FootballManagerController {
                         Map<Integer, List<MatchDto>> matchesGroupedByMatchDay = matchService.getMatchesGroupedByMatchDay(matchService.getScheduledMatches(leagueId));
 
                         model.addAttribute(matchesGroupedByMatchDay.isEmpty() ? "notScheduledMatches" : "scheduledMatchesPerMatchDay",
-                                matchesGroupedByMatchDay.isEmpty() ? "There is not scheduled matches yet" : matchesGroupedByMatchDay);
+                                matchesGroupedByMatchDay.isEmpty() ? "There is not scheduled matches yet" : matchesGroupedByMatchDay)
+                                .addAttribute("status", "scheduled");
 
                     } else if (status.equals("finished")) {
 
                         Map<Integer, List<MatchDto>> matchesGroupedByMatchDay = matchService.getMatchesGroupedByMatchDay(matchService.getFinishedMatchesForLeague(leagueId));
 
                         model.addAttribute(matchesGroupedByMatchDay.isEmpty() ? "notFinishedMatches" : "finishedMatchesPerMatchDay",
-                                matchesGroupedByMatchDay.isEmpty() ? "There is not finished matches yet" : matchesGroupedByMatchDay);
+                                matchesGroupedByMatchDay.isEmpty() ? "There is not finished matches yet" : matchesGroupedByMatchDay)
+                                .addAttribute("status", "finished");
 
                     }
                 }, () -> model.addAttribute("noActiveLeague", "noActiveLeague")
@@ -674,36 +676,39 @@ public class FootballManagerController {
         return "fm/upcoming_matches";
     }
 
-    // TODO: 25.02.2020
     @GetMapping("/startingSquad/{matchId}")
     public String startingSquad(
             @PathVariable Integer matchId,
             @AuthenticationPrincipal(expression = "username") String username,
             Model model) {
 
-        TeamDto teamDto = teamService.getActiveTeamByUsername(username).orElse(null);
+        teamService.getActiveTeamByUsername(username).ifPresentOrElse(
+                teamDto -> {
 
-        matchSquadService.getByTeamIdAndMatchId(teamDto.getId(), matchId).ifPresentOrElse(
-                matchSquadDto -> {
 
-                    Formation formation = matchSquadDto.getFormation();
+                    matchSquadService.getByTeamIdAndMatchId(teamDto.getId(), matchId).ifPresentOrElse(
+                            matchSquadDto -> {
 
-                    model.addAttribute("eleven", FormationDto.builder().players(matchSquadDto.getPlayers())
-                            .substitutions(matchSquadDto.getSubstitutions()).build())
-                            .addAttribute("chosenFormation", formation)
-                            .addAttribute("positionForInputIdMap", formation.getPositionForInputId());
+                                Formation formation = matchSquadDto.getFormation();
+
+                                model.addAttribute("eleven", FormationDto.builder().players(matchSquadDto.getPlayers())
+                                        .substitutions(matchSquadDto.getSubstitutions()).build())
+                                        .addAttribute("chosenFormation", formation)
+                                        .addAttribute("positionForInputIdMap", formation.getPositionForInputId());
+                            },
+
+                            () -> model
+                                    .addAttribute("noSquadSet", "The squad isn't set yet. Choose one"));
+
+                    List<SquadDto> savedSquads = squadService.getSquadsByTeamId(teamDto.getId());
+
+                    model.addAttribute("savedSquads", savedSquads)
+                            .addAttribute("matchId", matchId)
+                            .addAttribute("matchDate", matchService.getMatchById(matchId).get().getDateTime())
+                            .addAttribute("colors", teamService.getShirtColors(teamDto));
                 },
-
-                () -> model
-                        .addAttribute("noSquadSet", "The squad isn't set yet. Choose one"));
-
-        List<SquadDto> savedSquads = squadService.getSquadsByTeamId(teamDto.getId());
-
-        model.addAttribute("savedSquads", savedSquads)
-                .addAttribute("matchId", matchId)
-                .addAttribute("matchDate", matchService.getMatchById(matchId).get().getDateTime())
-                .addAttribute("colors", teamService.getShirtColors(teamDto));
-
+                () -> model.addAttribute("noActiveTeam", MessageFormat.format("There is no active team for username: {0}", username))
+        );
         return "fm/set_squad";
     }
 
@@ -754,14 +759,21 @@ public class FootballManagerController {
 
         if (option == null || option.equals("general")) {
 
-            Integer leagueId = leagueService.getActiveLeagueByUsername(username).get().getId();
             model.addAttribute("selected", "general");
 
-            if (attributes == null || attributes.equals("goals")) {
-                controllerUtil.createModelAttributesForGoals(model, playerService.getGoalsForPlayersInLeagueById(leagueId));
-            } else {
-                controllerUtil.createModelAttributesForAssists(model, playerService.getAssistsForPlayersInLeagueById(leagueId));
-            }
+            leagueService.getActiveLeagueByUsername(username).ifPresentOrElse(
+                    leagueDto -> {
+
+                        if (attributes == null || attributes.equals("goals")) {
+                            controllerUtil.createModelAttributesForGoals(model, playerService.getGoalsForPlayersInLeagueById(leagueDto.getId()));
+                        } else {
+                            controllerUtil.createModelAttributesForAssists(model, playerService.getAssistsForPlayersInLeagueById(leagueDto.getId()));
+                        }
+
+                        model.addAttribute("leagueName", leagueDto.getName());
+                    },
+                    () -> model.addAttribute("noActiveLeague", MessageFormat.format("There is no active league for username {0}", username))
+            );
 
         } else {
             model.addAttribute("selected", "yourTeam");
@@ -810,8 +822,6 @@ public class FootballManagerController {
 
                                     Formation formation = matchSquadDto.getFormation();
 
-                                    System.out.println("Subs: " + matchSquadDto.getSubstitutions());
-
                                     Map<String, List<PlayerDto>> subsPerPosition = formation.getPositionForInputId()
                                             .values()
                                             .stream()
@@ -821,6 +831,11 @@ public class FootballManagerController {
                                                             .filter(playerDto -> playerDto.getPositions().contains(Position.fromString(position)))
                                                             .collect(Collectors.toList())
                                             ));
+
+
+                                    System.out.println("--------------------------------");
+                                    System.out.println(matchSquadDto.getSubstitutions());
+                                    System.out.println("--------------------------------");
 
                                     model.addAttribute("eleven", FormationDto.builder().players(matchSquadDto.getPlayers())
                                             .substitutions(matchSquadDto.getSubstitutions()).build())
@@ -837,6 +852,10 @@ public class FootballManagerController {
                         matchSquadService.getOpponentSquadForMatch(matchId, teamDto.getId())
                                 .ifPresentOrElse((matchSquadDto -> {
                                     Formation formation = matchSquadDto.getFormation();
+
+                                    System.out.println("--------------------------------");
+                                    System.out.println(matchSquadDto.getSubstitutions());
+                                    System.out.println("--------------------------------");
 
                                     model.addAttribute("eleven", FormationDto.builder().players(matchSquadDto.getPlayers())
                                             .substitutions(matchSquadDto.getSubstitutions()).build())

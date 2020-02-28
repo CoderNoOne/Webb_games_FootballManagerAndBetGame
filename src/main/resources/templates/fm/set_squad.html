@@ -244,6 +244,10 @@
 <h1 class="text-center mt-5" style="color: #ca2626">Match Centre</h1>
 
 <div class="main1">
+
+    <div th:if="${noActiveTeam}" class="alert alert-danger text-center"
+         th:text="${noActiveTeam}"></div>
+
     <div class="main2 mb-5">
         <div class="pitch">
             <div class="top-box"></div>
@@ -253,7 +257,6 @@
 
             <div th:if="${notValidSquad}" class="alert alert-danger text-center"
                  th:text="${notValidSquad}"></div>
-
             <div th:if="${eleven != null and positionForInputIdMap != null}"
                  th:class="${chosenFormation.getCssClassName()}">
 
@@ -420,9 +423,9 @@
 
     <div class="mt-3 mb-2" th:insert="fragments/footer.html :: footer"></div>
 
-<script>
-    let matchDate = "[[${matchDate}]]";
-</script>
+    <script>
+        let matchDate = "[[${matchDate}]]";
+    </script>
     <script th:src="@{/js/hourTime.js}"></script>
     <script th:src="@{/js/timeLeftToMatch.js}"></script>
 

@@ -140,6 +140,5 @@ public class MatchSquadService {
 
         return matchSquadRepository.findByMatchIdAndTeamIdNot(matchId, teamId)
                 .map(managerMapper::mapMatchSquadToDto);
-
     }
 }

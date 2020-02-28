@@ -12,7 +12,6 @@
     <artifactId>web_app</artifactId>
     <version>0.0.1</version>
     <name>web_app</name>
-
     <properties>
         <maven.compiler.source>13</maven.compiler.source>
         <maven.compiler.target>13</maven.compiler.target>

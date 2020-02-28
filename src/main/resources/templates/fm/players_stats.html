@@ -151,83 +151,86 @@
     </div>
 </nav>
 
-<div class="container">
+<div class="form-group">
 
-    <div class="form-group">
+    <div class="main1">
 
-        <div class="main1">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination pg-blue" style="justify-content: center">
+                <li class="page-item"><a class="page-link text-center text-uppercase"
+                                         th:href="@{'/fm/playerStats/?option=general&attributes'}"
+                                         style="color: darkgoldenrod; width: 40vmin">Overall</a></li>
+                <li class="page-item"><a class="page-link text-center text-uppercase"
+                                         th:href="@{'/fm/playerStats/?option=yourTeam&attributes'}"
+                                         style="color: darkgoldenrod; margin-left: 5vmin; width: 40vmin">Your
+                    team</a></li>
 
-            <nav aria-label="Page navigation example">
+            </ul>
+        </nav>
+
+        <div th:if="${noActiveLeague}" class="alert alert-info text-center"
+             role="alert" th:text="${noActiveLeague}"></div>
+
+        <div th:if="${noActiveTeam}" class="alert alert-info text-center"
+             role="alert" th:text="${noActiveTeam}"></div>
+
+        <div class="main2 table-responsive mb-5">
+
+            <h2 class="text-uppercase" style="text-align: center"
+                th:text="${leagueName != null ? leagueName: 'No league active'}"> League name
+            </h2>
+            <p style="text-align: center;" class="pt">PLAYER STATISTICS</p>
+
+
+            <nav aria-label="Page navigation example" style="float: left">
                 <ul class="pagination pg-blue" style="justify-content: center">
-                    <li class="page-item"><a class="page-link text-center text-uppercase"
-                                             th:href="@{'/fm/playerStats/?option=general&attributes'}"
-                                             style="color: darkgoldenrod; width: 40vmin">Overall</a></li>
-                    <li class="page-item"><a class="page-link text-center text-uppercase"
-                                             th:href="@{'/fm/playerStats/?option=yourTeam&attributes'}"
-                                             style="color: darkgoldenrod; margin-left: 5vmin; width: 40vmin">Your
-                        team</a></li>
-
-                </ul>
-            </nav>
-
-            <div class="main2 table-responsive">
-
-                <h2 style="text-align: center"> Custom league
-                </h2>
-                <p style="text-align: center;" class="pt">PLAYER STATISTICS</p>
-
-
-                <nav aria-label="Page navigation example" style="float: left">
-                    <ul class="pagination pg-blue" style="justify-content: center">
-                        <li class="page-item"><a class="page-link"
-                                                 th:href="@{
+                    <li class="page-item"><a class="page-link"
+                                             th:href="@{
                                                  ${#strings.toString(selected) == 'general' or #strings.toString(selected) == null?
                                                  '/fm/playerStats?option=general&attributes=goals' :
                                                  '/fm/playerStats?option=yourTeam&attributes=goals'}}">Goals</a>
-                        </li>
-                        <li class="page-item"><a class="page-link" th:href="
+                    </li>
+                    <li class="page-item"><a class="page-link" th:href="
                         @{
                         ${#strings.toString(selected) == 'general' or #strings.toString(selected) == null?
                         '/fm/playerStats?option=general&attributes=assists' :
                         '/fm/playerStats?option=yourTeam&attributes=assists'
 
                         }}">Assists</a>
-                        </li>
-                    </ul>
-                </nav>
+                    </li>
+                </ul>
+            </nav>
 
-                <table class="table">
-                    <thead>
-                    <th>LP</th>
-                    <th class="name" style="text-align: center">Player</th>
-                    <th th:text="${#httpServletRequest.getParameter('attributes') == 'goals' ? 'Goals' : 'Assists'}"></th>
-                    <th>Club</th>
-                    </thead>
-                    <tbody>
-                    <tr>
-                    <tr th:class="${iStat.index == 0} ? 'top'"
-                        th:each="entry, iStat : ${#httpServletRequest.getParameter('attributes') == 'goals' ? goalsForPlayers : assistsForPlayers}">
-                        <td th:text="${iStat.index + 1}"></td>
-                        <td th:class="'name'"><img class="logo"
-                                                   th:src="${entry.key.imageUrl}">&nbsp;&nbsp;
-                            <span th:text="|${entry.key.firstName} ${entry.key.lastName}|"></span></td>
-                        <td th:text="${entry.value}"></td>
-                        <td><span th:text="${teamsForPlayers[__${entry.key.id}__].name}"></span><img
-                                class="logoTeam"
-                                style="float: right; margin-right: 20vmin; margin-left: -15vmin"
-                                th:src="${teamsForPlayers[__${entry.key.id}__].logoUrl}">
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+            <table class="table">
+                <thead>
+                <th>Lp.</th>
+                <th class="name" style="text-align: center">Player</th>
+                <th th:text="${#httpServletRequest.getParameter('attributes') == 'goals' ? 'Goals' : 'Assists'}"></th>
+                <th>Club</th>
+                </thead>
+                <tbody>
+                <tr>
+                <tr th:class="${iStat.index == 0} ? 'top'"
+                    th:each="entry, iStat : ${#httpServletRequest.getParameter('attributes') == 'goals' ? goalsForPlayers : assistsForPlayers}">
+                    <td th:text="${iStat.index + 1}"></td>
+                    <td th:class="'name'"><img class="logo"
+                                               th:src="${entry.key.imageUrl}">&nbsp;&nbsp;
+                        <span th:text="|${entry.key.firstName} ${entry.key.lastName}|"></span></td>
+                    <td th:text="${entry.value}"></td>
+                    <td><span th:text="${teamsForPlayers[__${entry.key.id}__].name}"></span><img
+                            class="logoTeam"
+                            style="float: right; margin-right: 20vmin; margin-left: -15vmin"
+                            th:src="${teamsForPlayers[__${entry.key.id}__].logoUrl}">
+                    </td>
+                </tr>
+                </tbody>
+            </table>
 
-            </div>
         </div>
+        <div th:insert="fragments/footer.html :: footer"></div>
     </div>
-
-    <div class="mt-3 mb-2" th:insert="fragments/footer.html :: footer"></div>
-
-
 </div>
+
+<script th:src="@{/js/hourTime.js}"></script>
 </body>
 </html>
