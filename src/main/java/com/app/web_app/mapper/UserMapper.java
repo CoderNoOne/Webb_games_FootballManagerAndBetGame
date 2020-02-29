@@ -2,7 +2,9 @@ package com.app.web_app.mapper;
 
 import com.app.web_app.model.dto.UserDto;
 import com.app.web_app.model.user.User;
+import com.app.web_app.model.user.enums.Gender;
 import com.app.web_app.service.ImgurService;
+import com.app.web_app.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -14,21 +16,28 @@ public class UserMapper {
 
     public User mapUserDtoToUser(UserDto userDto) {
 
-        return userDto != null ?
+        if (userDto != null) {
+            boolean customPhoto = userDto.getFile().getSize() != 0;
 
-                User.builder()
-                        .firstName(userDto.getFirstName())
-                        .lastName(userDto.getLastName())
-                        .username(userDto.getUsername())
-                        .enabled(userDto.getEnabled())
-                        .birthDate(userDto.getBirthDate())
-                        .gender(userDto.getGender())
-                        .email(userDto.getEmail())
-                        .authorities(userDto.getAuthorities())
-                        .password(userDto.getPassword().getPassword())
-                        .photoUrl(imgurService.upload(userDto.getFile()))
-                        .build() :
-                null;
+            return
+                    User.builder()
+                            .firstName(userDto.getFirstName())
+                            .lastName(userDto.getLastName())
+                            .username(userDto.getUsername())
+                            .enabled(userDto.getEnabled())
+                            .birthDate(userDto.getBirthDate())
+                            .gender(userDto.getGender())
+                            .email(userDto.getEmail())
+                            .authorities(userDto.getAuthorities())
+                            .password(userDto.getPassword().getPassword())
+                            .photoUrl(customPhoto ? imgurService.upload(userDto.getFile())
+                                    : userDto.getGender().equals(Gender.FEMALE) ?
+                                    UserService.DEFAULT_FEMALE_AVATAR_URL : UserService.DEFAULT_MALE_AVATAR_URL)
+                            .build();
+
+        }
+
+        return null;
     }
 
     public UserDto mapUserToUserDto(User user) {

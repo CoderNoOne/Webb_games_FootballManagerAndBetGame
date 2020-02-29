@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-import java.io.File;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -80,18 +79,6 @@ public class HomeController {
 
                             if (!bindingResult.hasErrors() && userService.findByUsername(userDto.getUsername()).isEmpty()) {
                                 userDto.setEnabled(false);
-
-                                if (userDto.getFile().getSize() == 0) {
-                                    File maleImage = new File("src/main/resources/static/images/male.jpg");
-                                    File femaleImage = new File("src/main/resources/static/images/female.jpg");
-
-                                    userDto.setFile(switch (userDto.getGender()) {
-
-                                        case MALE -> controllerUtil.saveFile(maleImage);
-                                        case FEMALE -> controllerUtil.saveFile(femaleImage);
-
-                                    });
-                                }
 
                                 userDto.setAuthorities(new HashSet<>(Set.of(Authority.ROLE_USER)));
 

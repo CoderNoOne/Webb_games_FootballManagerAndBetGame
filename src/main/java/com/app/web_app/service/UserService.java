@@ -22,11 +22,17 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService {
 
+    public static final String DEFAULT_MALE_AVATAR_URL = "https://i.imgur.com/ku045EO.jpg";
+    public static final String DEFAULT_FEMALE_AVATAR_URL = "https://i.imgur.com/fi9hWjW.jpg";
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
     public User save(UserDto userDto) {
+
+        if (userDto == null) {
+            throw new AppException("UserDto is null");
+        }
 
         User user = userMapper.mapUserDtoToUser(userDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));

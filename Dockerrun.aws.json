@@ -33,7 +33,7 @@
     },
     {
       "name": "web-application",
-      "image": "codernoone/web_app:v1",
+      "image": "codernoone/web_app:v10",
       "essential": true,
       "memory": 512,
       "portMappings": [
