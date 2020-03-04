@@ -1,5 +1,13 @@
 {
   "AWSEBDockerrunVersion": 2,
+  "volumes": [
+    {
+      "name": "mysql-volume",
+      "host": {
+        "sourcePath": "/var/app/current/web-app"
+      }
+    }
+  ],
   "containerDefinitions": [
     {
       "name": "mysql",
@@ -29,11 +37,17 @@
           "hostPort": 3306,
           "containerPort": 3306
         }
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "mysql-volume",
+          "containerPath": "/var/lib/mysql"
+        }
       ]
     },
     {
       "name": "web-application",
-      "image": "codernoone/web_app:v10",
+      "image": "codernoone/web_app:v2",
       "essential": true,
       "memory": 512,
       "portMappings": [

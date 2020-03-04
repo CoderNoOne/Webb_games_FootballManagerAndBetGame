@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.UUID;
 
 @Controller
-@Slf4j
 @SessionAttributes(names = {"loggedUsers"})
 @EnableAsync
 @RequiredArgsConstructor
@@ -47,9 +46,7 @@ public class HomeController {
 
         String photoUrlForUsername = userService.getPhotoUrlForUsername(activeUser.getUsername());
         session.setAttribute("userPhoto", photoUrlForUsername);
-
         model.addAttribute("loggedUsers", loggedUsersService.getLoggedUsers());
-
         return "user_page";
     }
 
@@ -71,26 +68,21 @@ public class HomeController {
 
         userService.findByEmail(userDto.getEmail())
                 .ifPresentOrElse(
-                        (userFromDb) -> {
+                        userFromDb -> {
                             model.addAttribute("emailTaken", "There is already a user registered with the email provided.");
                             bindingResult.reject("emailTaken");
                         },
                         () -> {
 
                             if (!bindingResult.hasErrors() && userService.findByUsername(userDto.getUsername()).isEmpty()) {
-                                userDto.setEnabled(false);
 
-                                userDto.setAuthorities(new HashSet<>(Set.of(Authority.ROLE_USER)));
-
-                                String token = UUID.randomUUID().toString();
-                                VerificationTokenDto verificationToken = VerificationTokenDto.builder().token(token).userDto(userDto).build();
+                                controllerUtil.postRegisterOperations(userDto);
                                 userService.save(userDto);
-                                verificationTokenService.saveOrUpdateToken(verificationToken);
+                                verificationTokenService.saveOrUpdateToken(controllerUtil.createVerificationTokenForUserDto(userDto));
+                                String mailMessage = String.format(EmailService.REGISTRATION_MESSAGE, request.getScheme(), request.getServerName(), request.getServerPort(), verificationTokenService.getTokenForUser(userDto.getUsername()).orElse(null));
+                                emailService.sendEmail(EmailType.REGISTRATION, userDto.getEmail(), mailMessage, null);
                                 model.addAttribute("confirmationMessage", "A confirmation e-mail has been sent to " + userDto.getEmail());
 
-                                String mailMessage = String.format(EmailService.REGISTRATION_MESSAGE, request.getScheme(), request.getServerName(), request.getServerPort(), verificationTokenService.getTokenForUser(userDto.getUsername()).orElse(null));
-
-                                emailService.sendEmail(EmailType.REGISTRATION, userDto.getEmail(), mailMessage, null);
                             }
                         }
                 );
@@ -98,22 +90,20 @@ public class HomeController {
     }
 
     @RequestMapping(value = "/login")
-    public String login(HttpSession session) {
-
-        session.setAttribute("loggedUsers2", loggedUsersService.getLoggedUsers());
+    public String login() {
         return "login_page";
-
     }
 
     @GetMapping(value = "/logout")
-    public String logout(HttpSession httpSession) {
-
-        httpSession.invalidate();
+    public String logout() {
         return "login_page";
     }
 
     @GetMapping(value = "/confirm")
-    public String showConfirmationPage(Model model, @RequestParam String token) {
+    public String showConfirmationPage(
+            Model model,
+            @RequestParam String token
+    ) {
 
         verificationTokenService.getUserAssociatedWithToken(token)
                 .ifPresentOrElse((userFromDB) -> {
@@ -133,9 +123,10 @@ public class HomeController {
     }
 
     @PostMapping(value = "/confirm")
-    public String processConfirmationForm(Model model, @RequestParam String token, @ModelAttribute PasswordDto
-            password) {
-
+    public String processConfirmationForm(
+            Model model,
+            @RequestParam String token,
+            @ModelAttribute PasswordDto password) {
 
         verificationTokenService.getUserAssociatedWithToken(token).ifPresent(userFromDb -> {
 
@@ -160,14 +151,20 @@ public class HomeController {
     }
 
     @GetMapping("/accessDenied")
-    public String showAccessDenied(@RequestHeader(name = "REQUESTED-URL", required = false) String header, Model model) {
+    public String showAccessDenied(
+            @RequestHeader(name = "REQUESTED-URL", required = false) String header,
+            Model model) {
         model.addAttribute("headerInfo", header);
         return "access_denied";
     }
 
 
     @PostMapping("/changePassword")
-    public String changePasswordPost(@Valid PasswordDto password, BindingResult bindingResult, Model model, @RequestParam String token) {
+    public String changePasswordPost(
+            @Valid PasswordDto password,
+            BindingResult bindingResult,
+            Model model,
+            @RequestParam String token) {
 
         var errors = controllerUtil.bindErrorsHibernateType(bindingResult);
         model.addAttribute("errors", errors);
@@ -193,7 +190,9 @@ public class HomeController {
     }
 
     @GetMapping("/changePassword")
-    public String changePasswordGet(Model model, @RequestParam String token) {
+    public String changePasswordGet(
+            Model model,
+            @RequestParam String token) {
 
         verificationTokenService.getUserAssociatedWithToken(token)
                 .ifPresentOrElse(user -> {
@@ -216,7 +215,10 @@ public class HomeController {
     }
 
     @PostMapping("/sendLinkToChangePassword")
-    public String sendLinkToChangePassword(HttpServletRequest request, Model model, @RequestParam String email) {
+    public String sendLinkToChangePassword(
+            HttpServletRequest request,
+            Model model,
+            @RequestParam String email) {
 
         model.addAttribute("email", email);
 
@@ -226,11 +228,8 @@ public class HomeController {
                             String token = UUID.randomUUID().toString();
                             VerificationTokenDto verificationToken = VerificationTokenDto.builder().token(token).userDto(user).build();
                             verificationTokenService.saveOrUpdateToken(verificationToken);
-
                             String mailMessage = String.format(EmailService.CHANGE_PASSWORD_MESSAGE, request.getScheme(), request.getServerName(), request.getServerPort(), token);
-
-
-                            emailService.sendEmail(EmailType.REQUEST_ADMIN, emailService.ADMIN_EMAIL, mailMessage, user.getEmail());
+                            emailService.sendEmail(EmailType.REQUEST_ADMIN, EmailService.ADMIN_EMAIL, mailMessage, user.getEmail());
 
                         },
                         () -> model.addAttribute("wrongEmail", "Email " + email + " doesn't exist"));

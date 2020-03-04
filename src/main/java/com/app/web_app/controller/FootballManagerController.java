@@ -1,6 +1,5 @@
 package com.app.web_app.controller;
 
-import com.app.web_app.exceptions.AppException;
 import com.app.web_app.model.FMChooseTeam;
 import com.app.web_app.model.manager_game.FormationDto;
 import com.app.web_app.model.manager_game.dto.*;
@@ -30,12 +29,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Controller
-@SessionAttributes(names = {"backgroundUrl"})
+@SessionAttributes(names = {"backgroundUrl", "username"})
 @RequiredArgsConstructor
 @RequestMapping("/fm")
 public class FootballManagerController {
@@ -139,11 +136,7 @@ public class FootballManagerController {
             @AuthenticationPrincipal(expression = "username") String username,
             Model model) {
 
-        Optional<TeamDto> activeTeamByUsername = teamService.getActiveTeamByUsername(username);
-
-        model.addAttribute("backgroundUrl", "https://i.imgur.com/p9hiHBU.jpg");
-
-        activeTeamByUsername
+        teamService.getActiveTeamByUsername(username)
                 .ifPresentOrElse(
                         teamDto -> {
                             List<PlayerDto> players = playerService.getPlayersForByTeamId(teamDto.getId());
@@ -173,6 +166,7 @@ public class FootballManagerController {
             redirectAttributes.addFlashAttribute("teamNotSelected", "You must enter team name");
         } else {
 
+            //noinspection OptionalGetWithoutIsPresent
             var teamId = chooseTeam.getLeagueIdTeamId().values().stream().findFirst().get();
 
             teamService.setUserForTeamByTeamId(teamId, username);
@@ -184,32 +178,24 @@ public class FootballManagerController {
     public String getBackgroundUrl(
             @AuthenticationPrincipal(expression = "username") String username) {
 
-        Optional<TeamDto> activeTeamByUsername = teamService.getActiveTeamByUsername(username);
-        return activeTeamByUsername.map(TeamDto::getBackgroundUrl).orElse(null);
+        return teamService
+                .getActiveTeamByUsername(username)
+                .map(TeamDto::getBackgroundUrl)
+                .orElse("");
 
     }
 
     @GetMapping("/playerNumbers")
-    public String getPlayerNumbers
-            (@AuthenticationPrincipal(expression = "username") String username,
-             Model model) {
+    public String getPlayerNumbers(
+            @AuthenticationPrincipal(expression = "username") String username,
+            Model model) {
 
-        Optional<TeamDto> activeTeamByUsername = teamService.getActiveTeamByUsername(username);
-
-        TeamDto teamDto = activeTeamByUsername.get();
-
-        Map<Integer, Integer> playerNumbers = teamDto.getPlayers()
-                .stream()
-                .collect(Collectors.toMap(
-                        PlayerDto::getId,
-                        playerDto -> -1)
-                );
-
-        PlayersNumberDto playersNumberDto = PlayersNumberDto.builder().playersNumber(playerNumbers).build();
-
-        model.addAttribute("playersNumberDto", playersNumberDto)
-                .addAttribute("players", teamDto.getPlayers())
-                .addAttribute("teamDto", teamDto);
+        teamService.getActiveTeamByUsername(username).ifPresentOrElse(
+                teamDto ->
+                        controllerUtil.createModelAttributesForTeam(model, teamDto),
+                () -> model
+                        .addAttribute("noActiveTeam", MessageFormat.format("There is no active team for username {}", username))
+        );
 
         return "fm/players_number";
     }
@@ -238,15 +224,21 @@ public class FootballManagerController {
             RedirectAttributes redirectAttributes,
             @AuthenticationPrincipal(expression = "username") String username) {
 
-        Optional<TeamDto> activeTeamByUsername = teamService.getActiveTeamByUsername(username);
+        teamService.getActiveTeamByUsername(username).ifPresentOrElse(
+                activeTeamByUsername -> {
+                    Map<Integer, Integer> currentPlayerNumbers = activeTeamByUsername.getPlayers().stream()
+                            .filter(e -> e.getNumber() != null)
+                            .collect(HashMap::new, (map, player) -> map.put(player.getId(), player.getNumber()), HashMap::putAll);
+                    Long playersCounter = playerService.clearPlayerNumbers(currentPlayerNumbers.keySet());
 
-        Map<Integer, Integer> currentPlayerNumbers = activeTeamByUsername.orElseThrow(AppException::new).getPlayers().stream()
-                .filter(e -> e.getNumber() != null)
-                .collect(HashMap::new, (map, player) -> map.put(player.getId(), player.getNumber()), HashMap::putAll);
-
-        Long playersCounter = playerService.clearPlayerNumbers(currentPlayerNumbers.keySet());
-
-        redirectAttributes.addFlashAttribute("numberCleared", MessageFormat.format("Players number has been cleared for {0} players", playersCounter));
+                    redirectAttributes
+                            .addFlashAttribute(
+                                    "numberCleared",
+                                    MessageFormat.format("Players number has been cleared for {0} players", playersCounter));
+                },
+                () -> redirectAttributes
+                        .addAttribute("noActiveTeam", MessageFormat.format("There is no active team for username {}", username))
+        );
 
         return "redirect:/fm/playerNumbers";
     }
@@ -259,66 +251,38 @@ public class FootballManagerController {
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes) {
 
-        Optional<TeamDto> activeTeamByUsername = teamService.getActiveTeamByUsername(username);
+        teamService.getActiveTeamByUsername(username).ifPresentOrElse(
+                activeTeamByUsername -> {
+                    Map<Integer, Integer> currentPlayerNumbers = activeTeamByUsername.getPlayers().stream()
+                            .collect(HashMap::new, (map, player) -> map.put(player.getId(), player.getNumber()), HashMap::putAll);
 
-        Map<Integer, Integer> currentPlayerNumbers = activeTeamByUsername.get().getPlayers().stream()
-                .collect(HashMap::new, (map, player) -> map.put(player.getId(), player.getNumber()), HashMap::putAll);
+                    if (randomizedNumbers == null) {
 
-        if (randomizedNumbers == null) {
+                        playersNumberDtoValidator.validate(playersNumberDto, bindingResult);
+                        var errors = controllerUtil.bindErrorsSpring(bindingResult);
 
-            playersNumberDtoValidator.validate(playersNumberDto, bindingResult);
-
-            var errors = controllerUtil.bindErrorsSpring(bindingResult);
-
-            if (bindingResult.hasErrors()) {
-                redirectAttributes.addFlashAttribute("errors", errors);
-                return "redirect:/fm/playerNumbers";
-            }
-
-            boolean isNumberNotSelectedYet = currentPlayerNumbers.entrySet()
-                    .stream()
-                    .allMatch(e ->
-                            playersNumberDto.getPlayersNumber().entrySet()
-                                    .stream()
-                                    .filter(ee -> !ee.getKey().equals(e.getKey()))
-                                    .noneMatch(ee -> ee.getValue().equals(e.getValue())));
-
-            if (!isNumberNotSelectedYet) {
-                redirectAttributes.addFlashAttribute("numbersAlreadySelected", "Some numbers are already selected");
-                return "redirect:/fm/playerNumbers";
-            }
-
-            redirectAttributes.addFlashAttribute("numbersSet", "Numbers has been successfully set");
-            playerService.savePlayerNumbers(playersNumberDto);
-
-        } else {
-
-            List<Integer> playerIdsToAdd = new ArrayList<>();
-
-            Map<Integer, Integer> playersWithNumberSelected = currentPlayerNumbers.entrySet()
-                    .stream()
-                    .peek(e -> {
-                        if (e.getValue() == null) {
-                            playerIdsToAdd.add(e.getKey());
+                        if (bindingResult.hasErrors()) {
+                            redirectAttributes.addFlashAttribute("errors", errors);
+                            return;
                         }
-                    })
-                    .filter(e -> e.getValue() != null)
-                    .collect(Collectors.toMap(
-                            Map.Entry::getKey,
-                            Map.Entry::getValue));
 
-            List<Integer> alreadySelectedNumbers = new ArrayList<>(playersWithNumberSelected.values());
+                        if (!controllerUtil.isNumberNotSelectedYet(playersNumberDto, currentPlayerNumbers)) {
+                            redirectAttributes.addFlashAttribute("numbersAlreadySelected", "Some numbers are already selected");
+                            return;
+                        }
+                        redirectAttributes.addFlashAttribute("numbersSet", "Numbers has been successfully set");
+                        playerService.savePlayerNumbers(playersNumberDto);
 
-            List<Integer> availableNumbers = IntStream.rangeClosed(1, 99)
-                    .filter(number -> !alreadySelectedNumbers.contains(number))
-                    .boxed()
-                    .collect(Collectors.toList());
+                    } else {
 
-            Long playersCounter = playerService.randomizePlayerNumbers(playerIdsToAdd, availableNumbers);
-
-            redirectAttributes.addFlashAttribute("randomizedNumbers", MessageFormat.format("Random number has been selected for {0} players", playersCounter));
-
-        }
+                        List<Integer> playerIdsToAdd = new ArrayList<>();
+                        Long playersCounter = playerService.randomizePlayerNumbers(playerIdsToAdd, controllerUtil.getAvailableNumbers(currentPlayerNumbers, playerIdsToAdd));
+                        redirectAttributes.addFlashAttribute("randomizedNumbers", MessageFormat.format("Random number has been selected for {0} players", playersCounter));
+                    }
+                },
+                () -> redirectAttributes
+                        .addFlashAttribute("noActiveTeam", MessageFormat.format("There is no active team for username {}", username))
+        );
         return "redirect:/fm/playerNumbers";
     }
 
@@ -348,179 +312,29 @@ public class FootballManagerController {
             model.addAttribute("teamNotSelected", teamNotSelected);
         }
 
-
         Set<LeagueDto> allLeaguesByActiveGame = leagueService.getAllLeaguesByActiveGameWithFetchedTeams();
 
         if (allLeaguesByActiveGame.size() == 0) {
             model.addAttribute("noTeams", "There is not available any team. Send a request to admin");
         }
 
-        var leaguesInfo = allLeaguesByActiveGame.stream()
-                .collect(Collectors.toMap(
-                        LeagueDto::getId,
-                        leagueDto -> leagueDto
-                ));
-
-
-        var alreadySelectedTeams = allLeaguesByActiveGame.stream()
-                .collect(Collectors.toMap(
-                        LeagueDto::getId,
-                        league -> teamService.getTeamsWithAssociatedUsers(league.getTeams(), league.getId())
-                ));
-
-        var teamsToSelect = allLeaguesByActiveGame.stream()
-                .collect(Collectors.toMap(
-                        LeagueDto::getId,
-                        league -> teamService.getTeamsWithNotAssociatedUsers(league.getTeams(), league.getId())
-                ));
-
-
-        var chooseTeam = FMChooseTeam.builder()
-                .leagueIdTeamId(allLeaguesByActiveGame.stream().collect(Collectors.toMap(LeagueDto::getId, league -> -1)))
-                .build();
-
-        model
-                .addAttribute("chooseTeam", chooseTeam)
-                .addAttribute("alreadySelectedTeams", alreadySelectedTeams)
-                .addAttribute("teamsToSelect", teamsToSelect)
-                .addAttribute("leaguesInfo", leaguesInfo);
-
         return "fm/chooseTeam";
-
     }
 
     @GetMapping("/formation")
     public String formation(
-            @AuthenticationPrincipal(expression = "username") String username,
+            @SessionAttribute(name = "username") String username,
             Model model,
             Formation formation) {
 
         teamService.getTeamByUsername(username).ifPresentOrElse(
                 team -> {
+                    model.addAttribute("colors", teamService.getShirtColors(team));
 
-                    Set<PlayerDto> players = team.getPlayers();
+                    controllerUtil.createModelForFormation(model, formation != null ? formation : Formation.FOUR_FOUR_TWO,
+                            team.getPlayers(), squadService.getSquadsByTeamId(team.getId()));
 
-                    Map<String, String> shirtColors = teamService.getShirtColors(team);
-
-                    List<SquadDto> squadsByTeamId = squadService.getSquadsByTeamId(team.getId());
-
-                    model.addAttribute("colors", shirtColors);
-
-                    switch (formation != null ? formation : Formation.FOUR_FOUR_TWO) {
-                        case FOUR_FOUR_TWO -> {
-
-                            List<String> formationPositions = Formation.FOUR_FOUR_TWO.getPositions();
-
-                            Map<String, List<PlayerDto>> playersForPosition = formationPositions
-                                    .stream()
-                                    .collect(Collectors.toMap(
-                                            position -> position,
-                                            position -> players.stream().filter(player -> player.getPositions().contains(Position.fromString(position))).collect(Collectors.toList()))
-                                    );
-
-                            Map<String, PlayerDto> sortedPositions = formationPositions.stream()
-                                    .collect(Collectors.toMap(
-                                            position -> position,
-                                            position -> new PlayerDto(),
-                                            (oldV, newV) -> oldV,
-                                            LinkedHashMap::new
-                                    ));
-
-
-                            AtomicInteger counter = new AtomicInteger(1);
-                            Map<String, Integer> numbers = formationPositions
-                                    .stream()
-                                    .collect(
-                                            Collectors.toMap(
-                                                    position -> position,
-                                                    position -> counter.getAndIncrement()
-                                            )
-                                    );
-
-
-                            Map<String, PlayerDto> subs = List.of(
-                                    "First",
-                                    "Second",
-                                    "Third",
-                                    "Fourth",
-                                    "Fifth",
-                                    "Sixth",
-                                    "Seventh"
-                            )
-                                    .stream()
-                                    .collect(Collectors.toMap(
-                                            sub -> sub,
-                                            sub -> new PlayerDto(),
-                                            (oldV, newV) -> oldV,
-                                            LinkedHashMap::new
-                                    ));
-                            model.addAllAttributes(sortedPositions)
-                                    .addAttribute("elevenPotential", FormationDto.builder().players(sortedPositions).substitutions(subs).build())
-                                    .addAttribute("playersForPosition", playersForPosition)
-                                    .addAttribute("players", players)
-                                    .addAttribute("chosenFormation", Formation.FOUR_FOUR_TWO)
-                                    .addAttribute("numbers", numbers)
-                                    .addAttribute("positionForInputIdMap", Formation.FOUR_FOUR_TWO.getPositionForInputId())
-                                    .addAttribute("savedSquads", squadsByTeamId);
-                        }
-                        case THREE_FIVE_TWO -> {
-
-                            List<String> formationPositions = Formation.THREE_FIVE_TWO.getPositions();
-
-                            Map<String, List<PlayerDto>> playersForPosition = formationPositions
-                                    .stream()
-                                    .collect(Collectors.toMap(
-                                            position -> position,
-                                            position -> players.stream().filter(player -> player.getPositions().contains(Position.fromString(position))).collect(Collectors.toList()))
-                                    );
-
-                            AtomicInteger counter = new AtomicInteger(1);
-                            Map<String, Integer> numbers = formationPositions
-                                    .stream()
-                                    .collect(
-                                            Collectors.toMap(
-                                                    position -> position,
-                                                    position -> counter.getAndIncrement()
-                                            )
-                                    );
-
-                            Map<String, PlayerDto> sortedPositions = formationPositions.stream()
-                                    .collect(Collectors.toMap(
-                                            position -> position,
-                                            position -> new PlayerDto(),
-                                            (oldV, newV) -> oldV,
-                                            LinkedHashMap::new
-                                    ));
-
-                            Map<String, PlayerDto> subs = List.of(
-                                    Position.FIRST.name(),
-                                    Position.SECOND.name(),
-                                    Position.THIRD.name(),
-                                    Position.FOURTH.name(),
-                                    Position.FIFTH.name(),
-                                    Position.SIXTH.name(),
-                                    Position.SEVENTH.name()
-                            )
-                                    .stream()
-                                    .collect(Collectors.toMap(
-                                            sub -> sub,
-                                            sub -> new PlayerDto(),
-                                            (oldV, newV) -> oldV,
-                                            LinkedHashMap::new
-                                    ));
-
-                            model.addAllAttributes(sortedPositions)
-                                    .addAttribute("elevenPotential", FormationDto.builder().players(sortedPositions).substitutions(subs).build())
-                                    .addAttribute("playersForPosition", playersForPosition)
-                                    .addAttribute("chosenFormation", Formation.THREE_FIVE_TWO)
-                                    .addAttribute("numbers", numbers)
-                                    .addAttribute("players", players)
-                                    .addAttribute("positionForInputIdMap", Formation.THREE_FIVE_TWO.getPositionForInputId())
-                                    .addAttribute("savedSquads", squadsByTeamId);
-
-                        }
-                    }
-                }, () -> model.addAttribute("")
+                }, () -> model.addAttribute("noActiveTeam", MessageFormat.format("There is no active team for username: {0}", username))
         );
         model.addAttribute("formations", Formation.values());
 
@@ -529,18 +343,16 @@ public class FootballManagerController {
 
     @PostMapping("/changeFormation")
     public String changeFormation(
-            @AuthenticationPrincipal(expression = "username") String username,
             RedirectAttributes redirectAttributes,
             Formation chosenFormation) {
 
         redirectAttributes.addAttribute("formation", chosenFormation);
-
         return "redirect:/fm/formation";
     }
 
     @PostMapping("/saveSquad")
     public String saveFormation(
-            @AuthenticationPrincipal(expression = "username") String username,
+            @SessionAttribute(name = "username") String username,
             @Valid FormationDto eleven,
             BindingResult result,
             RedirectAttributes redirectAttributes,
@@ -549,23 +361,15 @@ public class FootballManagerController {
         formationDtoValidator.validate(eleven, result);
 
         if (result.hasErrors()) {
-            Map<String, String> o = controllerUtil.bindErrorsSpring(result);
-            redirectAttributes.addFlashAttribute("errors", o);
+            redirectAttributes.addFlashAttribute("errors", controllerUtil.bindErrorsSpring(result));
         } else {
 
-            TeamDto teamDto = teamService.getTeamByUsername(username).orElse(null);
+            teamService.getTeamByUsername(username).ifPresentOrElse(teamDto ->
+                            redirectAttributes.addFlashAttribute("squadSaved", squadService.saveSquad(controllerUtil.createSquadDto(eleven, chosenFormation, teamDto)) ?
+                                    MessageFormat.format("Squad with name: {0} has been overridden", eleven.getName())
+                                    : MessageFormat.format("Squad with name: {0} has been saved", eleven.getName()))
 
-            boolean isOverridden = squadService.saveSquad(SquadDto.builder()
-                    .name(eleven.getName())
-                    .formationType(chosenFormation.getNumber())
-                    .players(eleven.getPlayers())
-                    .substitutions(eleven.getSubstitutions())
-                    .teamDto(teamDto)
-                    .build());
-
-            redirectAttributes.addFlashAttribute("squadSaved", isOverridden ?
-                    MessageFormat.format("Squad with name: {0} has been overridden", eleven.getName())
-                    : MessageFormat.format("Squad with name: {0} has been saved", eleven.getName()));
+                    , () -> redirectAttributes.addFlashAttribute("noActiveTeam", MessageFormat.format("There is no active team for usename: {0}", username)));
         }
 
         redirectAttributes.addAttribute("formation", chosenFormation);
@@ -574,82 +378,32 @@ public class FootballManagerController {
 
     @PostMapping(value = "/loadSquad")
     public String loadFormation(
-            @AuthenticationPrincipal(expression = "username") String username,
+            @SessionAttribute(name = "username") String username,
             String loadedSquad,
-            Model model,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            HttpServletRequest request) {
 
         if (loadedSquad == null) {
             redirectAttributes.addFlashAttribute("notValidLoadedSquad", "You must load a valid, existing squad");
             return "redirect:/fm/formation";
         } else {
 
-            final TeamDto teamDto = teamService.getActiveTeamByUsername(username).orElse(null);
+            teamService.getActiveTeamByUsername(username).ifPresentOrElse(teamDto ->
+                            squadService.findSquadByNameAndTeamId(loadedSquad, teamDto.getId()).ifPresentOrElse(squadByName ->
+                                            redirectAttributes
+                                                    .addFlashAttribute("eleven", FormationDto.builder().players(squadByName.getPlayers()).substitutions(squadByName.getSubstitutions()).build())
 
-            SquadDto squadByName = squadService.findSquadByNameAndTeamId(loadedSquad, teamDto.getId()).orElse(null);
+                                    , () -> redirectAttributes.addFlashAttribute("noSquadFound", MessageFormat.format("There is no active team for usename: {0}", username))),
+                    () -> redirectAttributes.addFlashAttribute("noActiveTeam", MessageFormat.format("There is no active team for usename: {0}", username)));
 
-            Integer formationTypeNumber = squadByName.getFormationType();
-
-            Formation formation = Formation.fromFormationNumber(formationTypeNumber);
-
-            model.addAttribute("eleven", FormationDto.builder().players(squadByName.getPlayers()).substitutions(squadByName.getSubstitutions()).build());
-
-
-            Map<String, PlayerDto> sortedPositions = formation.getPositions().stream()
-                    .collect(Collectors.toMap(
-                            position -> position,
-                            position -> new PlayerDto(),
-                            (oldV, newV) -> oldV,
-                            LinkedHashMap::new
-                    ));
-
-            Set<PlayerDto> players = teamDto.getPlayers();
-
-            final List<SquadDto> savedSquads = squadService.getSquadsByTeamId(teamDto.getId());
-
-
-            Map<String, PlayerDto> subs = List.of(
-                    "FIRST",
-                    "Second",
-                    "Third",
-                    "Fourth",
-                    "Fifth",
-                    "Sixth",
-                    "Seventh"
-            )
-                    .stream()
-                    .collect(Collectors.toMap(
-                            sub -> sub,
-                            sub -> new PlayerDto(),
-                            (oldV, newV) -> oldV,
-                            LinkedHashMap::new
-                    ));
-
-            Map<String, List<PlayerDto>> playersForPosition = formation.getPositions()
-                    .stream()
-                    .collect(Collectors.toMap(
-                            position -> position,
-                            position -> players.stream().filter(player -> player.getPositions().contains(Position.fromString(position))).collect(Collectors.toList()))
-                    );
-
-            model.addAllAttributes(sortedPositions)
-                    .addAttribute("eleven", FormationDto.builder().players(squadByName.getPlayers()).substitutions(squadByName.getSubstitutions()).build())
-                    .addAttribute("elevenPotential", FormationDto.builder().players(sortedPositions).substitutions(subs).build())
-                    .addAttribute("playersForPosition", playersForPosition)
-                    .addAttribute("players", players)
-                    .addAttribute("chosenFormation", formation)
-                    .addAttribute("positionForInputIdMap", formation.getPositionForInputId())
-                    .addAttribute("savedSquads", savedSquads)
-                    .addAttribute("formations", Formation.values())
-                    .addAttribute("colors", teamService.getShirtColors(teamDto));
         }
-        return "fm/custom_formation";
-    }
 
+        return "redirect:" + request.getHeader("Referer");
+    }
 
     @GetMapping("/upcomingMatches")
     public String getUpcomingMatches(
-            @AuthenticationPrincipal(expression = "username") String username,
+            @SessionAttribute(name = "username") String username,
             Model model) {
 
         teamService.getActiveTeamByUsername(username).ifPresentOrElse(
@@ -668,10 +422,7 @@ public class FootballManagerController {
                         }
                     }
                 }
-                , () -> {
-                    model.addAttribute("noActiveTeam", "You 've no active team yet. Choose one");
-                }
-        );
+                , () -> model.addAttribute("noActiveTeam", "You 've no active team yet. Choose one"));
 
         return "fm/upcoming_matches";
     }
@@ -679,13 +430,11 @@ public class FootballManagerController {
     @GetMapping("/startingSquad/{matchId}")
     public String startingSquad(
             @PathVariable Integer matchId,
-            @AuthenticationPrincipal(expression = "username") String username,
+            @SessionAttribute(name = "username") String username,
             Model model) {
 
         teamService.getActiveTeamByUsername(username).ifPresentOrElse(
                 teamDto -> {
-
-
                     matchSquadService.getByTeamIdAndMatchId(teamDto.getId(), matchId).ifPresentOrElse(
                             matchSquadDto -> {
 
@@ -715,7 +464,7 @@ public class FootballManagerController {
     @PostMapping("/setStartingSquad/{matchId}")
     public String setSquad(
             @PathVariable Integer matchId,
-            @AuthenticationPrincipal(expression = "username") String username,
+            @SessionAttribute(name = "username") String username,
             String loadedSquad,
             Model model) {
 
@@ -742,7 +491,10 @@ public class FootballManagerController {
                                     })
                                     , () -> model.addAttribute("notValidSquad", "you must choose valid squad")
                             );
-                    model.addAttribute("matchDate", matchService.getMatchById(matchId).get().getDateTime())
+
+                    MatchDto matchDto = matchService.getMatchById(matchId).orElse(null);
+
+                    model.addAttribute("matchDate", matchDto != null ? matchDto.getDateTime() : "")
                             .addAttribute("savedSquads", squadService.getSquadsByTeamId(teamDto.getId()));
                 }
                 , () -> model.addAttribute("noTeam", "You have to have active team"));
@@ -754,7 +506,7 @@ public class FootballManagerController {
     public String getPlayerStats(
             @RequestParam(required = false) String option,
             @RequestParam(required = false) String attributes,
-            @AuthenticationPrincipal(expression = "username") String username,
+            @SessionAttribute(name = "username") String username,
             Model model) {
 
         if (option == null || option.equals("general")) {
@@ -796,7 +548,7 @@ public class FootballManagerController {
             @RequestParam(required = false) String team,
             @RequestParam(name = "statistics", required = false) String statistics,
             @PathVariable Integer matchId,
-            @AuthenticationPrincipal(expression = "username") String username,
+            @SessionAttribute(name = "username") String username,
             Model model) {
 
         teamService.getActiveTeamByUsername(username).ifPresentOrElse(teamDto -> {
@@ -806,67 +558,28 @@ public class FootballManagerController {
                         matchStatisticService.getMatchStatisticByMatchId(matchId).
                                 ifPresentOrElse(matchStatisticDto -> {
 
-                                    List<GoalDetailDto> goalsDetails = goalDetailService.getGoalDetailsForMatchId(matchId);
+                                            model.addAttribute("matchStatistic", matchStatisticDto)
+                                                    .addAttribute("goalsDetails", goalDetailService.getGoalDetailsForMatchId(matchId));
 
-                                    model.addAttribute("matchStatistic", matchStatisticDto)
-                                            .addAttribute("goalsDetails", goalsDetails);
-
-                                }, () -> {
-                                    model.addAttribute("notStarted", "Match has not been started yet");
-                                });
+                                        }, () ->
+                                                model.addAttribute("notStarted", "Match has not been started yet")
+                                );
 
                     } else if (team.equals("your")) {
 
                         matchSquadService.getByTeamIdAndMatchId(teamDto.getId(), matchId).ifPresentOrElse(
-                                matchSquadDto -> {
-
-                                    Formation formation = matchSquadDto.getFormation();
-
-                                    Map<String, List<PlayerDto>> subsPerPosition = formation.getPositionForInputId()
-                                            .values()
-                                            .stream()
-                                            .collect(Collectors.toMap(
-                                                    position -> position,
-                                                    position -> matchSquadDto.getSubstitutions().values().stream()
-                                                            .filter(playerDto -> playerDto.getPositions().contains(Position.fromString(position)))
-                                                            .collect(Collectors.toList())
-                                            ));
-
-
-                                    System.out.println("--------------------------------");
-                                    System.out.println(matchSquadDto.getSubstitutions());
-                                    System.out.println("--------------------------------");
-
-                                    model.addAttribute("eleven", FormationDto.builder().players(matchSquadDto.getPlayers())
-                                            .substitutions(matchSquadDto.getSubstitutions()).build())
-                                            .addAttribute("chosenFormation", formation)
-                                            .addAttribute("positionForInputIdMap", formation.getPositionForInputId())
-                                            .addAttribute("colors", teamService.getShirtColors(teamDto))
-                                            .addAttribute("subsPerPosition", subsPerPosition);
-                                },
-
+                                matchSquadDto ->
+                                        controllerUtil.createModelAttributesForUserTeamMatchCentre(model, matchSquadDto, teamService.getShirtColors(teamDto)),
                                 () -> model
                                         .addAttribute("noSquadSet", "The squad isn't set yet. Choose one"));
                     } else if (team.equals("opp")) {
 
                         matchSquadService.getOpponentSquadForMatch(matchId, teamDto.getId())
-                                .ifPresentOrElse((matchSquadDto -> {
-                                    Formation formation = matchSquadDto.getFormation();
-
-                                    System.out.println("--------------------------------");
-                                    System.out.println(matchSquadDto.getSubstitutions());
-                                    System.out.println("--------------------------------");
-
-                                    model.addAttribute("eleven", FormationDto.builder().players(matchSquadDto.getPlayers())
-                                            .substitutions(matchSquadDto.getSubstitutions()).build())
-                                            .addAttribute("chosenFormation", formation)
-                                            .addAttribute("positionForInputIdMap", formation.getPositionForInputId())
-                                            .addAttribute("colors", teamService.getShirtColors(matchSquadDto.getTeamDto()));
-
-                                }), () -> model.addAttribute("noSquadSet", "Opponent did not have set squad yet"));
+                                .ifPresentOrElse(matchSquadDto ->
+                                                controllerUtil.createModelAttributesForOppTeamMatchCentre(model, matchSquadDto, teamService.getShirtColors(teamDto))
+                                        , () -> model.addAttribute("noSquadSet", "Opponent did not have set squad yet"));
 
                     }
-
                     model.addAttribute("matchSquadDto", MatchSquadDto.builder().matchId(matchId).teamDto(teamDto).build())
                             .addAttribute("matchDate", matchService.getMatchById(matchId).orElseThrow().getDateTime());
 
@@ -880,7 +593,7 @@ public class FootballManagerController {
 
     @PostMapping("/makeSubstitutions/{matchId}")
     public String makeSubstitutions(
-            @AuthenticationPrincipal(expression = "username") String username,
+            @SessionAttribute(name = "username") String username,
             @ModelAttribute FormationDto eleven,
             @PathVariable Integer matchId,
             RedirectAttributes redirectAttributes,
@@ -922,7 +635,7 @@ public class FootballManagerController {
     @PostMapping("/loadSquadMatchCentre")
     public String loadSquadInMatchCentre(
             MatchSquadDto matchSquadDto,
-            @AuthenticationPrincipal(expression = "username") String username,
+            @SessionAttribute(name = "username") String username,
             String loadedSquad,
             Model model) {
 
@@ -936,19 +649,21 @@ public class FootballManagerController {
 
                 if (byTeamIdAndMatchId.isEmpty()) {
 
-                    SquadDto squadByName = squadService.findSquadByNameAndTeamId(loadedSquad, teamDto.getId()).orElse(null);
-                    final Integer formationTypeNumber = squadByName.getFormationType();
-                    final Formation formation = Formation.fromFormationNumber(formationTypeNumber);
+                    squadService.findSquadByNameAndTeamId(loadedSquad, teamDto.getId()).ifPresentOrElse(squadDto -> {
+                        Formation formation = Formation.fromFormationNumber(squadDto.getFormationType());
 
-                    matchSquadDto.setFormation(formation);
-                    matchSquadDto.setPlayers(squadByName.getPlayers());
-                    matchSquadDto.setSubstitutionsNumberAvailable(3);
-                    matchSquadDto.setSubstitutions(squadByName.getSubstitutions());
-                    matchSquadService.save(matchSquadDto);
+                        controllerUtil.setMatchSquadDtoProperties(matchSquadDto, formation, squadDto);
+                        matchSquadService.save(matchSquadDto);
 
-                    model.addAttribute("chosenFormation", formation)
-                            .addAttribute("eleven", FormationDto.builder().players(squadByName.getPlayers()).substitutions(squadByName.getSubstitutions()).build())
-                            .addAttribute("positionForInputIdMap", formation.getPositionForInputId());
+                        model.addAttribute("chosenFormation", formation)
+                                .addAttribute("eleven", FormationDto.builder()
+                                        .players(squadDto.getPlayers())
+                                        .substitutions(squadDto.getSubstitutions())
+                                        .build())
+                                .addAttribute("positionForInputIdMap", formation.getPositionForInputId());
+
+                    }, () -> model.addAttribute("noSquad"));
+
                 } else {
 
                     model.addAttribute("chosenFormation", byTeamIdAndMatchId.get().getFormation())
@@ -956,21 +671,16 @@ public class FootballManagerController {
                             .addAttribute("positionForInputIdMap", byTeamIdAndMatchId.get().getFormation().getPositionForInputId());
                 }
             }
-
-            List<SquadDto> savedSquads = squadService.getSquadsByTeamId(teamDto.getId());
-
-            model.addAttribute("savedSquads", savedSquads);
-
+            model.addAttribute("savedSquads", squadService.getSquadsByTeamId(teamDto.getId()));
 
         }, () -> model.addAttribute(MessageFormat.format("no active Team for username {0}", username)));
-
 
         return "fm/match_centre";
     }
 
     @PostMapping("/sendRequestToAdmin")
     public String sendRequestToAdmin(
-            @AuthenticationPrincipal(expression = "username") String username,
+            @SessionAttribute(name = "username") String username,
             String request,
             RedirectAttributes redirectAttributes) {
 

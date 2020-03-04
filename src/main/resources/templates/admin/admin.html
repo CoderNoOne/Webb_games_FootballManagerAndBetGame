@@ -165,7 +165,6 @@
                                     <th>Name</th>
                                     <th>Start Date</th>
                                     <th>Game id</th>
-                                    <th>Game details</th>
                                     <th>Delete game</th>
 
                                 </tr>
@@ -176,17 +175,10 @@
                                     <td th:style="${iStat.odd}? 'color: lightsalmon' : 'color: yellow'"><span
                                             th:text="${league.name}"> Name </span></td>
                                     <td th:style="${iStat.odd}? 'color: lightsalmon' : 'color: yellow'"><span
-                                            th:text="${league.startDate}"> StartDate </span></td>
+                                                                         <td th:style="${iStat.odd}? 'color: lightsalmon' : 'color: yellow'"><span       th:text="${league.startDate}"> StartDate </span></td>
                                     <td th:style="${iStat.odd}? 'color: lightsalmon' : 'color: yellow'"><span
                                             th:text="${league.game.id}"> Game id </span></td>
-                                    <td th:style="${iStat.odd}? 'color: lightsalmon' : 'color: yellow'">
 
-                                        <a style="cursor: pointer" th:onclick="window.open('../admin/getUsersForGame/' + [[${league.game.id}]],
-                                              'window',
-                                              'width=600, height=600;')"
-                                           th:text="'Details'">
-                                            Click
-                                        </a>
                                     <td th:style="${iStat.odd}? 'color: lightsalmon' : 'color: yellow'">
                                         <a th:href="@{'/admin/deleteGame/' + ${league.game.id}}">Delete game</a>
                                     </td>

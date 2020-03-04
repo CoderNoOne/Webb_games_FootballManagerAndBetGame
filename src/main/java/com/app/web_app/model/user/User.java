@@ -28,14 +28,8 @@ public class User {
     private String username;
 
     private String firstName;
-
     private String lastName;
-
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @AdultUser
     private LocalDate birthDate;
-
-    @Email(message = "not valid email address")
     private String email;
 
     @Enumerated(EnumType.STRING)

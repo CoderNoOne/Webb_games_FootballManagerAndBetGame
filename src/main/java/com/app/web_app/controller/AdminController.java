@@ -42,8 +42,11 @@ public class AdminController {
     private final ControllerUtil controllerUtil;
     private final ScheduleService scheduleService;
 
-    @GetMapping("")
-    public String adminPage(Model model, @RequestParam(required = false) Integer page, @RequestParam(required = false) Integer size) {
+    @GetMapping
+    public String adminPage(
+            Model model,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
 
         int currentPage = page != null ? page : 1;
         int pageSize = size != null ? size : 5;
@@ -53,22 +56,18 @@ public class AdminController {
         int totalPages = leaguePage.getTotalPages();
 
         if (totalPages > 0) {
-            List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
+            model.addAttribute("pageNumbers", IntStream.rangeClosed(1, totalPages)
                     .boxed()
-                    .collect(Collectors.toList());
-
-            model.addAttribute("pageNumbers", pageNumbers);
+                    .collect(Collectors.toList()));
         }
 
-        Map<String, List<TeamDto>> teamsByLeague = leagueBaseDtoRepository.findAll()
-                .stream()
-                .collect(Collectors.toMap(
-                        LeagueBaseDto::getName,
-                        league -> teamBaseRepository.findAllByLeagueName(league.getName()).stream().map(managerMapper::mapTeamBaseToDto).collect(Collectors.toList())
-                ));
-
         LeagueTeamsDto leagueTeams = LeagueTeamsDto.builder()
-                .leagueTeams(teamsByLeague)
+                .leagueTeams(leagueBaseDtoRepository.findAll()
+                        .stream()
+                        .collect(Collectors.toMap(
+                                LeagueBaseDto::getName,
+                                league -> teamBaseRepository.findAllByLeagueName(league.getName()).stream().map(managerMapper::mapTeamBaseToDto).collect(Collectors.toList())
+                        )))
                 .build();
 
         model
@@ -81,15 +80,20 @@ public class AdminController {
     }
 
     @GetMapping("/deleteGame/{id}")
-    public String deleteGameById(@PathVariable Integer id, HttpServletRequest request) {
+    public String deleteGameById(
+            @PathVariable Integer id,
+            HttpServletRequest request) {
 
         adminService.deleteGameById(id);
-
         return "redirect:" + request.getHeader("Referer");
     }
 
     @PostMapping("/createLeagues")
-    public String generateLeagues(@Valid LeagueDto chosenLeague, BindingResult bindingResult, HttpServletRequest request, RedirectAttributes redirectAttributes) {
+    public String generateLeagues(
+            @Valid LeagueDto chosenLeague,
+            BindingResult bindingResult,
+            HttpServletRequest request,
+            RedirectAttributes redirectAttributes) {
 
         Map<String, String> errors = controllerUtil.bindErrorsHibernateFields(bindingResult);
         redirectAttributes.addFlashAttribute("errors", errors);
@@ -100,25 +104,11 @@ public class AdminController {
             int hour = Integer.parseInt(values[0]);
             int minutes = Integer.parseInt(values[1]);
 
-            TeamDto[] teams = Arrays.stream(chosenLeague.getTeams())
-                    .map(name -> TeamDto.builder()
-                            .name(name)
-                            .build())
-                    .toArray(TeamDto[]::new);
+            TeamDto[] teams = controllerUtil.getTeamsForNames(chosenLeague.getTeams());
 
             var matches = adminService.generateLeague(LeagueType.CUSTOM, chosenLeague.getName(), chosenLeague.getStartDate().atTime(hour, minutes), teams);
             scheduleService.simulateFmMatches(matches);
-
         }
         return "redirect:" + request.getHeader("Referer");
     }
-
-    @GetMapping("/getUsersForGame/{id}")
-    public String getUsers(@PathVariable Integer id, Model model) {
-
-        model.addAttribute("gameId", id);
-        return "admin/users_for_game";
-    }
-
-
 }
