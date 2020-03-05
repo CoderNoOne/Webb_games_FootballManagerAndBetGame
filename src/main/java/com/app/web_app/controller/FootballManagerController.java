@@ -11,7 +11,7 @@ import com.app.web_app.service.EmailType;
 import com.app.web_app.service.GoalDetailService;
 import com.app.web_app.service.UserService;
 import com.app.web_app.utils.ControllerUtil;
-import com.app.web_app.validators.FormationDtoValidator;
+import com.app.web_app.validators.spring_validators.FormationDtoValidator;
 import com.app.web_app.validators.spring_validators.PlayersNumberDtoValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -57,7 +57,6 @@ public class FootballManagerController {
             @AuthenticationPrincipal(expression = "username") String username) {
         return username;
     }
-
 
     @GetMapping("/leagueSchedule")
     public String getLeagueSchedule(

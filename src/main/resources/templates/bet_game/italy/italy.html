@@ -89,10 +89,13 @@
 <div class="container">
     <div class="row mt-5">
         <div class="col-8 offset-4">
-            <div style="width: 55vmin; text-align: center" th:if="${errors != null && errors.containsKey('betScores')}"
-                 class="alert alert-danger" role="alert"
-                 th:text="|${errors['betScores']}. Input proper values |">
+
+            <div style="width: 55vmin; text-align: center"
+                 th:if="${errors != null && errors.containsKey('betScoreWrapper')}"
+                 class="alert alert-danger text-center" role="alert"
+                 th:text="${errors['betScoreWrapper']}">
             </div>
+
             <div style="width: 60vmin; text-align: center" th:if="${success}"
                  class="alert alert-success" role="alert"
                  th:text="${success}">

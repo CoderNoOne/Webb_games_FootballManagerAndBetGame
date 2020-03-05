@@ -1,4 +1,4 @@
-package com.app.web_app.validators;
+package com.app.web_app.validators.spring_validators;
 
 import com.app.web_app.model.manager_game.FormationDto;
 import com.app.web_app.model.manager_game.dto.PlayerDto;

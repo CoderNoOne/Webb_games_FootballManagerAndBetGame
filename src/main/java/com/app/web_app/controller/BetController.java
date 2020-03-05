@@ -9,6 +9,8 @@ import com.app.web_app.model.dto.bet_game.ScoreDto;
 import com.app.web_app.service.UserService;
 import com.app.web_app.service.bet_game.BetPointsService;
 import com.app.web_app.service.bet_game.BetService;
+import com.app.web_app.utils.ControllerUtil;
+import com.app.web_app.validators.spring_validators.BetScoreWrapperValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +36,8 @@ public class BetController {
     private final BetService betService;
     private final BetPointsService betPointsService;
     private final UserService userService;
+    private final ControllerUtil controllerUtil;
+    private final BetScoreWrapperValidator betScoreWrapperValidator;
 
     @GetMapping({"/home", ""})
     public String betGameHome() {
@@ -42,54 +47,38 @@ public class BetController {
     @GetMapping("/italy")
     public String italy(@AuthenticationPrincipal(expression = "username") String username, Model model) {
 
+        List<Integer> allBetByUsername = controllerUtil.getAllMatchesIdBetByUsername(
+                betService.findAllBetByUsernameAndLeague(username, BetLeague.ITALY));
 
-        List<Integer> allBetByUsername = betService.findAllBetByUsernameAndLeague(username, BetLeague.ITALY)
-                .stream()
-                .flatMap(scoreEntity -> scoreEntity.getBetScores()
-                        .stream().map(BetScore::getMatchId))
-                .collect(Collectors.toList());
+        List<BetMatch> scheduledMatchesToBet =
+                controllerUtil.getScheduledMatchesNotYetBetByUsername(betService.getScheduledMatchesForItaly(), allBetByUsername);
 
-        List<BetMatch> scheduledMatches = betService.getScheduledMatchesForItaly().
-                stream()
-                .filter(match -> !allBetByUsername.contains(match.getId()))
-                .collect(Collectors.toList());
-
-        if (scheduledMatches.isEmpty()) {
+        if (scheduledMatchesToBet.isEmpty()) {
             model.addAttribute("noMatchesToBet", "There are currently no matches to bet");
-        } else {
-            model.addAttribute("matchday", scheduledMatches.get(0).getMatchday());
+            return "bet_game/italy/italy";
         }
 
-        Map<Integer, BetScore> betScores = new HashMap<>(scheduledMatches.stream().collect(Collectors.toMap(
-                BetMatch::getId,
-                e -> BetScore.builder()
-                        .matchStartingTime(e.getUtcDate())
-                        .awayTeamName(e.getAwayTeam().getName())
-                        .homeTeamName(e.getHomeTeam().getName())
-                        .matchId(e.getId())
-                        .matchDay(e.getMatchday())
-                        .build()
-        )));
-
-
-        BetScoreWrapper betScoreWrapper = BetScoreWrapper.builder().betScores(betScores).build();
-
         model
-                .addAttribute("scheduledMatches", scheduledMatches)
-                .addAttribute("betScoreWrapper", betScoreWrapper);
+                .addAttribute("scheduledMatches", scheduledMatchesToBet)
+                .addAttribute("betScoreWrapper", controllerUtil.createBetScoreWrapper(scheduledMatchesToBet))
+                .addAttribute("matchday", scheduledMatchesToBet.get(0).getMatchday());
 
         return "bet_game/italy/italy";
     }
 
     @PostMapping("/italy")
-    public String postItaly(BetScoreWrapper betScoreWrapper, BindingResult bindingResult, @AuthenticationPrincipal(expression = "username") String username, RedirectAttributes redirectAttributes) {
+    public String postItaly(@Valid BetScoreWrapper betScoreWrapper, BindingResult bindingResult, @AuthenticationPrincipal(expression = "username") String username, RedirectAttributes redirectAttributes) {
 
-        ScoreDto scoreDto = ScoreDto.builder().betScores(new ArrayList<>(betScoreWrapper.getBetScores().values())).league(BetLeague.ITALY).build();
+        betScoreWrapperValidator.validate(betScoreWrapper, bindingResult);
+        Map<String, String> errors = controllerUtil.bindErrorsSpring(bindingResult);
 
-        scoreDto.setUsername(username);
+        if (!errors.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errors", errors);
+            return "redirect:/bet/italy";
+        }
 
+        ScoreDto scoreDto = ScoreDto.builder().username(username).betScores(new ArrayList<>(betScoreWrapper.getBetScores().values())).league(BetLeague.ITALY).build();
         betService.saveBet(scoreDto, BetLeague.ITALY, username);
-
         redirectAttributes.addFlashAttribute("success", "Match has been successfully bet");
 
         return "redirect:/bet/italy";
@@ -142,41 +131,21 @@ public class BetController {
     @GetMapping("/spain")
     public String spain(@AuthenticationPrincipal(expression = "username") String username, Model model) {
 
-        List<Integer> allBetByUsername = betService.findAllBetByUsernameAndLeague(username, BetLeague.SPAIN)
-                .stream()
-                .flatMap(scoreEntity -> scoreEntity.getBetScores()
-                        .stream().map(BetScore::getMatchId))
-                .collect(Collectors.toList());
+        List<Integer> allBetByUsername = controllerUtil.getAllMatchesIdBetByUsername(
+                betService.findAllBetByUsernameAndLeague(username, BetLeague.SPAIN));
 
-        List<BetMatch> scheduledMatches = betService.getScheduledMatchesForSpain().
-                stream()
-                .filter(match -> !allBetByUsername.contains(match.getId()))
-                .collect(Collectors.toList());
+        List<BetMatch> scheduledMatchesToBet =
+                controllerUtil.getScheduledMatchesNotYetBetByUsername(betService.getScheduledMatchesForSpain(), allBetByUsername);
 
-        if (scheduledMatches.isEmpty()) {
+        if (scheduledMatchesToBet.isEmpty()) {
             model.addAttribute("noMatchesToBet", "There are currently no matches to bet");
-        } else {
-            model.addAttribute("matchday", scheduledMatches.get(0).getMatchday());
+            return "bet_game/spain/spain";
         }
 
-
-        Map<Integer, BetScore> betScores = new HashMap<>(scheduledMatches.stream().collect(Collectors.toMap(
-                BetMatch::getId,
-                e -> BetScore.builder()
-                        .matchStartingTime(e.getUtcDate())
-                        .awayTeamName(e.getAwayTeam().getName())
-                        .homeTeamName(e.getHomeTeam().getName())
-                        .matchId(e.getId())
-                        .matchDay(e.getMatchday())
-                        .build()
-        )));
-
-
-        BetScoreWrapper betScoreWrapper = BetScoreWrapper.builder().betScores(betScores).build();
-
         model
-                .addAttribute("scheduledMatches", scheduledMatches)
-                .addAttribute("betScoreWrapper", betScoreWrapper);
+                .addAttribute("scheduledMatches", scheduledMatchesToBet)
+                .addAttribute("betScoreWrapper", controllerUtil.createBetScoreWrapper(scheduledMatchesToBet))
+                .addAttribute("matchday", scheduledMatchesToBet.get(0).getMatchday());
 
         return "bet_game/spain/spain";
     }
@@ -184,13 +153,16 @@ public class BetController {
     @PostMapping("/spain")
     public String postSpain(BetScoreWrapper betScoreWrapper, BindingResult bindingResult, @AuthenticationPrincipal(expression = "username") String username, RedirectAttributes redirectAttributes) {
 
+        betScoreWrapperValidator.validate(betScoreWrapper, bindingResult);
+        Map<String, String> errors = controllerUtil.bindErrorsSpring(bindingResult);
 
-        ScoreDto scoreDto = ScoreDto.builder().betScores(new ArrayList<>(betScoreWrapper.getBetScores().values())).league(BetLeague.SPAIN).build();
+        if (!errors.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errors", errors);
+            return "redirect:/bet/spain";
+        }
 
-        scoreDto.setUsername(username);
-
+        ScoreDto scoreDto = ScoreDto.builder().username(username).betScores(new ArrayList<>(betScoreWrapper.getBetScores().values())).league(BetLeague.SPAIN).build();
         betService.saveBet(scoreDto, BetLeague.SPAIN, username);
-
         redirectAttributes.addFlashAttribute("success", "Match has been successfully bet");
 
         return "redirect:/bet/spain";
@@ -215,42 +187,21 @@ public class BetController {
     @GetMapping("/premierLeague")
     public String championsLeague(@AuthenticationPrincipal(expression = "username") String username, Model model) {
 
-        List<Integer> allBetByUsername = betService.findAllBetByUsernameAndLeague(username, BetLeague.PREMIER_LEAGUE)
-                .stream()
-                .flatMap(scoreEntity -> scoreEntity.getBetScores()
-                        .stream().map(BetScore::getMatchId))
-                .collect(Collectors.toList());
+        List<Integer> allBetByUsername = controllerUtil.getAllMatchesIdBetByUsername(
+                betService.findAllBetByUsernameAndLeague(username, BetLeague.PREMIER_LEAGUE));
 
-        List<BetMatch> scheduledMatches = betService.getScheduledMatchesForPremierLeague().
-                stream()
-                .filter(match -> !allBetByUsername.contains(match.getId()))
-                .collect(Collectors.toList());
+        List<BetMatch> scheduledMatchesToBet =
+                controllerUtil.getScheduledMatchesNotYetBetByUsername(betService.getScheduledMatchesForPremierLeague(), allBetByUsername);
 
-        if (scheduledMatches.isEmpty()) {
+        if (scheduledMatchesToBet.isEmpty()) {
             model.addAttribute("noMatchesToBet", "There are currently no matches to bet");
-        } else {
-            model.addAttribute("matchday", scheduledMatches.get(0).getMatchday());
+            return "bet_game/england/premier_league";
         }
 
-
-        Map<Integer, BetScore> betScores = new HashMap<>(scheduledMatches.stream().collect(Collectors.toMap(
-                BetMatch::getId,
-                e -> BetScore.builder()
-                        .matchStartingTime(e.getUtcDate())
-                        .awayTeamName(e.getAwayTeam().getName())
-                        .homeTeamName(e.getHomeTeam().getName())
-                        .matchId(e.getId())
-                        .matchDay(e.getMatchday())
-                        .build()
-        )));
-
-
-        BetScoreWrapper betScoreWrapper = BetScoreWrapper.builder().betScores(betScores).build();
-
         model
-                .addAttribute("scheduledMatches", scheduledMatches)
-                .addAttribute("betScoreWrapper", betScoreWrapper);
-
+                .addAttribute("scheduledMatches", scheduledMatchesToBet)
+                .addAttribute("betScoreWrapper", controllerUtil.createBetScoreWrapper(scheduledMatchesToBet))
+                .addAttribute("matchday", scheduledMatchesToBet.get(0).getMatchday());
 
         return "bet_game/england/premier_league";
     }
@@ -258,14 +209,18 @@ public class BetController {
     @PostMapping("/premierLeague")
     public String postChampionsLeague(BetScoreWrapper betScoreWrapper, BindingResult bindingResult, @AuthenticationPrincipal(expression = "username") String username, RedirectAttributes redirectAttributes) {
 
+        betScoreWrapperValidator.validate(betScoreWrapper, bindingResult);
+        Map<String, String> errors = controllerUtil.bindErrorsSpring(bindingResult);
 
-        ScoreDto scoreDto = ScoreDto.builder().betScores(new ArrayList<>(betScoreWrapper.getBetScores().values())).league(BetLeague.PREMIER_LEAGUE).build();
+        if (!errors.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errors", errors);
+            return "redirect:/bet/premierLeague";
+        }
 
-        scoreDto.setUsername(username);
-
+        ScoreDto scoreDto = ScoreDto.builder().username(username).betScores(new ArrayList<>(betScoreWrapper.getBetScores().values())).league(BetLeague.PREMIER_LEAGUE).build();
         betService.saveBet(scoreDto, BetLeague.PREMIER_LEAGUE, username);
-
         redirectAttributes.addFlashAttribute("success", "Match has been successfully bet");
+
         return "redirect:/bet/premierLeague";
     }
 
@@ -305,7 +260,6 @@ public class BetController {
     public String spainLeaderBoard(Model model) {
 
         Map<String, Integer> pointsPerUser = betPointsService.getAllByLeagueGroupedByUser(BetLeague.SPAIN);
-
         Map<String, String> photoUrlByUsers = userService.getPhotoUrlForUsernameIn(pointsPerUser.keySet());
 
         if (pointsPerUser.isEmpty()) {

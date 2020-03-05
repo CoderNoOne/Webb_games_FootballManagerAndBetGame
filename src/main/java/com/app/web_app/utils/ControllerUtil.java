@@ -1,10 +1,14 @@
 package com.app.web_app.utils;
 
+import com.app.web_app.dto.BetScoreWrapper;
 import com.app.web_app.exceptions.AppException;
+import com.app.web_app.model.BetMatch;
 import com.app.web_app.model.FMChooseTeam;
 import com.app.web_app.model.admin.LeagueBaseDto;
+import com.app.web_app.model.bet_game.BetScore;
 import com.app.web_app.model.dto.UserDto;
 import com.app.web_app.model.dto.VerificationTokenDto;
+import com.app.web_app.model.dto.bet_game.ScoreDto;
 import com.app.web_app.model.manager_game.FormationDto;
 import com.app.web_app.model.manager_game.MatchSquad;
 import com.app.web_app.model.manager_game.dto.*;
@@ -484,6 +488,54 @@ public class ControllerUtil {
                         (oldV, newV) -> oldV,
                         LinkedHashMap::new
                 ));
+    }
+
+    public List<Integer> getAllMatchesIdBetByUsername(List<ScoreDto> scores) {
+        if (scores == null) {
+            throw new AppException("Scores is null");
+        }
+
+        return scores.stream()
+                .flatMap(scoreEntity -> scoreEntity.getBetScores()
+                        .stream().map(BetScore::getMatchId))
+                .collect(Collectors.toList());
+    }
+
+    public List<BetMatch> getScheduledMatchesNotYetBetByUsername(List<BetMatch> scheduledMatches, List<Integer> matchesBetByUsername) {
+
+        if (scheduledMatches == null) {
+            throw new AppException("Scheduled matches is null");
+        }
+
+        if (matchesBetByUsername == null) {
+            throw new AppException("MatchesBetByUsername is null");
+        }
+
+        return scheduledMatches.stream()
+                .filter(match -> !matchesBetByUsername.contains(match.getId()))
+                .collect(Collectors.toList());
+    }
+
+    public BetScoreWrapper createBetScoreWrapper(List<BetMatch> scheduledMatchesToBet) {
+
+        if (scheduledMatchesToBet == null) {
+            throw new AppException("ScheduledMatchesToBet is null");
+        }
+
+        return BetScoreWrapper.builder()
+                .betScores(new HashMap<>(scheduledMatchesToBet.stream().collect(Collectors.toMap(
+                        BetMatch::getId,
+                        e -> BetScore.builder()
+                                .matchStartingTime(e.getUtcDate())
+                                .awayTeamName(e.getAwayTeam().getName())
+                                .homeTeamName(e.getHomeTeam().getName())
+                                .matchId(e.getId())
+                                .matchDay(e.getMatchday())
+                                .build()
+                ))))
+                .build();
+
+
     }
 
 }

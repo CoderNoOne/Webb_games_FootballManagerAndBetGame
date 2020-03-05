@@ -87,13 +87,15 @@
 <div class="container">
     <div class="row mt-5">
         <div class="col-8 offset-4">
-            <div style="width: 55vmin; text-align: center" th:if="${errors != null && errors.containsKey('betScores')}"
-                 class="alert alert-danger" role="alert"
-                 th:text="|${errors['betScores']}. Input proper values |">
-            </div>
+
             <div style="width: 60vmin; text-align: center" th:if="${success}"
                  class="alert alert-success" role="alert"
                  th:text="${success}">
+            </div>
+
+            <div style="width: 55vmin; text-align: center" th:if="${errors != null && errors.containsKey('betScoreWrapper')}"
+                 class="alert alert-danger text-center" role="alert"
+                 th:text="${errors['betScoreWrapper']}">
             </div>
         </div>
     </div>
@@ -118,7 +120,7 @@
 
                 </thead>
                 <tr th:each=" match, iStat: ${scheduledMatches}">
-                    <form th:action="@{/bet/spain}" method="post" th:object="${betScoreWrapper}">
+                    <form th:action="@{/bet/spain}" method="post" th:object="${betScoreWrapper}" novalidate>
                         <td th:style="${iStat.odd}? 'color: lightsalmon' : 'color: yellow'"><span
                                 th:text="${#temporals.format(match.getUtcDate(),'dd-MM-yyyy, HH:mm | EEE')}">
                     date </span></td>
