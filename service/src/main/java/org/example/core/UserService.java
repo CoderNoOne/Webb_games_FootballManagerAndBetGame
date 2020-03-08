@@ -25,14 +25,19 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public User save(UserDto userDto) {
+    public User save(UserDto userDto, String photoUrlForUserDto) {
 
         if (userDto == null) {
             throw new AppException("UserDto is null");
         }
 
+        if (photoUrlForUserDto == null) {
+            throw new AppException("Photo for user is null");
+        }
+
         User user = UserMapper.mapUserDtoToUser(userDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setPhotoUrl(photoUrlForUserDto);
         return userRepository.save(user);
     }
 

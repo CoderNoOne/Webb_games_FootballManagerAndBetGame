@@ -1,7 +1,7 @@
 package org.example.bet;
 
 import org.example.bet.entity.ScoreEntity;
-import org.example.model.bet.enums.BetLeague;
+import org.example.bet.enums.BetLeague;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

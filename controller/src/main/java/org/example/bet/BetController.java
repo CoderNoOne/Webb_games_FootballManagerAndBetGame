@@ -3,11 +3,12 @@ package org.example.bet;
 import lombok.RequiredArgsConstructor;
 import org.example.bet.entity.BetScore;
 import org.example.bet.entity.ScoreEntity;
+import org.example.bet.enums.BetLeague;
 import org.example.core.UserService;
 import org.example.model.bet.BetMatch;
 import org.example.model.bet.BetScoreWrapper;
 import org.example.model.bet.ScoreDto;
-import org.example.model.bet.enums.BetLeague;
+
 import org.example.model.bet.enums.BetLeagueDto;
 import org.example.util.ControllerUtil;
 import org.example.validator.spring_validators.BetScoreWrapperValidator;
@@ -237,7 +238,7 @@ public class BetController {
     @GetMapping("/italy/leaderboard")
     public String italyLeaderBoard(Model model) {
 
-        Map<String, Integer> pointsPerUser = betPointsService.getAllByLeagueGroupedByUser(BetLeague.ITALY);
+        Map<String, Integer> pointsPerUser = betPointsService.getAllByLeagueGroupedByUser(BetLeagueDto.ITALY);
 
         Map<String, String> photoUrlByUsers = userService.getPhotoUrlForUsernameIn(pointsPerUser.keySet());
 
@@ -256,7 +257,7 @@ public class BetController {
     @GetMapping("/spain/leaderboard")
     public String spainLeaderBoard(Model model) {
 
-        Map<String, Integer> pointsPerUser = betPointsService.getAllByLeagueGroupedByUser(BetLeague.SPAIN);
+        Map<String, Integer> pointsPerUser = betPointsService.getAllByLeagueGroupedByUser(BetLeagueDto.SPAIN);
         Map<String, String> photoUrlByUsers = userService.getPhotoUrlForUsernameIn(pointsPerUser.keySet());
 
         if (pointsPerUser.isEmpty()) {
@@ -273,7 +274,7 @@ public class BetController {
     @GetMapping("/england/leaderboard")
     public String englandLeaderBoard(Model model) {
 
-        Map<String, Integer> pointsPerUser = betPointsService.getAllByLeagueGroupedByUser(BetLeague.PREMIER_LEAGUE);
+        Map<String, Integer> pointsPerUser = betPointsService.getAllByLeagueGroupedByUser(BetLeagueDto.PREMIER_LEAGUE);
 
         Map<String, String> photoUrlByUsers = userService.getPhotoUrlForUsernameIn(pointsPerUser.keySet());
 

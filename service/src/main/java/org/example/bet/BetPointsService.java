@@ -2,8 +2,8 @@ package org.example.bet;
 
 import lombok.RequiredArgsConstructor;
 import org.example.model.bet.BetPointsDto;
-import org.example.model.bet.enums.BetLeague;
 import org.example.exceptions.AppException;
+import org.example.model.bet.enums.BetLeagueDto;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -19,13 +19,13 @@ public class BetPointsService {
 
     private final BetPointsRepository betPointsRepository;
 
-    public Map<String, Integer> getAllByLeagueGroupedByUser(BetLeague league) {
+    public Map<String, Integer> getAllByLeagueGroupedByUser(BetLeagueDto league) {
 
         if (league == null) {
             throw new AppException("League is null");
         }
 
-        return betPointsRepository.findAllByLeague(league)
+        return betPointsRepository.findAllByLeague(BetGameMapper.mapBetLeagueDtoToBetLeague(league))
                 .stream()
                 .map(BetGameMapper::mapBetPointsToDto)
                 .sorted(Comparator.comparing(BetPointsDto::getPointsNumber).reversed())

@@ -2,10 +2,12 @@ package org.example.core;
 
 import lombok.RequiredArgsConstructor;
 import org.example.core.entity.User;
+import org.example.core.enums.Gender;
 import org.example.model.core.PasswordDto;
 import org.example.model.core.UserDto;
 import org.example.model.core.VerificationTokenDto;
 import org.example.model.core.enums.EmailType;
+import org.example.model.core.enums.GenderDto;
 import org.example.security.LoggedUsersRegistry;
 import org.example.util.ControllerUtil;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -50,7 +52,8 @@ public class HomeController {
 
     @GetMapping("/register")
     public String getRegisterPage(Model model) {
-        model.addAttribute("userDto", new UserDto());
+        model.addAttribute("userDto", new UserDto())
+                .addAttribute("genders", GenderDto.values());
         return "register_form";
     }
 
@@ -75,7 +78,8 @@ public class HomeController {
                             if (!bindingResult.hasErrors() && userService.findByUsername(userDto.getUsername()).isEmpty()) {
 
                                 controllerUtil.postRegisterOperations(userDto);
-                                userService.save(userDto);
+                                String photoUrlForUserDto = controllerUtil.getPhotoUrlForUserDto(userDto);
+                                userService.save(userDto, photoUrlForUserDto);
                                 verificationTokenService.saveOrUpdateToken(controllerUtil.createVerificationTokenForUserDto(userDto));
                                 String mailMessage = String.format(EmailService.REGISTRATION_MESSAGE, request.getScheme(), request.getServerName(), request.getServerPort(), verificationTokenService.getTokenForUser(userDto.getUsername()).orElse(null));
                                 emailService.sendEmail(EmailType.REGISTRATION, userDto.getEmail(), mailMessage, null);

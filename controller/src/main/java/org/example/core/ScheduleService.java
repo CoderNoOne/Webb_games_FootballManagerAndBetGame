@@ -2,16 +2,18 @@ package org.example.core;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.bet.BetGameMapper;
 import org.example.bet.BetPointsRepository;
 import org.example.bet.BetService;
 import org.example.bet.ScoreEntityRepository;
 import org.example.bet.entity.BetPoints;
 import org.example.bet.entity.BetScore;
+import org.example.bet.enums.BetLeague;
 import org.example.fm.*;
 import org.example.fm.entity.*;
 import org.example.model.bet.BetMatch;
 import org.example.model.bet.MatchScore;
-import org.example.model.bet.enums.BetLeague;
+import org.example.model.bet.enums.BetLeagueDto;
 import org.example.model.fm.enums.AssistProbabilityPosition;
 import org.example.fm.enums.FmMatchStatus;
 import org.example.model.fm.enums.Formation;
@@ -164,7 +166,7 @@ public class ScheduleService {
                 ));
     }
 
-    private void updateUserResultsForSpecifiedLeague(BetLeague league) {
+    private void updateUserResultsForSpecifiedLeague(BetLeagueDto league) {
 
         List<BetMatch> matches = switch (league) {
             case ITALY -> betService.getLiveMatchesForSerieA();
@@ -173,7 +175,7 @@ public class ScheduleService {
         };
 
         Map<String, Map<Integer, Map<String, Integer>>> betScoresByUserForItaly = scoreEntityRepository
-                .findAllByLeague(league)
+                .findAllByLeague(BetGameMapper.mapBetLeagueDtoToBetLeague(league))
                 .stream()
                 .collect(Collectors.groupingBy(
                         scoreEntity -> scoreEntity.getUser().getUsername(),
@@ -198,7 +200,7 @@ public class ScheduleService {
                 ));
 
 
-        List<BetPoints> allByItaly = betPointsRepository.findAllByLeague(league);
+        List<BetPoints> allByItaly = betPointsRepository.findAllByLeague(BetGameMapper.mapBetLeagueDtoToBetLeague(league));
 
         Map<String, BetPoints> betPointByKey = allByItaly.stream()
                 .collect(
@@ -228,7 +230,7 @@ public class ScheduleService {
         executor.schedule(() -> {
             log.info("Update user results invoked");
 
-            for (BetLeague league : BetLeague.values()) {
+            for (BetLeagueDto league : BetLeagueDto.values()) {
                 updateUserResultsForSpecifiedLeague(league);
             }
 
@@ -513,13 +515,13 @@ public class ScheduleService {
 
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 
-//        getTriggersForLiveMatches();
-//
-//        updateScheduledMatchesForCurrentMatchdayInItaly();
-//        updateScheduledMatchesForCurrentMatchdayInSpain();
-//        updateScheduledMatchesForCurrentMatchdayInEngland();
-//
-//        updateScheduledMatchesForCurrentMatchday();
+        getTriggersForLiveMatches();
+
+        updateScheduledMatchesForCurrentMatchdayInItaly();
+        updateScheduledMatchesForCurrentMatchdayInSpain();
+        updateScheduledMatchesForCurrentMatchdayInEngland();
+
+        updateScheduledMatchesForCurrentMatchday();
 
         updateAllUserResults();
 

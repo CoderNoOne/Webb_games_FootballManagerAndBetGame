@@ -14,12 +14,9 @@ import java.util.stream.Collectors;
 
 public interface UserMapper {
 
-//    private final ImgurService imgurService;
-
     static User mapUserDtoToUser(UserDto userDto) {
 
         if (userDto != null) {
-            boolean customPhoto = userDto.getFile().getSize() != 0;
 
             return
                     User.builder()
@@ -33,9 +30,6 @@ public interface UserMapper {
                             .authorities(userDto.getAuthorities() != null ?
                                     userDto.getAuthorities().stream().map(UserMapper::mapAuthorityDtoToAuthority).collect(Collectors.toSet()) : new HashSet<>())
                             .password(userDto.getPassword().getPassword())
-//                            .photoUrl(customPhoto ? imgurService.upload(userDto.getFile())
-//                                    : userDto.getGender().equals(Gender.FEMALE) ?
-//                                    UserService.DEFAULT_FEMALE_AVATAR_URL : UserService.DEFAULT_MALE_AVATAR_URL)
                             .build();
 
         }

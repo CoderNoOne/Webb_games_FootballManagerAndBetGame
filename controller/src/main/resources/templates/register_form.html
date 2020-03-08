@@ -129,7 +129,7 @@
                 <div class="form-group">
                     <label for="gender">Gender</label>
                     <ul id="gender" class="list-group list-inline-item">
-                        <li th:each="g : ${T(com.app.web_app.model.user.enums.Gender).values()}" class="list-group-item">
+                        <li th:each="g : ${genders}" class="list-group-item">
                             <input type="radio" th:field="*{gender}" th:value="${g}" class="mr-1"/>
                             <label th:text="${g}" class="mr-2"></label>
                         </li>

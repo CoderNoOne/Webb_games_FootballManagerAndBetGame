@@ -2,6 +2,8 @@ package org.example.util;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.core.ImgurService;
+import org.example.core.UserService;
 import org.example.model.bet.BetMatch;
 import org.example.model.bet.BetScoreDto;
 import org.example.model.bet.BetScoreWrapper;
@@ -12,8 +14,10 @@ import org.example.core.enums.Authority;
 import org.example.exceptions.AppException;
 import org.example.fm.*;
 import org.example.model.core.enums.AuthorityDto;
+import org.example.model.core.enums.GenderDto;
 import org.example.model.fm.*;
 import org.example.model.fm.enums.Formation;
+import org.example.security.UserDetailsServiceImpl;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
@@ -33,6 +37,20 @@ import java.util.stream.IntStream;
 public class ControllerUtil {
 
     private final PlayerService playerService;
+    private final ImgurService imgurService;
+
+    public String getPhotoUrlForUserDto(UserDto userDto) {
+
+        if (userDto == null) {
+            throw new AppException("UserDto is null");
+        }
+
+        boolean customPhoto = userDto.getFile().getSize() != 0;
+
+        return customPhoto ? imgurService.upload(userDto.getFile()) :
+                userDto.getGender().equals(GenderDto.FEMALE) ?
+                        UserService.DEFAULT_FEMALE_AVATAR_URL : UserService.DEFAULT_MALE_AVATAR_URL;
+    }
 
     public Map<TeamDto, TeamStandingsDto> createTeamStandingsForTeams(List<TeamDto> teams) {
 
