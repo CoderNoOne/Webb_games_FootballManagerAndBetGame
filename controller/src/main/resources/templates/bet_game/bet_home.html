@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <link rel="stylesheet" href="/webjars/bootstrap/4.3.0/css/bootstrap.min.css"/>
+    <script src="/webjars/jquery/3.4.1/jquery.min.js"></script>
+    <script src="/webjars/bootstrap/4.3.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+    <link rel="icon" type="image/gif/png"
+          href="https://www.pnglot.com/pngfile/detail/30-307785_laugh-and-lounge-bet-bet-networks-logo.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="UTF-8">
+    <title>Bet game home</title>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg" style=" color: darkgoldenrod ;font-size: 2vmin">
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/userPage}" style="color: burlywood">Back to user panel</a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/bet/generalLeaderboard}" style="color:#ff4743;">General leaderboard</a>
+            </li>
+
+            <li style="justify-items: right; font-size: 1.5vmin;position:fixed; right: 5vmin">
+                <h2 id="c_t"
+                    th:text="${#dates.createNow().getHours() + ':' + #dates.createNow().getMinutes() + ':' + #dates.createNow().getSeconds()}"></h2>
+
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container">
+
+    <h2 class="text-success mb-5 text-center">Welcome <span sec:authentication="name">UserName</span></h2>
+
+    <div class="row" style="margin-top: 15vmin">
+        <div class="col-lg-4 col-md-4 col-xs-4 thumb">
+            <a class="thumbnail" th:href="@{/bet/italy}">
+                <img class="img-responsive"
+                     src="https://i.imgur.com/JET9JCg.png"
+                     th:width="350" th:height="350" alt="SERIE A">
+            </a>
+        </div>
+        <div class="col-lg-4 col-md-4 col-xs-4 thumb">
+            <a class="thumbnail" th:href="@{/bet/spain}">
+                <img class="img-responsive"
+                     src="https://i.imgur.com/V8coZjf.png"
+                     th:width="350" th:height="350" alt="LA LIGA">
+            </a>
+        </div>
+
+        <div class="col-lg-4 col-md-4 col-xs-4 thumb">
+            <a class="thumbnail" th:href="@{/bet/premierLeague}">
+                <img class="img-responsive"
+                     src="https://i.imgur.com/gAFxaF2.png"
+                     th:width="350" th:height="350" alt="PREMIER LEAGUE">
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="fixed-bottom" th:insert="fragments/footer.html :: footer"></div>
+<script th:src="@{/js/hourTime.js}"></script>
+</body>
+</html>

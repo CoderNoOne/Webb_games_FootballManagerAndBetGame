@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="/webjars/bootstrap/4.3.0/css/bootstrap.min.css"/>
+    <script src="/webjars/jquery/3.4.1/jquery.min.js"></script>
+    <script src="/webjars/bootstrap/4.3.0/js/bootstrap.min.js"></script>
+    <meta charset="UTF-8">
+    <title>Page not found</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
+    <style>
+        body {
+            background: url("https://cdn.hipwallpaper.com/i/24/5/sPuvnJ.jpg");
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+
+        #my-div {
+            background-color: red;
+        }
+
+        a.fill-div {
+            display: block;
+            height: 100%;
+            width: 100%;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<pre style=" color: #ca2626; font-size: 10vmin">
+
+        Restricted area!
+         Go home, <span sec:authentication="name">UserName</span>
+             <a th:href="@{/userPage}" class="btn btn-outline-light"
+             th:text="'TAKE ME HOME'"
+             style="font-size:2.5vmin;text-align:center;
+             line-height: 9vmin; height: 10vmin; width: 25vmin">TAKE ME HOME</a>
+</pre>
+
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <link rel="stylesheet" href="/webjars/bootstrap/4.3.0/css/bootstrap.min.css"/>
+    <script src="/webjars/jquery/3.4.1/jquery.min.js"></script>
+    <script src="/webjars/bootstrap/4.3.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+    <meta charset="utf-8"/>
+    <title>User activation</title>
+</head>
+
+<body class="gray-bg">
+
+
+<div class="container">
+    <div th:if="${activatedAlready == null}">
+        <div class="middle-box text-center loginscreen animated fadeInDown">
+            <div>
+
+                <hr/>
+                <h4 class="text-success">Confirm your account [[${userName}]]</h4>
+
+                <div th:if="${invalidToken}" class="alert alert-danger text-center"
+                     role="alert" th:text="${invalidToken}"></div>
+
+                <!--                <div th:if="${tokenExpired}" class="alert alert-danger"-->
+                <!--                     role="alert" th:text="${tokenExpired}"></div>-->
+
+                <div th:if="${passwordError}" class="alert alert-danger text-center"
+                     role="alert" th:text="${passwordError}"></div>
+
+                <div th:if="${NotSamePasswords}" class="alert alert-danger text-center"
+                     role="alert" th:text="${NotSamePasswords}"></div>
+
+
+                <form th:if="!${invalidToken}" class="m-t" id="passwordForm" role="form" action="#"
+                      th:action="@{/confirm}" th:object="${password}" method="post">
+
+                    <input type="hidden" name="token" th:value="${token}">
+
+                    <div class="form-group input-group">
+          <span class="input-group-addon">
+            <span class="glyphicon glyphicon-lock"></span>
+          </span>
+                        <input type="password"
+                               placeholder="Password" class="form-control" th:field="*{password}" required/>
+                        <span class="glyphicon"
+                              aria-hidden="true"></span>
+                    </div>
+
+                    <div class="form-group input-group has-feedback">
+          <span class="input-group-addon">
+            <span class="glyphicon glyphicon-lock"></span>
+          </span>
+                        <input type="password" class="form-control" id="signup-password-confirm"
+                               placeholder="Confirm Password" th:field="*{confirmationPassword}" required/>
+
+                        <div class="help-block with-errors"></div>
+                    </div>
+
+                    <button type="submit"
+                            class="btn btn-primary block full-width m-b"> Confirm
+                    </button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${activatedAlready}" class="middle-box mt-5">
+
+        <div th:if="${successMessage}" class="alert alert-success text-center"
+             role="alert" th:text="${successMessage}"></div>
+
+        <hr/>
+        <h4 class="text-success text-center">[[${userName}]], Your account is already activated</h4>
+        <form th:action="@{/userPage}" method="post" style="text-align: center">
+
+                <button style="margin-left: auto; margin-right: auto" type="submit"
+                        class="btn btn-primary block full-width mt-5">Go to user page
+                </button>
+
+        </form>
+    </div>
+</div>
+</body>
+</html>

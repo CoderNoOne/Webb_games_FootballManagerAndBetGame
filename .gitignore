@@ -1,0 +1,9 @@
+# Project exclude paths
+/config/target/
+/controller/target/
+/dto/target/
+/entity/target/
+/exception/target/
+/mapper/target/
+/repository/target/
+/service/target/

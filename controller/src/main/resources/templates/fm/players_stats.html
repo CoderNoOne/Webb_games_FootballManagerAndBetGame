@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="/webjars/bootstrap/4.3.0/css/bootstrap.min.css"/>
+    <script src="/webjars/jquery/3.4.1/jquery.min.js"></script>
+    <script src="/webjars/bootstrap/4.3.0/js/bootstrap.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <title>Player statistics</title>
+
+    <style>
+        .main1 {
+            width: 80vw;
+            height: 90vh;
+            margin: auto;
+            position: relative;
+            top: 4vh;
+            font-family: 'Oswald', sans-serif
+        }
+
+        .main2 {
+            width: 80vw;
+            height: 90vh;
+            margin: auto;
+            background-color: #9e9e9e;
+            color: white;
+            padding: 0.5vw
+        }
+
+        .flag {
+            width: 5vw;
+            height: 3vw;
+            position: relative;
+            bottom: 0.5vw
+        }
+
+        .pt {
+            font-size: 2vw
+        }
+
+        table {
+            color: white
+        }
+
+        .logo {
+            width: 2vw;
+            height: 2vw
+        }
+
+        .logoTeam {
+            width: 2vw;
+            height: 2vw
+        }
+
+        td {
+            text-align: center
+        }
+
+        .name {
+            text-align: left
+        }
+
+        thead {
+            background-color: red;
+            border-bottom: 2px solid red
+        }
+
+        .top {
+            background-color: rgb(0, 255, 0, 0.5)
+        }
+
+        .top .logo {
+            animation-name: four;
+            animation-duration: 2s;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite
+        }
+
+        @keyframes four {
+            0% {
+                position: relative;
+                right: 0vw
+            }
+
+            50% {
+                position: relative;
+                right: 2vw
+            }
+
+            100% {
+                position: relative;
+                right: 0vw
+            }
+        }
+
+        @media only screen and (max-width: 425px) {
+
+            .main1,
+            .main2 {
+                width: 100vw;
+                height: 220vw
+            }
+
+            .name {
+                font-size: 4vw
+            }
+
+            .logo {
+                height: 6vw;
+                width: 6vw
+            }
+
+            h2 {
+                font-size: 8vw
+            }
+
+            .flag {
+                width: 10vw;
+                height: 6vw;
+                position: relative;
+                bottom: 1vw
+            }
+
+            .pt {
+                font-size: 5vw
+            }
+        }
+
+    </style>
+</head>
+<body th:style="|background-image:url(${session.backgroundUrl});|">
+
+
+<nav class="navbar navbar-expand-lg" style=" color: darkgoldenrod ;font-size: 2vmin">
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/fm/formation}" style="color: burlywood">Back</a>
+            </li>
+
+            <li style="justify-items: right; font-size: 1.5vmin;position:absolute; right: 5vmin">
+                <h2 id="c_t"
+                    th:text="${#dates.createNow().getHours() + ':' + #dates.createNow().getMinutes() + ':' + #dates.createNow().getSeconds()}"></h2>
+
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="form-group">
+
+    <div class="main1">
+
+        <nav aria-label="Page navigation example">
+            <ul class="pagination pg-blue" style="justify-content: center">
+                <li class="page-item"><a class="page-link text-center text-uppercase"
+                                         th:href="@{'/fm/playerStats/?option=general&attributes'}"
+                                         style="color: darkgoldenrod; width: 40vmin">Overall</a></li>
+                <li class="page-item"><a class="page-link text-center text-uppercase"
+                                         th:href="@{'/fm/playerStats/?option=yourTeam&attributes'}"
+                                         style="color: darkgoldenrod; margin-left: 5vmin; width: 40vmin">Your
+                    team</a></li>
+
+            </ul>
+        </nav>
+
+        <div th:if="${noActiveLeague}" class="alert alert-info text-center"
+             role="alert" th:text="${noActiveLeague}"></div>
+
+        <div th:if="${noActiveTeam}" class="alert alert-info text-center"
+             role="alert" th:text="${noActiveTeam}"></div>
+
+        <div class="main2 table-responsive mb-5">
+
+            <h2 class="text-uppercase" style="text-align: center"
+                th:text="${leagueName != null ? leagueName: 'No league active'}"> League name
+            </h2>
+            <p style="text-align: center;" class="pt">PLAYER STATISTICS</p>
+
+
+            <nav aria-label="Page navigation example" style="float: left">
+                <ul class="pagination pg-blue" style="justify-content: center">
+                    <li class="page-item"><a class="page-link"
+                                             th:href="@{
+                                                 ${#strings.toString(selected) == 'general' or #strings.toString(selected) == null?
+                                                 '/fm/playerStats?option=general&attributes=goals' :
+                                                 '/fm/playerStats?option=yourTeam&attributes=goals'}}">Goals</a>
+                    </li>
+                    <li class="page-item"><a class="page-link" th:href="
+                        @{
+                        ${#strings.toString(selected) == 'general' or #strings.toString(selected) == null?
+                        '/fm/playerStats?option=general&attributes=assists' :
+                        '/fm/playerStats?option=yourTeam&attributes=assists'
+
+                        }}">Assists</a>
+                    </li>
+                </ul>
+            </nav>
+
+            <table class="table">
+                <thead>
+                <th>Lp.</th>
+                <th class="name" style="text-align: center">Player</th>
+                <th th:text="${#httpServletRequest.getParameter('attributes') == 'goals' ? 'Goals' : 'Assists'}"></th>
+                <th>Club</th>
+                </thead>
+                <tbody>
+                <tr>
+                <tr th:class="${iStat.index == 0} ? 'top'"
+                    th:each="entry, iStat : ${#httpServletRequest.getParameter('attributes') == 'goals' ? goalsForPlayers : assistsForPlayers}">
+                    <td th:text="${iStat.index + 1}"></td>
+                    <td th:class="'name'"><img class="logo"
+                                               th:src="${entry.key.imageUrl}">&nbsp;&nbsp;
+                        <span th:text="|${entry.key.firstName} ${entry.key.lastName}|"></span></td>
+                    <td th:text="${entry.value}"></td>
+                    <td><span th:text="${teamsForPlayers[__${entry.key.id}__].name}"></span><img
+                            class="logoTeam"
+                            style="float: right; margin-right: 20vmin; margin-left: -15vmin"
+                            th:src="${teamsForPlayers[__${entry.key.id}__].logoUrl}">
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+        <div th:insert="fragments/footer.html :: footer"></div>
+    </div>
+</div>
+
+<script th:src="@{/js/hourTime.js}"></script>
+</body>
+</html>

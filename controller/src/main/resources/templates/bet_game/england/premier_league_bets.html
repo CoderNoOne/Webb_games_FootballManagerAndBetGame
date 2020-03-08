@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="/webjars/bootstrap/4.3.0/css/bootstrap.min.css"/>
+    <script src="/webjars/jquery/3.4.1/jquery.min.js"></script>
+    <script src="/webjars/bootstrap/4.3.0/js/bootstrap.min.js"></script>
+    <meta charset="UTF-8">
+    <title>Spain</title>
+</head>
+<style>
+    body {
+        background-image: url("https://besthqwallpapers.com/Uploads/20-5-2019/92948/thumb2-premier-league-glitter-logo-football-leagues-creative-metal-grid-background-premier-league-logo.jpg");
+        background-size: cover;
+    }
+</style>
+<body>
+
+<nav class="navbar navbar-expand-lg" style=" color: darkgoldenrod ;font-size: large">
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/bet/premierLeague}" style="color: burlywood">Back</a>
+            </li>
+
+            <div style="position:fixed; right: 5vmin">
+
+                <div style="position: relative; right: 25vmin">
+                    <li style="justify-items: right;">
+                        <h2 id="c_t"
+                            th:text="${#dates.createNow().getHours() + ':' + #dates.createNow().getMinutes() + ':' + #dates.createNow().getSeconds()}"></h2>
+
+                    </li>
+                </div>
+
+                <div style="position:absolute; right:  0vmin; top: 0vmin">
+                    <li class="nav-item">
+                        <img th:src="${session.userPhoto}" class="img-thumbnail img-responsive" th:width="100vmin"
+                             th:height="100vmin"/>
+                    </li>
+                </div>
+            </div>
+        </ul>
+
+    </div>
+</nav>
+
+<div class="container">
+
+    <div class="alert alert-info text-center"
+         th:if="${noBetsYet}"
+         th:text="${noBetsYet}">
+    </div>
+
+    <div th:unless="${noBetsYet}" class="table-responsive mt-5" style="text-align: center">
+
+        <table class="table table-hover">
+            <caption class="mt-2" style="text-align: center">Matches you 've bet for match day: [[${matchday}]]
+            </caption>
+            <thead class="thead-inverse" th:style="'color: red'">
+            <tr>
+                <th>DATE</th>
+                <th>HOME TEAM</th>
+                <th>AWAY TEAM</th>
+                <th>BET SCORE</th>
+            </tr>
+
+            </thead>
+            <tr th:each=" betScore, iStat: ${allBets}">
+                <td th:style="${iStat.odd}? 'color: lightsalmon' : 'color: yellow'"><span
+                        th:text="${#temporals.format(betScore.matchStartingTime,'dd-MM-yyyy, HH:mm | EEE')}"> date </span>
+                </td>
+                <td th:style="${iStat.odd}? 'color: lightsalmon' : 'color: yellow'"><span
+                        th:text="${betScore.homeTeamName}"> Home team </span></td>
+                <td th:style="${iStat.odd}? 'color: lightsalmon' : 'color: yellow'"><span
+                        th:text="${betScore.awayTeamName}"> Away team </span></td>
+                <td th:style="${iStat.odd}? 'color: lightsalmon' : 'color: yellow'">
+                    <span th:text="|${betScore.homeScore}: ${betScore.awayScore}|"></span>
+        </table>
+
+    </div>
+
+    <div class="fixed-bottom" th:insert="fragments/footer.html :: footer"></div>
+</div>
+<script th:src="@{/js/hourTime.js}"></script>
+</body>
+</html>

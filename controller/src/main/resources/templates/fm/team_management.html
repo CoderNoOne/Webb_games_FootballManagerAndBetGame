@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script src="/webjars/bootstrap/4.3.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/webjars/bootstrap/4.3.0/css/bootstrap.min.css"/>
+    <meta charset="UTF-8">
+    <title>Team management</title>
+    <style>
+        table th, table td, table tr {
+            vertical-align: center;
+        }
+
+        .logo {
+            height: 6vw;
+            width: 6vw
+        }
+
+    </style>
+</head>
+<body style="background-color: LightGray">
+<nav class="navbar navbar-expand-lg" style=" color: darkgoldenrod ;font-size: 2vmin">
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/fm/start}" style="color: burlywood">Back</a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/fm/playerNumbers}" style="color:darkolivegreen;">Player numbers</a>
+            </li>
+
+            <li style="justify-items: right; font-size: 1.5vmin;position:absolute; right: 5vmin">
+                <h2 id="c_t"
+                    th:text="${#dates.createNow().getHours() + ':' + #dates.createNow().getMinutes() + ':' + #dates.createNow().getSeconds()}"></h2>
+
+            </li>
+        </ul>
+    </div>
+</nav>
+
+
+<div>
+    <h3 style="text-align: center; width: 100%; background-color: #ca2626; height: 5vmin; margin-bottom: 5vm"
+        th:text="'Team players - attributes'"></h3>
+
+    <div class="table-hover" style="text-align: center">
+        <table class="table table-hover" style="margin-bottom: 5vmin;">
+
+            <thead class="thead-inverse text-uppercase" th:style="'color: SlateBlue; background: Tomato'">
+            <tr>
+                <td>LP</td>
+                <td>Player name</td>
+                <td>Player image</td>
+                <td>Positions</td>
+                <td style="text-align: center">Player attributes</td>
+            </tr>
+            </thead>
+            <tr th:each="player, iStat: ${players}">
+                <td th:text="${iStat.index} + 1"></td>
+                <td th:text="|${player.firstName} ${player.lastName}|">fullName</td>
+                <td><img class="logo" th:src="${player.imageUrl}" alt="player image"></td>
+                <td th:text="${playerPositions[__${player.getId()}__]}"></td>
+                <td>
+
+                    <table class="table">
+                        <thead class="thead-inverse" th:style="'color: maroon; background: gold'">
+                        <tr style="border-top: none">
+                            <td style="border-top: none">Attacking</td>
+                            <td style="border-top: none">Defending</td>
+                            <td style="border-top: none">Heading</td>
+                            <td style="border-top: none">Dribbling</td>
+                            <td style="border-top: none">Passing</td>
+                            <td style="border-top: none">Technique</td>
+                            <td style="border-top: none">Team work</td>
+                            <td style="border-top: none">Speed</td>
+                            <td style="border-top: none">Aggression</td>
+                            <td style="border-top: none">Speed</td>
+                            <td style="border-top: none">One on ones</td>
+                            <td style="border-top: none">Penalty saving</td>
+                            <td style="border-top: none">Penalty scoring</td>
+                            <td style="border-top: none">Reflexes</td>
+                        </tr>
+                        </thead>
+                        <tr style="border-top: none" th:each="playerAttr, stat : ${player.getPlayerAttributes()}">
+                            <td style="border-top: none" th:text="${playerAttr.attacking}"></td>
+                            <td style="border-top: none" th:text="${playerAttr.defending}"></td>
+                            <td style="border-top: none" th:text="${playerAttr.heading}"></td>
+                            <td style="border-top: none" th:text="${playerAttr.dribbling}"></td>
+                            <td style="border-top: none" th:text="${playerAttr.passing}"></td>
+                            <td style="border-top: none" th:text="${playerAttr.technique}"></td>
+                            <td style="border-top: none" th:text="${playerAttr.teamWork}"></td>
+                            <td style="border-top: none" th:text="${playerAttr.speed}"></td>
+                            <td style="border-top: none" th:text="${playerAttr.aggression}"></td>
+                            <td style="border-top: none" th:text="${playerAttr.speed}"></td>
+                            <td style="border-top: none" th:text="${playerAttr.oneOnOnes}"></td>
+                            <td style="border-top: none" th:text="${playerAttr.penaltySaving}"></td>
+                            <td style="border-top: none" th:text="${playerAttr.penaltyScoring}"></td>
+                            <td style="border-top: none" th:text="${playerAttr.reflexes}"></td>
+                        </tr>
+                    </table>
+                </td>
+
+        </table>
+    </div>
+
+    <div class="mt-3 mb-2" th:insert="fragments/footer.html :: footer"></div>
+
+</div>
+
+<script th:src="@{/js/hourTime.js}"></script>
+
+</body>
+</html>

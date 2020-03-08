@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <link rel="stylesheet" href="/webjars/bootstrap/4.3.0/css/bootstrap.min.css"/>
+    <script src="/webjars/jquery/3.4.1/jquery.min.js"></script>
+    <script src="/webjars/bootstrap/4.3.0/js/bootstrap.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+    <meta charset="UTF-8">
+    <title>Admin dashboard</title>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg" style=" color: darkgoldenrod ;font-size: large">
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+
+            <li class="nav-item dropdown mr-0">
+
+                <a sec:authentication="name" class="nav-link dropdown-toggle pointer"
+                   style="color: darkviolet; cursor: pointer"
+                   id="navbarDropdown"
+                   role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="#">Your Profile</a>
+                    <div class="dropdown-divider"></div>
+                    <form id="form1" class="dropdown-item" th:action="@{/logout}" method="post">
+                        <button th:type="submit" value="Logout" class=" btn dropdown-item">Logout</button>
+                    </form>
+                </div>
+
+            </li>
+
+
+            <div style="position:absolute; right: 5vmin">
+
+                <div style="position: absolute; right: 25vmin">
+                    <li style="justify-items: right;">
+                        <h2 id="c_t"
+                            th:text="${#dates.createNow().getHours() + ':' + #dates.createNow().getMinutes() + ':' + #dates.createNow().getSeconds()}"></h2>
+
+                    </li>
+                </div>
+
+                <div style="position:relative; right:  0vmin; top: 0vmin">
+                    <li class="nav-item">
+                        <img th:src="${session.userPhoto}" class="img-thumbnail img-responsive" th:width="100vmin"
+                             th:height="100vmin"/>
+                    </li>
+                </div>
+
+            </div>
+        </ul>
+
+    </div>
+</nav>
+
+
+<div class="container-fluid">
+    <h2 class="text-success mt-5 mb-5" style="text-align: center">Welcome <span
+            sec:authentication="name">UserName</span></h2>
+
+
+    <div class="col-8 offset-2">
+        <form class="jumbotron" action="#" th:action="@{/admin/createLeagues}" th:object="${chosenLeague}"
+              method="post">
+
+            <div class="form-group">
+
+                <div th:if="${errors != null && errors.containsKey('startDate')}"
+                     class="alert alert-danger text-center" role="alert"
+                     th:text="${errors.get('startDate')}">
+                </div>
+
+                <div th:if="${errors != null && errors.containsKey('teams')}"
+                     class="alert alert-danger text-center" role="alert"
+                     th:text="${errors.get('teams')}">
+                </div>
+
+                <div th:if="${errors != null && errors.containsKey('matchTime')}"
+                     class="alert alert-danger text-center" role="alert"
+                     th:text="${errors.get('matchTime')}">
+                </div>
+
+                <div th:if="${errors != null && errors.containsKey('name')}"
+                     class="alert alert-danger text-center" role="alert"
+                     th:text="${errors.get('name')}">
+                </div>
+
+
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination pg-blue">
+                        <li class="page-item"><a class="page-link" th:href="@{/admin(custom)}">1</a></li>
+                        <li class="page-item"><a class="page-link" th:href="@{/admin(national)}">2</a></li>
+                    </ul>
+                </nav>
+
+                <div th:unless="${param.custom}">
+
+                    <div class="form-group">
+                        <h3>League name</h3>
+                        <input id="leagueName" type="text" th:field="*{name}" class="form-control"/>
+                    </div>
+
+                    <h3 style="text-align: center">Custom league - beta version</h3>
+                    <ul id="leagues" class="list-group list-inline-item">
+                        <li th:each="entry : ${teamsForLeague.leagueTeams}" class="list-group-item ">
+
+                            <ul>
+                                <li class="list-group-item" style="border: none" th:each="team : ${entry.value}">
+                                    <input type="checkbox" th:field="*{teams}" th:value="${{team.name}}" class="mr-1"
+                                           placeholder="Input league name"/>
+                                    <label th:text="${team.name}" class="mr-2"></label>
+                                </li>
+                            </ul>
+
+                        </li>
+                    </ul>
+                </div>
+
+                <div th:if="${param.custom}">
+                    <h3 style="text-align: center">National Leagues - currently unavailable</h3>
+                    <ul id="teams" class="list-group list-inline-item">
+                        <li th:each="league : ${baseLeagues}" class="list-group-item disabled ">
+                            <input type="radio" th:field="*{name}" th:value="${league.name()}" class="mr-1"/>
+                            <label th:text="${league.desc}" class="mr-2"></label>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <h3>Start date</h3>
+                <input id="startDate" type="date" class="form-control" th:field="*{startDate}"/>
+            </div>
+
+            <div class="form-group">
+                <h3>Match hour</h3>
+                <input id="matchHour" type="time" th:field="*{matchTime}" class="form-control"/>
+            </div>
+
+            <div class="form-group col-6 offset-5">
+                <button type="submit" class="btn btn-success">Add Leagues</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-8 offset-4">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <div class="panel panel primary">
+                    <div class="panel-heading">
+                        <h1 style="color: peru; text-align: center">Games</h1>
+                    </div>
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="thead-inverse" th:style="'color: mediumvioletred'">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Start Date</th>
+                                    <th>Game id</th>
+                                    <th>Delete game</th>
+
+                                </tr>
+                                </thead>
+                                <tr th:each=" league, iStat: ${leaguePage}">
+                                    <td th:style="${iStat.odd}? 'color: lightsalmon' : 'color: yellow'"><span
+                                            th:text="${league.id}"> ID </span></td>
+                                    <td th:style="${iStat.odd}? 'color: lightsalmon' : 'color: yellow'"><span
+                                            th:text="${league.name}"> Name </span></td>
+                                    <td th:style="${iStat.odd}? 'color: lightsalmon' : 'color: yellow'"><span
+                                                                         <td th:style="${iStat.odd}? 'color: lightsalmon' : 'color: yellow'"><span       th:text="${league.startDate}"> StartDate </span></td>
+                                    <td th:style="${iStat.odd}? 'color: lightsalmon' : 'color: yellow'"><span
+                                            th:text="${league.game.id}"> Game id </span></td>
+
+                                    <td th:style="${iStat.odd}? 'color: lightsalmon' : 'color: yellow'">
+                                        <a th:href="@{'/admin/deleteGame/' + ${league.game.id}}">Delete game</a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <div th:if="${leaguePage.totalPages > 0}" class="pagination text-center" style="justify-content: center">
+
+                                <a class="text-center" th:each="pageNumber : ${pageNumbers}"
+                                   th:href="@{/admin/(size=${leaguePage.size}, page=${pageNumber})}"
+                                   th:text="${pageNumber} + '&nbsp'"
+                                   th:class="${pageNumber==leaguePage.number + 1} ? 'active'"></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:insert="fragments/footer.html :: footer"></div>
+</div>
+
+<script th:src="@{/js/hourTime.js}"></script>
+
+</body>
+</html>

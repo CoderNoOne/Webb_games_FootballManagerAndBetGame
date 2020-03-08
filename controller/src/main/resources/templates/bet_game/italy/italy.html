@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="/webjars/bootstrap/4.3.0/css/bootstrap.min.css"/>
+    <script src="/webjars/jquery/3.4.1/jquery.min.js"></script>
+    <script src="/webjars/bootstrap/4.3.0/js/bootstrap.min.js"></script>
+    <meta charset="UTF-8">
+    <title>Italy live scores</title>
+    <style>
+
+        button.link {
+            font-family: "Verdana";
+            font-size: 1em;
+            text-align: left;
+            color: greenyellow;
+            background: none;
+            margin: 0;
+            padding: 0;
+            border: none;
+            cursor: pointer;
+
+            -moz-user-select: text;
+
+            /* override all your button styles here if there are any others */
+        }
+
+        button.link span {
+            text-decoration: underline;
+        }
+
+        button.link:hover span,
+        button.link:focus span {
+            color: black;
+        }
+
+        body {
+            background-image: url("https://wallpapercave.com/wp/wp2011137.jpg");
+            background-size: cover;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg" style=" color: darkgoldenrod ;font-size: large">
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/bet/home}" style="color: burlywood">Back to bet menu</a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/bet/italy/live}" style="color:darkcyan;">Italy Live matches</a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/bet/italy/stats}" style="color:darkorange">Your bet matches</a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/bet/italy/leaderboard}" style="color:limegreen;">Italy
+                    leaderboard</a>
+            </li>
+
+            <div style="position:absolute; right: 5vmin">
+
+                <div style="position: absolute; right: 25vmin">
+                    <li style="justify-items: right;">
+                        <h2 id="c_t"
+                            th:text="${#dates.createNow().getHours() + ':' + #dates.createNow().getMinutes() + ':' + #dates.createNow().getSeconds()}"></h2>
+
+                    </li>
+                </div>
+
+                <div style="position:relative; right:  0vmin; top: 0vmin">
+                    <li class="nav-item">
+                        <img th:src="${session.userPhoto}" class="img-thumbnail img-responsive" th:width="100vmin"
+                             th:height="100vmin"/>
+                    </li>
+                </div>
+
+            </div>
+        </ul>
+
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row mt-5">
+        <div class="col-8 offset-4">
+
+            <div style="width: 55vmin; text-align: center"
+                 th:if="${errors != null && errors.containsKey('betScoreWrapper')}"
+                 class="alert alert-danger text-center" role="alert"
+                 th:text="${errors['betScoreWrapper']}">
+            </div>
+
+            <div style="width: 60vmin; text-align: center" th:if="${success}"
+                 class="alert alert-success" role="alert"
+                 th:text="${success}">
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${noMatchesToBet}" class="alert alert-info text-center"
+         role="alert" th:text="${noMatchesToBet}"></div>
+
+    <div th:unless="${noMatchesToBet}" class="table-responsive mt-5" style="text-align: center">
+
+        <table class="table table-hover">
+            <caption class="mt-2" style="text-align: center">Matches for matchday: [[${matchday}]]</caption>
+            <thead class="thead-inverse" th:style="'color: red; background: yellow'">
+            <tr>
+                <th>UTC DATE</th>
+                <th>HOME TEAM</th>
+                <th>AWAY TEAM</th>
+                <th>BET SCORE</th>
+                <th></th>
+            </tr>
+
+            </thead>
+            <tr th:each=" match, iStat: ${scheduledMatches}">
+                <form th:action="@{/bet/italy}" method="post" th:object="${betScoreWrapper}">
+                    <td th:style="${iStat.odd}? 'color: lightsalmon' : 'color: yellow'"><span
+                            th:text="${#temporals.format(match.getUtcDate(),'dd-MM-yyyy, HH:mm | EEE')}">
+                    date </span></td>
+                    <td th:style="${iStat.odd}? 'color: lightsalmon' : 'color: yellow'"><span
+                            th:text="${match.getHomeTeam().name}"> Home team </span></td>
+                    <td th:style="${iStat.odd}? 'color: lightsalmon' : 'color: yellow'"><span
+                            th:text="${match.getAwayTeam().name}"> Away team </span></td>
+                    <td th:style="${iStat.odd}? 'color: lightsalmon' : 'color: yellow'">
+                        <input type="number" min="0" max="9"
+                               th:field="*{betScores[__${match.getId()}__].homeScore}">:<input
+                            type="number" min="0" max="9"
+                            th:field="*{betScores[__${match.getId()}__].awayScore}">
+                        <input readonly="readonly" hidden type="text" th:field="*{betScores[__${match.id}__].matchDay}"
+                               th:value="${match.matchday}">
+                        <input readonly="readonly" hidden type="text"
+                               th:field="*{betScores[__${match.getId()}__].matchId}"
+                               th:value="${match.id}">
+                        <input readonly="readonly" hidden type="text"
+                               th:field="*{betScores[__${match.getId()}__].homeTeamName}"
+                               th:value="${match.getHomeTeam().getName()}">
+                        <input readonly="readonly" hidden type="text"
+                               th:field="*{betScores[__${match.getId()}__].awayTeamName}"
+                               th:value="${match.getAwayTeam().getName()}">
+                        <input readonly="readonly" hidden type="text"
+                               th:field="*{betScores[__${match.getId()}__].matchStartingTime}"
+                               th:value="${match.utcDate}">
+                    </td>
+                    <td th:style="${iStat.odd}? 'color: lightsalmon' : 'color: yellow'">
+                        <button class="link" type="submit">Bet</button>
+                    </td>
+                </form>
+            </tr>
+        </table>
+
+    </div>
+
+</div>
+<div class="fixed-bottom" th:insert="fragments/footer.html :: footer"></div>
+
+<script th:src="@{/js/hourTime.js}"></script>
+</body>
+</html>

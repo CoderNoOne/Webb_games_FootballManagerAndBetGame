@@ -1,0 +1,29 @@
+body {
+    background: url("/images/cl.jpg");
+    background-size: cover;;
+}
+
+.btn-link {
+    border: none;
+    outline: none;
+    background: none;
+    cursor: pointer;
+    color: #0000EE;
+    padding: 0;
+    text-decoration: underline;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+.btn2 {
+    width: 200px;
+    text-align:center;
+}
+#btn2_container img {
+    border: 6px solid red;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+.btn2-txt {
+    vertical-align: middle;
+}
