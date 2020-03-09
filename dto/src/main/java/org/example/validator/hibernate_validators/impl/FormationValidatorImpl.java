@@ -1,7 +1,5 @@
 package org.example.validator.hibernate_validators.impl;
 
-
-
 import org.example.model.fm.FormationDto;
 import org.example.validator.hibernate_validators.annotations.ValidFormation;
 

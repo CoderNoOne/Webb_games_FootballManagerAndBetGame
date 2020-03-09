@@ -307,11 +307,7 @@ public class FootballManagerController {
             model.addAttribute("teamNotSelected", teamNotSelected);
         }
 
-        Set<LeagueDto> allLeaguesByActiveGame = leagueService.getAllLeaguesByActiveGameWithFetchedTeams();
-
-        if (allLeaguesByActiveGame.size() == 0) {
-            model.addAttribute("noTeams", "There is not available any team. Send a request to admin");
-        }
+        controllerUtil.createModelAttributesIfTeamsAreAvailable(model, leagueService.getAllLeaguesByActiveGameWithFetchedTeams());
 
         return "fm/chooseTeam";
     }

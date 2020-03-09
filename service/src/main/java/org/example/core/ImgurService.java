@@ -1,7 +1,7 @@
 package org.example.core;
 
 import lombok.RequiredArgsConstructor;
-import org.example.exceptions.AppException;
+import org.example.core.exceptions.AppException;
 import org.example.model.core.ImgurApiResponseDto;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;

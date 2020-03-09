@@ -2,7 +2,7 @@ package org.example.model.fm.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.exceptions.AppException;
+import org.example.core.exceptions.AppException;
 
 import java.text.MessageFormat;
 import java.util.Arrays;

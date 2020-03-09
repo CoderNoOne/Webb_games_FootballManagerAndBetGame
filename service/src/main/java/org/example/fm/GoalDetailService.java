@@ -1,7 +1,7 @@
 package org.example.fm;
 
 import lombok.RequiredArgsConstructor;
-import org.example.exceptions.AppException;
+import org.example.core.exceptions.AppException;
 import org.example.fm.entity.Match;
 import org.example.model.fm.GoalDetailDto;
 import org.springframework.stereotype.Service;

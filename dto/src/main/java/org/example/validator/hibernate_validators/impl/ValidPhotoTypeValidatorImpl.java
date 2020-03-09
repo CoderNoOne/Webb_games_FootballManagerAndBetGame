@@ -1,6 +1,6 @@
 package org.example.validator.hibernate_validators.impl;
 
-import org.example.exceptions.AppException;
+import org.example.core.exceptions.AppException;
 import org.example.validator.hibernate_validators.annotations.ValidPhotoType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;

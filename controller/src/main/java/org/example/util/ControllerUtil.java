@@ -10,14 +10,12 @@ import org.example.model.bet.BetScoreWrapper;
 import org.example.model.bet.ScoreDto;
 import org.example.model.core.UserDto;
 import org.example.model.core.VerificationTokenDto;
-import org.example.core.enums.Authority;
-import org.example.exceptions.AppException;
+import org.example.core.exceptions.AppException;
 import org.example.fm.*;
 import org.example.model.core.enums.AuthorityDto;
 import org.example.model.core.enums.GenderDto;
 import org.example.model.fm.*;
 import org.example.model.fm.enums.Formation;
-import org.example.security.UserDetailsServiceImpl;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
@@ -38,6 +36,8 @@ public class ControllerUtil {
 
     private final PlayerService playerService;
     private final ImgurService imgurService;
+    private final TeamService teamService;
+
 
     public String getPhotoUrlForUserDto(UserDto userDto) {
 
@@ -152,6 +152,43 @@ public class ControllerUtil {
 
         }
         return errors;
+    }
+
+    public void createModelAttributesIfTeamsAreAvailable(Model model, Set<LeagueDto> allLeaguesByActiveGame){
+
+        if (allLeaguesByActiveGame.size() == 0) {
+            model.addAttribute("noTeams", "There is not available any team. Send a request to admin");
+        }else {
+            var leaguesInfo = allLeaguesByActiveGame.stream()
+                    .collect(Collectors.toMap(
+                            LeagueDto::getId,
+                            leagueDto -> leagueDto
+                    ));
+
+
+            var alreadySelectedTeams = allLeaguesByActiveGame.stream()
+                    .collect(Collectors.toMap(
+                            LeagueDto::getId,
+                            league -> teamService.getTeamsWithAssociatedUsers(league.getTeams(), league.getId())
+                    ));
+
+            var teamsToSelect = allLeaguesByActiveGame.stream()
+                    .collect(Collectors.toMap(
+                            LeagueDto::getId,
+                            league -> teamService.getTeamsWithNotAssociatedUsers(league.getTeams(), league.getId())
+                    ));
+
+
+            var chooseTeam = FMChooseTeamDto.builder()
+                    .leagueIdTeamId(allLeaguesByActiveGame.stream().collect(Collectors.toMap(LeagueDto::getId, league -> -1)))
+                    .build();
+
+            model
+                    .addAttribute("chooseTeam", chooseTeam)
+                    .addAttribute("alreadySelectedTeams", alreadySelectedTeams)
+                    .addAttribute("teamsToSelect", teamsToSelect)
+                    .addAttribute("leaguesInfo", leaguesInfo);
+        }
     }
 
     public Map<String, String> bindErrorsSpring(BindingResult bindingResult) {

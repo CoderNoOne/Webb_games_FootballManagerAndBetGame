@@ -1,7 +1,7 @@
 package org.example.fm;
 
 import org.example.core.entity.User;
-import org.example.exceptions.AppException;
+import org.example.core.exceptions.AppException;
 import org.example.fm.entity.*;
 import org.example.fm.enums.FmMatchStatus;
 import org.example.fm.enums.Position;

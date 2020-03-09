@@ -1,7 +1,7 @@
 package org.example.model.core.enums;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.exceptions.AppException;
+import org.example.core.exceptions.AppException;
 
 import java.text.MessageFormat;
 import java.util.Arrays;

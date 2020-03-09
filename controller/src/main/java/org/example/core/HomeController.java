@@ -2,7 +2,6 @@ package org.example.core;
 
 import lombok.RequiredArgsConstructor;
 import org.example.core.entity.User;
-import org.example.core.enums.Gender;
 import org.example.model.core.PasswordDto;
 import org.example.model.core.UserDto;
 import org.example.model.core.VerificationTokenDto;
@@ -34,6 +33,7 @@ public class HomeController {
     private final EmailService emailService;
     private final VerificationTokenService verificationTokenService;
     private final LoggedUsersRegistry loggedUsersRe;
+
 
     @RequestMapping(value = {"/", "/home"})
     public String home() {

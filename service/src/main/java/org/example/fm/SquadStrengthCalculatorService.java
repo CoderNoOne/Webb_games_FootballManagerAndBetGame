@@ -2,7 +2,7 @@ package org.example.fm;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.beanutils.BeanUtils;
-import org.example.exceptions.AppException;
+import org.example.core.exceptions.AppException;
 import org.example.fm.entity.*;
 import org.example.model.fm.enums.Formation;
 import org.example.model.fm.enums.PositionSkillsImportance;

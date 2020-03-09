@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.core.UserRepository;
 import org.example.core.entity.User;
 import org.example.core.enums.Authority;
-import org.example.exceptions.AppException;
+import org.example.core.exceptions.AppException;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import org.springframework.security.core.GrantedAuthority;

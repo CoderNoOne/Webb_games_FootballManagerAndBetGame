@@ -2,7 +2,7 @@ package org.example.core;
 
 import lombok.RequiredArgsConstructor;
 import org.example.core.entity.User;
-import org.example.exceptions.AppException;
+import org.example.core.exceptions.AppException;
 import org.example.model.core.UserDto;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

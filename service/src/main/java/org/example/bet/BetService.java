@@ -8,7 +8,7 @@ import org.example.bet.enums.BetLeague;
 import org.example.model.bet.BetMatch;
 import org.example.model.bet.ResponseBet;
 import org.example.model.bet.ScoreDto;
-import org.example.exceptions.AppException;
+import org.example.core.exceptions.AppException;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpEntity;

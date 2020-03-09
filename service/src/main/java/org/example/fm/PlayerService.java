@@ -1,7 +1,7 @@
 package org.example.fm;
 
 import lombok.RequiredArgsConstructor;
-import org.example.exceptions.AppException;
+import org.example.core.exceptions.AppException;
 import org.example.fm.entity.GoalDetail;
 import org.example.fm.entity.Player;
 import org.example.model.fm.PlayerDto;

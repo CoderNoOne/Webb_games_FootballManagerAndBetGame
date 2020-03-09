@@ -2,7 +2,7 @@ package org.example.bet;
 
 import lombok.RequiredArgsConstructor;
 import org.example.model.bet.BetPointsDto;
-import org.example.exceptions.AppException;
+import org.example.core.exceptions.AppException;
 import org.example.model.bet.enums.BetLeagueDto;
 import org.springframework.stereotype.Service;
 

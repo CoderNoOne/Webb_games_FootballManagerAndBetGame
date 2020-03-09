@@ -3,7 +3,7 @@ package org.example.fm;
 import lombok.RequiredArgsConstructor;
 import org.example.core.UserRepository;
 import org.example.core.entity.User;
-import org.example.exceptions.AppException;
+import org.example.core.exceptions.AppException;
 import org.example.fm.entity.Country;
 import org.example.fm.entity.Game;
 import org.example.fm.entity.League;

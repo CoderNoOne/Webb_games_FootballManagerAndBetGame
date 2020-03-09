@@ -1,7 +1,7 @@
 package org.example.model.fm.enums;
 
 
-import org.example.exceptions.AppException;
+import org.example.core.exceptions.AppException;
 
 import java.text.MessageFormat;
 import java.util.*;

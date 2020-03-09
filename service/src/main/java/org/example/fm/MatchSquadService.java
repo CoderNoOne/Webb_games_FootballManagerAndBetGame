@@ -1,8 +1,7 @@
 package org.example.fm;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.descriptor.web.ApplicationParameter;
-import org.example.exceptions.AppException;
+import org.example.core.exceptions.AppException;
 import org.example.fm.entity.Match;
 import org.example.fm.entity.MatchSquad;
 import org.example.fm.entity.Player;
