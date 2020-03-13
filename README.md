@@ -156,4 +156,4 @@ Dockerrun.aws.json file is as follows:
 Check out this link: 
 [click here](http://codernooone.eu-west-1.elasticbeanstalk.com/)
 
-
+Maven multi-module version: [click here](https://github.com/CoderNoOne/multi_module_app)
