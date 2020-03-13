@@ -487,10 +487,6 @@ public class ScheduleService {
 
     private void setScoreForWalkOverMatches(Match match) {
 
-        // 1. Sprawdz czy obie druzyny mają ustawione składy startowe
-        //2. Jeżeli któ©as z druzyn nie ma to walkover 2:0
-        //3. Jeżeli składy są ustawione to przejdz do własćiwej symulacji meczu
-
         List<MatchSquad> startingSquadsForMatch = matchSquadRepository.findByMatchId(match.getId());
         match.setStatus(FmMatchStatus.FINISHED);
 
@@ -653,9 +649,6 @@ public class ScheduleService {
                 .map(CronTrigger::new)
                 .collect(Collectors.toList());
     }
-
-    //wysyłanie maila 1 h przed meczem
-
 
 }
 

@@ -1,10 +1,7 @@
 package org.example.security;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -16,7 +13,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -61,7 +57,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-
 
         http
                 .authorizeRequests()
@@ -112,7 +107,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
             request.getSession().invalidate();
             SecurityContextHolder.clearContext();
-//            Set<String> strings = updateLoggedUsers();
             response.sendRedirect("/logout?logout");
         };
     }
@@ -150,26 +144,4 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new HttpSessionEventPublisher();
     }
 
-
-//    @Cacheable(value = "loggedUsers")
-//    public Set<String> getLoggedUsers() {
-//
-//        return sessionRegistry.getAllPrincipals()
-//                .stream()
-//                .filter(principal -> principal instanceof UserDetails)
-//                .map(UserDetails.class::cast)
-//                .map(UserDetails::getUsername)
-//                .collect(Collectors.toSet());
-//    }
-//
-//    @CachePut(value = "loggedUsers")
-//    public Set<String> updateLoggedUsers() {
-//
-//        return sessionRegistry.getAllPrincipals()
-//                .stream()
-//                .filter(principal -> principal instanceof UserDetails)
-//                .map(UserDetails.class::cast)
-//                .map(UserDetails::getUsername)
-//                .collect(Collectors.toSet());
-//    }
 }

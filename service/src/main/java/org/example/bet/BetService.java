@@ -161,9 +161,11 @@ public class BetService {
     }
 
     private List<BetMatch> getScheduledMatchesForSpecifiedLeague(BetLeague league) {
+
         HttpEntity<ResponseBet> matches = new HttpEntity<>(new LinkedMultiValueMap<>(API_CALL_HEADERS));
         return Objects.requireNonNull(restTemplate.exchange(API_URL, HttpMethod.GET, matches, ResponseBet.class,
                 league.getId(), "SCHEDULED").getBody()).getMatches();
+
     }
 
 
