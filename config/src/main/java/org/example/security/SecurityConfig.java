@@ -1,5 +1,6 @@
 package org.example.security;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionRegistry;
@@ -17,13 +19,17 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
-@Configuration
+//@Configuration
+@EnableWebFluxSecurity
+@Slf4j
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
@@ -65,23 +71,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/footer", "/changeFormation", "/formation", "/loggedUsers", "/session-expired", "/app/**", "/", "/register**", "/login", "/home", "/confirm/**", "/matches/scheduled", "/logout**").permitAll()
                 .antMatchers("/changePassword", "/sendLinkToChangePassword", "/css/**", "/js/**", "/images/**", "/webjars/**", "/audio/**", "/forgotPassword", "/sendPassword").permitAll()
                 .anyRequest().authenticated()
-
                 .and()
                 .formLogin()
                 .loginPage("/login").permitAll()
                 .usernameParameter("nick")
                 .passwordParameter("pass")
                 .successHandler(authenticationSuccessHandler())
-                .failureUrl("/login?error")
+                .failureHandler(authenticationFailureHandler())
 
                 .and()
                 .logout()
-
                 .invalidateHttpSession(true)
                 .clearAuthentication(true)
-
                 .logoutSuccessUrl("/logout?logout")
-                .logoutSuccessHandler(logoutSuccessHandler())
                 .permitAll()
 
                 .and()
@@ -98,6 +100,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement()
                 .maximumSessions(1)
                 .sessionRegistry(sessionRegistry());
+    }
+
+    @Bean
+    public AuthenticationFailureHandler authenticationFailureHandler() {
+        return (request, response, exception) -> {
+            log.info(exception.getMessage());
+            log.error(Arrays.toString(exception.getStackTrace()));
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.sendRedirect("/login?error");
+        };
     }
 
 
@@ -144,4 +156,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new HttpSessionEventPublisher();
     }
 
+    
 }

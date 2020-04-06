@@ -10,6 +10,7 @@
         <module name="entity" />
         <module name="exception" />
         <module name="service" />
+        <module name="model" />
         <module name="repository" />
         <module name="controller" />
         <module name="config" />
@@ -28,6 +29,7 @@
       <module name="entity" options="-parameters" />
       <module name="exception" options="-parameters" />
       <module name="mapper" options="-parameters" />
+      <module name="model" options="-parameters" />
       <module name="repository" options="-parameters" />
       <module name="service" options="-parameters" />
       <module name="validator" options="-parameters" />

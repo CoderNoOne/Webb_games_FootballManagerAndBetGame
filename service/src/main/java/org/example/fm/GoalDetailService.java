@@ -26,7 +26,7 @@ public class GoalDetailService {
         }
 
         Match match = matchRepository.findById(matchId)
-                .orElseThrow(() -> new AppException(MessageFormat.format("Match with id {0} doesn't exist", matchId)));
+                .orElseThrow(() -> new AppException(String.format("Match with id %d doesn't exist", matchId)));
 
         Integer homeTeamId = match.getHomeTeam().getId();
 

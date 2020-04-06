@@ -46,10 +46,8 @@ public class AdminService {
 
         Collections.shuffle(allTeams);
 
-        // Find out how many teamsSize we want fixtures for.
         int teamsSize = allTeams.size();
 
-        // If odd number of teamsSize add a "ghost".
         AtomicBoolean ghost = new AtomicBoolean(false);
         if (teamsSize % 2 == 1) {
             allTeams.add(Team.builder().name("bye").build());

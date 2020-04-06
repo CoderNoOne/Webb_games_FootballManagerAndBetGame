@@ -4,6 +4,8 @@ import org.example.core.entity.User;
 import org.example.core.entity.VerificationToken;
 import org.example.core.enums.Authority;
 import org.example.core.enums.Gender;
+import org.example.fm.entity.Game;
+import org.example.model.core.GameDto;
 import org.example.model.core.UserDto;
 import org.example.model.core.VerificationTokenDto;
 import org.example.model.core.enums.AuthorityDto;
@@ -12,7 +14,7 @@ import org.example.model.core.enums.GenderDto;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
-public interface UserMapper {
+public interface CoreMapper {
 
     static User mapUserDtoToUser(UserDto userDto) {
 
@@ -25,10 +27,10 @@ public interface UserMapper {
                             .username(userDto.getUsername())
                             .enabled(userDto.getEnabled())
                             .birthDate(userDto.getBirthDate())
-                            .gender(UserMapper.mapGenderDtoToGender(userDto.getGender()))
+                            .gender(CoreMapper.mapGenderDtoToGender(userDto.getGender()))
                             .email(userDto.getEmail())
                             .authorities(userDto.getAuthorities() != null ?
-                                    userDto.getAuthorities().stream().map(UserMapper::mapAuthorityDtoToAuthority).collect(Collectors.toSet()) : new HashSet<>())
+                                    userDto.getAuthorities().stream().map(CoreMapper::mapAuthorityDtoToAuthority).collect(Collectors.toSet()) : new HashSet<>())
                             .password(userDto.getPassword().getPassword())
                             .build();
 
@@ -66,7 +68,7 @@ public interface UserMapper {
                         .enabled(user.getEnabled())
                         .birthDate(user.getBirthDate())
                         .email(user.getEmail())
-                        .gender(UserMapper.mapGenderToGenderDto(user.getGender()))
+                        .gender(CoreMapper.mapGenderToGenderDto(user.getGender()))
                         .build()
 
                 : null;
@@ -81,7 +83,7 @@ public interface UserMapper {
                         .id(verificationToken.getId())
                         .token(verificationToken.getToken())
                         .expirationDateTime(verificationToken.getExpirationDateTime())
-                        .userDto(UserMapper.mapUserToUserDto(verificationToken.getUser()))
+                        .userDto(CoreMapper.mapUserToUserDto(verificationToken.getUser()))
                         .build()
 
                 : null;
@@ -95,10 +97,9 @@ public interface UserMapper {
                         .id(verificationTokenDto.getId())
                         .token(verificationTokenDto.getToken())
                         .expirationDateTime(verificationTokenDto.getExpirationDateTime())
-                        .user(UserMapper.mapUserDtoToUser(verificationTokenDto.getUserDto()))
+                        .user(CoreMapper.mapUserDtoToUser(verificationTokenDto.getUserDto()))
                         .build()
 
                 : null;
     }
-
 }

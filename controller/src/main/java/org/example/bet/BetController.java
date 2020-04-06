@@ -205,7 +205,11 @@ public class BetController {
     }
 
     @PostMapping("/premierLeague")
-    public String postChampionsLeague(BetScoreWrapper betScoreWrapper, BindingResult bindingResult, @AuthenticationPrincipal(expression = "username") String username, RedirectAttributes redirectAttributes) {
+    public String postChampionsLeague(
+            @AuthenticationPrincipal(expression = "username") String username,
+            BetScoreWrapper betScoreWrapper,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes) {
 
         betScoreWrapperValidator.validate(betScoreWrapper, bindingResult);
         Map<String, String> errors = controllerUtil.bindErrorsSpring(bindingResult);

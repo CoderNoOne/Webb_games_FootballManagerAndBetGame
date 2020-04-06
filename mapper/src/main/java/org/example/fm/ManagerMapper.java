@@ -6,6 +6,7 @@ import org.example.fm.entity.*;
 import org.example.fm.enums.FmMatchStatus;
 import org.example.fm.enums.Position;
 import org.example.model.admin.TeamBaseDto;
+import org.example.model.core.GameDto;
 import org.example.model.fm.*;
 import org.example.model.fm.enums.Formation;
 
@@ -250,9 +251,14 @@ public interface ManagerMapper {
                         .id(league.getId())
                         .name(league.getName())
                         .startDate(league.getStartDate())
-                        .teams(league.getTeams().stream().map(Team::getName).toArray(String[]::new))
-                        .matches(league.getMatches().stream().map(ManagerMapper::mapMatchToDto).collect(Collectors.toList()))
-                        .gameId(league.getGame().getId())
+                        .teams(league.getTeams() != null ?
+                                league.getTeams().stream().map(Team::getName).toArray(String[]::new)
+                                : new String[]{})
+                        .matches(league.getMatches() != null ?
+                                league.getMatches().stream().map(ManagerMapper::mapMatchToDto).collect(Collectors.toList()) :
+                                Collections.emptyList())
+                        .gameId(league.getGame() != null ?
+                                league.getGame().getId() : null)
                         .build()
                 : null;
 
@@ -401,5 +407,38 @@ public interface ManagerMapper {
                         .build())
                 .build();
 
+    }
+
+
+    static GameDto mapGameToDto(Game game) {
+
+        return game == null ? null :
+                GameDto.builder()
+                        .id(game.getId())
+                        .active(game.getActive())
+                        .startDate(game.getStartDate())
+                        .leagues(
+                                game.getLeagues() != null ?
+                                        game.getLeagues().stream().map(ManagerMapper::mapLeagueToDto).collect(Collectors.toSet())
+                                        : Collections.emptySet())
+                        .userUsernames(game.getUsers() != null ?
+                                game.getUsers().stream().map(User::getUsername).collect(Collectors.toSet()) :
+                                Collections.emptySet())
+                        .build();
+    }
+
+    static Game mapGameDtoToGame(GameDto gameDto) {
+        return gameDto != null ?
+                Game.builder()
+                        .id(gameDto.getId())
+                        .active(gameDto.getActive())
+                        .startDate(gameDto.getStartDate())
+                        .leagues(gameDto.getLeagues() != null ? gameDto.getLeagues().stream().map(leagueDto -> League.builder().id(leagueDto.getId()).build())
+                                .collect(Collectors.toSet()) :
+                                Collections.emptySet())
+                        .users(gameDto.getUserUsernames() != null ? gameDto.getUserUsernames().stream().map(username -> User.builder().username(username).build()).collect(Collectors.toSet()) :
+                                Collections.emptySet())
+                        .build()
+                : null;
     }
 }

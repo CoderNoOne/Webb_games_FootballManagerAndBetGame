@@ -35,7 +35,7 @@ public class UserService {
             throw new AppException("Photo for user is null");
         }
 
-        User user = UserMapper.mapUserDtoToUser(userDto);
+        User user = CoreMapper.mapUserDtoToUser(userDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setPhotoUrl(photoUrlForUserDto);
         return userRepository.save(user);
@@ -75,7 +75,7 @@ public class UserService {
     public Optional<UserDto> getUserDtoByEmail(String email) {
 
         return userRepository.findByEmail(email)
-                .map(UserMapper::mapUserToUserDto);
+                .map(CoreMapper::mapUserToUserDto);
     }
 
     public boolean changePassword(String username, String password) {

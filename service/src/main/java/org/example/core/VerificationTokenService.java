@@ -29,7 +29,7 @@ public class VerificationTokenService {
                         },
                         () -> {
                             verificationTokenDto.setExpirationDateTime(LocalDateTime.now().plusMinutes(TOKEN_EXPIRATION_TIME_IN_MINUTES));
-                            verificationTokenRepository.save(UserMapper.mapVerificationTokenDtoToVerificationToken(verificationTokenDto));
+                            verificationTokenRepository.save(CoreMapper.mapVerificationTokenDtoToVerificationToken(verificationTokenDto));
                         });
 
         return verificationTokenDto;

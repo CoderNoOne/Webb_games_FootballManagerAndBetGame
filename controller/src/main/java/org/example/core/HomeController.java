@@ -10,12 +10,17 @@ import org.example.model.core.enums.GenderDto;
 import org.example.security.LoggedUsersRegistry;
 import org.example.util.ControllerUtil;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.thymeleaf.spring5.context.webflux.IReactiveDataDriverContextVariable;
+import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
+import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -37,6 +42,7 @@ public class HomeController {
 
     @RequestMapping(value = {"/", "/home"})
     public String home() {
+
         return "home";
     }
 
@@ -45,6 +51,7 @@ public class HomeController {
 
         String photoUrlForUsername = userService.getPhotoUrlForUsername(activeUser.getUsername());
         session.setAttribute("userPhoto", photoUrlForUsername);
+
         model.addAttribute("loggedUsers", loggedUsersRe.getLoggedUsers());
         return "user_page";
     }
