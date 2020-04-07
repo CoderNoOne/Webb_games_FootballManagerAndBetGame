@@ -1,6 +1,7 @@
 package org.example.fm;
 
 import lombok.RequiredArgsConstructor;
+import org.example.core.exceptions.AppException;
 import org.example.model.fm.LeagueDto;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,10 @@ public class LeagueService {
     }
 
     public Optional<LeagueDto> getActiveLeagueByUsername(String username) {
+
+        if(username == null){
+            throw new AppException("Username is null");
+        }
         return leagueRepository
                 .findByGameActiveAndGameUsersUsername(true, username)
                 .map(ManagerMapper::mapLeagueToDto);

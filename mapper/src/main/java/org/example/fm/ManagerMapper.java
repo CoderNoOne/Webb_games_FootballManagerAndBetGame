@@ -272,7 +272,7 @@ public interface ManagerMapper {
                         .awayTeam(mapTeamToTeamDto(match.getAwayTeam()))
                         .homeTeam(mapTeamToTeamDto(match.getHomeTeam()))
                         .dateTime(match.getDateTime())
-                        .leagueId(match.getLeague().getId())
+                        .leagueId(match.getLeague() != null ? match.getLeague().getId() : null)
                         .score(match.getScore())
                         .matchDay(match.getMatchDay())
                         .build()

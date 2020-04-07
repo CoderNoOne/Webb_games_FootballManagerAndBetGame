@@ -22,11 +22,11 @@ public class MatchService {
 
     private final MatchRepository matchRepository;
 
-    public List<Match> findAllPlayedMatchesForLeagueById(Integer leagueId) {
-        return matchRepository.findAllByLeagueId(leagueId);
-    }
-
     public List<MatchDto> getFinishedMatchesForLeague(Integer leagueId) {
+
+        if (leagueId == null) {
+            throw new AppException("League id is null");
+        }
 
         return matchRepository.findAllByScoreNotNullAndLeagueId(leagueId)
                 .stream()
@@ -35,6 +35,11 @@ public class MatchService {
     }
 
     public List<MatchDto> getScheduledMatches(Integer leagueId) {
+
+        if (leagueId == null) {
+            throw new AppException("League id is null");
+        }
+
         return matchRepository.findAllByScoreNullAndLeagueId(leagueId)
                 .stream()
                 .map(ManagerMapper::mapMatchToDto)
@@ -42,6 +47,14 @@ public class MatchService {
     }
 
     public List<MatchDto> getAllScheduledMatchesByTeamId(Integer id, Pageable pageable) {
+
+        if (id == null) {
+            throw new AppException("Team id is null");
+        }
+
+        if (pageable == null) {
+            throw new AppException("Pageable is null");
+        }
 
         return matchRepository.findAllByAwayTeamIdOrHomeTeamId(id, pageable)
                 .stream()
@@ -51,17 +64,12 @@ public class MatchService {
 
     }
 
-    public Optional<MatchDto> getById(Integer matchId) {
+    public Optional<MatchDto> getMatchById(Integer matchId) {
 
         if (matchId == null) {
             throw new AppException("Match id is null");
-
         }
-        return matchRepository.findById(matchId)
-                .map(ManagerMapper::mapMatchToDto);
-    }
 
-    public Optional<MatchDto> getMatchById(Integer matchId) {
         return matchRepository.findById(matchId)
                 .map(ManagerMapper::mapMatchToDto);
     }
@@ -84,7 +92,6 @@ public class MatchService {
                         (oldVal, newVal) -> oldVal,
                         LinkedHashMap::new
                 ));
-
     }
 
     public LocalDateTime getStartingTimeForMatchById(Integer matchId) {
@@ -94,9 +101,7 @@ public class MatchService {
         }
 
         return matchRepository.findById(matchId)
-                .orElseThrow(() -> new AppException("Match with id {0} doesn't exist"))
+                .orElseThrow(() -> new AppException(String.format("Match with id %d doesn't exist", matchId)))
                 .getDateTime();
-
     }
-
 }
