@@ -184,7 +184,7 @@ public interface ManagerMapper {
                         .number(player.getNumber())
                         .playerAttributes(mapPlayerAttributesToDto(player.getPlayerAttributes()))
                         .imageUrl(player.getImageUrl())
-                        .teamId(player.getTeam().getId())
+                        .teamId(player.getTeam() != null ? player.getTeam().getId() : null)
                         .build() :
                 null;
     }
@@ -304,10 +304,10 @@ public interface ManagerMapper {
 
         return MatchSquadDto.builder()
                 .id(matchSquad.getId())
-                .matchId(matchSquad.getMatch().getId())
+                .matchId(matchSquad.getMatch() != null ? matchSquad.getId() : null)
                 .teamDto(mapTeamToTeamDto(matchSquad.getTeam()))
                 .substitutionsNumberAvailable(matchSquad.getSubstitutionsAvailable())
-                .formation(Formation.fromFormationNumber(matchSquad.getFormationType()))
+                .formation(matchSquad.getFormationType() != null ? Formation.fromFormationNumber(matchSquad.getFormationType()) : null)
                 .players(firstElevenPlayers != null ? firstElevenPlayers : new HashMap<>())
                 .substitutions(subs)
                 .build();

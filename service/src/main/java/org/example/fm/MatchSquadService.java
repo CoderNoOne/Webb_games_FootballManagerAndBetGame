@@ -32,6 +32,30 @@ public class MatchSquadService {
 
     public Optional<MatchSquadDto> save(MatchSquadDto matchSquadDto) {
 
+        if (Objects.isNull(matchSquadDto)) {
+            throw new AppException("MatchSquadDto is null");
+        }
+
+        if (Objects.isNull(matchSquadDto.getTeamDto()) || Objects.isNull(matchSquadDto.getTeamDto().getId())) {
+            throw new AppException("TeamDto or team id is null");
+        }
+
+        if (Objects.isNull(matchSquadDto.getMatchId())) {
+            throw new AppException("Match id is null");
+        }
+
+        if (Objects.isNull(matchSquadDto.getFormation()) || Objects.isNull(matchSquadDto.getFormation().getNumber())) {
+            throw new AppException("Formation or formation number is null");
+        }
+
+        if (Objects.isNull(matchSquadDto.getPlayers()) || mapContainsNullKeyOrValue(matchSquadDto.getPlayers())) {
+            throw new AppException("Players map or entry key/value is null");
+        }
+
+        if (Objects.isNull(matchSquadDto.getSubstitutions()) || mapContainsNullKeyOrValue(matchSquadDto.getSubstitutions())) {
+            throw new AppException("Substitutions map or entry key/value is null");
+        }
+
         AtomicReference<Optional<MatchSquadDto>> result = new AtomicReference<>(Optional.empty());
 
         matchSquadRepository.findByTeamIdAndMatchId(matchSquadDto.getTeamDto().getId(), matchSquadDto.getMatchId())
@@ -58,6 +82,17 @@ public class MatchSquadService {
                 );
 
         return result.get();
+
+    }
+
+    private boolean mapContainsNullKeyOrValue(Map<String, PlayerDto> playersMap) {
+        if (Objects.isNull(playersMap)) {
+            throw new AppException("PlayersMap is null");
+        }
+
+        return playersMap.entrySet()
+                .stream()
+                .anyMatch(e -> Objects.isNull(e.getValue()) || Objects.isNull(e.getKey()));
 
     }
 
@@ -118,11 +153,11 @@ public class MatchSquadService {
 
     public Optional<MatchSquadDto> loadByTeamIdAndMatchId(Integer teamId, Integer matchId) {
 
-        if (teamId == null) {
+        if (Objects.isNull(teamId)) {
             throw new AppException("Team id is null");
         }
 
-        if (matchId == null) {
+        if (Objects.isNull(matchId)) {
             throw new AppException("Match id is null");
         }
 
@@ -133,20 +168,21 @@ public class MatchSquadService {
 
     public Integer makeSubstitutions(Integer matchId, Integer teamId, Map<String, PlayerDto> subs) {
 
-        if (matchId == null) {
+        if (Objects.isNull(matchId)) {
             throw new AppException("Match id is null");
         }
 
-        if (teamId == null) {
+        if (Objects.isNull(teamId)) {
             throw new AppException("Team id is null");
         }
 
-        if (subs == null) {
+        if (Objects.isNull(subs)) {
             throw new AppException("Subs map is null");
         }
 
         MatchSquad matchSquad = matchSquadRepository.findByTeamIdAndMatchId(teamId, matchId)
-                .orElseThrow(() -> new AppException(MessageFormat.format("No match squad for (matchId {0}, {1})", matchId, teamId)));
+                .orElseThrow(
+                        () -> new AppException(MessageFormat.format("No match squad for (matchId {0}, {1})", matchId, teamId)));
 
         List<Player> players = playerRepository.findPlayersByIdIn(subs.values().stream().filter(Objects::nonNull).map(PlayerDto::getId).collect(Collectors.toList()));
         Map<String, Player> currentPlayers = matchSquad.getPlayers();
