@@ -3,21 +3,25 @@ package org.example.core;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.bet.BetGameMapper;
-import org.example.bet.BetPointsRepository;
 import org.example.bet.BetService;
-import org.example.bet.ScoreEntityRepository;
-import org.example.bet.entity.BetPoints;
-import org.example.bet.entity.BetScore;
-import org.example.bet.enums.BetLeague;
+import org.example.entity.bet.entity.BetPoints;
+import org.example.entity.bet.entity.BetScore;
+import org.example.entity.fm.entity.*;
 import org.example.fm.*;
-import org.example.fm.entity.*;
 import org.example.model.bet.BetMatch;
 import org.example.model.bet.MatchScore;
 import org.example.model.bet.enums.BetLeagueDto;
 import org.example.model.fm.enums.AssistProbabilityPosition;
-import org.example.fm.enums.FmMatchStatus;
+import org.example.entity.fm.enums.FmMatchStatus;
 import org.example.model.fm.enums.Formation;
 import org.example.model.fm.enums.GoalProbabilityPosition;
+import org.example.repository.bet.BetPointsRepository;
+import org.example.repository.bet.ScoreEntityRepository;
+import org.example.repository.fm.GoalDetailRepository;
+import org.example.repository.fm.MatchRepository;
+import org.example.repository.fm.MatchSquadRepository;
+import org.example.repository.fm.MatchStatisticRepository;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
@@ -38,6 +42,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Transactional
 @RequiredArgsConstructor
+@Profile("!test")
 public class ScheduleService {
 
     private final TaskScheduler executor;
@@ -74,6 +79,7 @@ public class ScheduleService {
             betService.updateLiveMatchesForSpain();
         }, trigger));
     }
+
 
     private void getTriggersForLiveMatchesInEngland() {
         List<CronTrigger> cronTriggers = getCronTriggersForLiveMatches(betService.getLiveMatchesForPremierLeague());

@@ -3,9 +3,12 @@ package org.example.fm;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.beanutils.BeanUtils;
 import org.example.core.exceptions.AppException;
-import org.example.fm.entity.*;
+import org.example.entity.fm.entity.*;
 import org.example.model.fm.enums.Formation;
 import org.example.model.fm.enums.PositionSkillsImportance;
+import org.example.repository.fm.MatchRepository;
+import org.example.repository.fm.MatchSquadRepository;
+import org.example.repository.fm.TeamRepository;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;

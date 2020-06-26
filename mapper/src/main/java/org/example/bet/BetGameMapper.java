@@ -1,14 +1,15 @@
 package org.example.bet;
 
-import org.example.bet.entity.BetPoints;
-import org.example.bet.entity.BetScore;
-import org.example.bet.entity.ScoreEntity;
-import org.example.bet.enums.BetLeague;
-import org.example.core.entity.User;
+import org.example.entity.bet.entity.BetPoints;
+import org.example.entity.bet.entity.BetScore;
+import org.example.entity.bet.entity.ScoreEntity;
+import org.example.entity.bet.enums.BetLeague;
+import org.example.entity.core.entity.User;
 import org.example.model.bet.BetPointsDto;
 import org.example.model.bet.BetScoreDto;
 import org.example.model.bet.ScoreDto;
 import org.example.model.bet.enums.BetLeagueDto;
+
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;

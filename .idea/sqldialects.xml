@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$/controller/src/test/resources/scripts/truncate_data.sql" dialect="H2" />
+    <file url="file://$PROJECT_DIR$/controller/src/test/resources/scripts/user_test_data.sql" dialect="H2" />
+    <file url="file://$PROJECT_DIR$/domain/src/main/resources/META-INF/drop.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/domain/src/main/resources/META-INF/load.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/domain/src/main/resources/META-INF/schema.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/domain/src/test/java/org/example/repository/core/VerificationTokenRepositoryTest.java" dialect="H2" />
+    <file url="file://$PROJECT_DIR$/domain/src/test/resources/META-INF/schema.sql" dialect="H2" />
+    <file url="file://$PROJECT_DIR$/domain/src/test/resources/scripts/betPoints-test-data.sql" dialect="H2" />
+    <file url="file://$PROJECT_DIR$/domain/src/test/resources/scripts/country_base_test.sql" dialect="H2" />
+    <file url="file://$PROJECT_DIR$/domain/src/test/resources/scripts/scoreEntityScript.sql" dialect="H2" />
+  </component>
+</project>

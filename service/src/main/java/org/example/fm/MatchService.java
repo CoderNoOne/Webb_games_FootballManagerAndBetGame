@@ -2,8 +2,8 @@ package org.example.fm;
 
 import lombok.RequiredArgsConstructor;
 import org.example.core.exceptions.AppException;
-import org.example.fm.entity.Match;
 import org.example.model.fm.MatchDto;
+import org.example.repository.fm.MatchRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 

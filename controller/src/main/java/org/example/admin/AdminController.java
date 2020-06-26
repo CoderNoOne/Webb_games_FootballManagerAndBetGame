@@ -1,16 +1,16 @@
 package org.example.admin;
 
 import lombok.RequiredArgsConstructor;
-import org.example.admin.Impl.LeagueBaseDtoRepository;
-import org.example.admin.Impl.TeamBaseRepository;
 import org.example.model.admin.LeagueBaseDto;
 import org.example.model.admin.LeagueTeamsDto;
 import org.example.model.admin.enums.BaseLeague;
 import org.example.core.ScheduleService;
 import org.example.model.fm.LeagueDto;
 import org.example.model.fm.TeamDto;
-import org.example.fm.entity.League;
-import org.example.fm.enums.LeagueType;
+import org.example.entity.fm.entity.League;
+import org.example.entity.fm.enums.LeagueType;
+import org.example.repository.admin.Impl.LeagueBaseDtoRepository;
+import org.example.repository.admin.Impl.TeamBaseRepository;
 import org.example.util.ControllerUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

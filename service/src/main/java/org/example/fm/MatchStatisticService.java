@@ -2,6 +2,7 @@ package org.example.fm;
 
 import lombok.RequiredArgsConstructor;
 import org.example.model.fm.MatchStatisticDto;
+import org.example.repository.fm.MatchStatisticRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

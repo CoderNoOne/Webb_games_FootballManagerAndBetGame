@@ -3,6 +3,7 @@ package org.example.fm;
 import lombok.RequiredArgsConstructor;
 import org.example.core.exceptions.AppException;
 import org.example.model.fm.LeagueDto;
+import org.example.repository.fm.LeagueRepository;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;

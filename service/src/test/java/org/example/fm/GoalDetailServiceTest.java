@@ -1,14 +1,14 @@
 package org.example.fm;
 
 import org.example.core.exceptions.AppException;
-import org.example.fm.entity.GoalDetail;
-import org.example.fm.entity.Match;
-import org.example.fm.entity.Player;
-import org.example.fm.entity.Team;
+import org.example.entity.fm.entity.GoalDetail;
+import org.example.entity.fm.entity.Match;
+import org.example.entity.fm.entity.Player;
+import org.example.entity.fm.entity.Team;
 import org.example.model.fm.GoalDetailDto;
 import org.example.model.fm.PlayerDto;
-import org.junit.experimental.categories.Categories;
-import org.junit.jupiter.api.Assertions;
+import org.example.repository.fm.GoalDetailRepository;
+import org.example.repository.fm.MatchRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,20 +16,16 @@ import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.validation.constraints.Null;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.MatchResult;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;

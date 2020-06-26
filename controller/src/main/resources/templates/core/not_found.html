@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <link rel="stylesheet" href="/webjars/bootstrap/4.3.0/css/bootstrap.min.css"/>
+    <script src="/webjars/jquery/3.4.1/jquery.min.js"></script>
+    <script src="/webjars/bootstrap/4.3.0/js/bootstrap.min.js"></script>
+    <meta charset="UTF-8">
+    <title>Page not found</title>
+    <style>
+        body {
+            background-image: url("../../static/images/not_found.jpg");
+            background-size: 100%;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <pre style="color: oldlace; position: absolute; bottom: 15vmin;right: 20vmin;font-size: 3.5vmin">
+        You are in the sticks, in the middle of nowhere,
+                    where the devil says goodnight.
+                You better go home, <span sec:authentication="name"></span>!
+
+                        <a sec:authorize="hasRole('USER')" th:href="@{/userPage}" class="btn btn-outline-warning"
+                           th:text="'Take me home'"
+                           style="font-size:2.5vmin;text-align:center;
+                         line-height: 9vmin; height: 10vmin; width: 25vmin">Take me home</a>
+                        <a sec:authorize="hasRole('ADMIN')" th:href="@{/templates/admin}" class="btn btn-outline-warning"
+                           th:text="'Take me home'"
+                           style="font-size:2.5vmin;text-align:center;
+                         line-height: 9vmin; height: 10vmin; width: 25vmin">Take me home</a>
+    </pre>
+
+</div>
+</body>
+</html>

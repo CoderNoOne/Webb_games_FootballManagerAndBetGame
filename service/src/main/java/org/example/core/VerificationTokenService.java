@@ -1,9 +1,11 @@
 package org.example.core;
 
 import lombok.RequiredArgsConstructor;
-import org.example.core.entity.User;
-import org.example.core.entity.VerificationToken;
+import org.example.core.exceptions.AppException;
+import org.example.entity.core.entity.User;
+import org.example.entity.core.entity.VerificationToken;
 import org.example.model.core.VerificationTokenDto;
+import org.example.repository.core.VerificationTokenRepository;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -52,6 +54,7 @@ public class VerificationTokenService {
     }
 
     public LocalDateTime getExpirationDateForToken(String token) {
-        return verificationTokenRepository.getExpirationDateForTokenString(token);
+        return verificationTokenRepository.getExpirationDateForTokenString(token)
+                .orElseThrow(() -> new AppException("No expiration date set for token"));
     }
 }

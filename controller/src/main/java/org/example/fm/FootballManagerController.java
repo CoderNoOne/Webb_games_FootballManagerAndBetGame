@@ -6,7 +6,6 @@ import org.example.core.UserService;
 import org.example.model.core.enums.EmailType;
 import org.example.model.fm.*;
 import org.example.model.fm.enums.Formation;
-import org.example.fm.enums.Position;
 import org.example.util.ControllerUtil;
 import org.example.validator.spring_validators.FormationDtoValidator;
 import org.example.validator.spring_validators.PlayersNumberDtoValidator;

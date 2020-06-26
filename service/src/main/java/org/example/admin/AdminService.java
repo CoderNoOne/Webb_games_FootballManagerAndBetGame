@@ -2,15 +2,16 @@ package org.example.admin;
 
 
 import lombok.RequiredArgsConstructor;
-import org.example.admin.Impl.*;
-import org.example.core.entity.User;
+import org.example.entity.core.entity.User;
+import org.example.entity.fm.entity.*;
 import org.example.fm.*;
-import org.example.fm.entity.*;
-import org.example.fm.enums.FmMatchStatus;
-import org.example.fm.enums.LeagueType;
-import org.example.fm.enums.Position;
+import org.example.entity.fm.enums.FmMatchStatus;
+import org.example.entity.fm.enums.LeagueType;
+import org.example.entity.fm.enums.Position;
 import org.example.model.admin.*;
 import org.example.model.fm.TeamDto;
+import org.example.repository.admin.Impl.*;
+import org.example.repository.fm.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -327,10 +328,6 @@ public class AdminService {
         List<League> games = all.size() < startItem ? Collections.emptyList() : all.subList(startItem, Math.min(startItem + pageSize, all.size()));
 
         return new PageImpl(games, PageRequest.of(currentPage, pageSize), all.size());
-    }
-
-    public Set<User> getUsersForGameById(Integer id) {
-        return gameRepository.getUsersForGame(id);
     }
 
 

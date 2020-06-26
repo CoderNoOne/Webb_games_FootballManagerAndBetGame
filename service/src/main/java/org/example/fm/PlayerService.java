@@ -2,11 +2,14 @@ package org.example.fm;
 
 import lombok.RequiredArgsConstructor;
 import org.example.core.exceptions.AppException;
-import org.example.fm.entity.GoalDetail;
-import org.example.fm.entity.Player;
+import org.example.entity.fm.entity.GoalDetail;
+import org.example.entity.fm.entity.Player;
 import org.example.model.fm.PlayerDto;
 import org.example.model.fm.PlayersNumberDto;
 import org.example.model.fm.TeamDto;
+import org.example.repository.fm.GoalDetailRepository;
+import org.example.repository.fm.PlayerRepository;
+import org.example.repository.fm.TeamRepository;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;

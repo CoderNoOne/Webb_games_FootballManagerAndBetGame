@@ -2,10 +2,14 @@ package org.example.fm;
 
 import lombok.RequiredArgsConstructor;
 import org.example.core.exceptions.AppException;
-import org.example.fm.entity.PlayerSquadPosition;
-import org.example.fm.entity.Squad;
-import org.example.fm.entity.Team;
+import org.example.entity.fm.entity.PlayerSquadPosition;
+import org.example.entity.fm.entity.Squad;
+import org.example.entity.fm.entity.Team;
 import org.example.model.fm.SquadDto;
+import org.example.repository.fm.PlayerPositionRepository;
+import org.example.repository.fm.PlayerRepository;
+import org.example.repository.fm.SquadRepository;
+import org.example.repository.fm.TeamRepository;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;

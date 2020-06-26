@@ -1,30 +1,28 @@
 package org.example.core;
 
 import lombok.RequiredArgsConstructor;
-import org.example.core.entity.User;
+import org.example.entity.core.entity.User;
 import org.example.model.core.PasswordDto;
 import org.example.model.core.UserDto;
 import org.example.model.core.VerificationTokenDto;
 import org.example.model.core.enums.EmailType;
 import org.example.model.core.enums.GenderDto;
 import org.example.security.LoggedUsersRegistry;
+import org.example.security.SecurityService;
 import org.example.util.ControllerUtil;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.thymeleaf.spring5.context.webflux.IReactiveDataDriverContextVariable;
-import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
-import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Set;
 import java.util.UUID;
 
 @Controller
@@ -37,40 +35,57 @@ public class HomeController {
     private final UserService userService;
     private final EmailService emailService;
     private final VerificationTokenService verificationTokenService;
-    private final LoggedUsersRegistry loggedUsersRe;
+    private final LoggedUsersRegistry loggedUsersRegistry;
+    private final SecurityService securityService;
 
 
     @RequestMapping(value = {"/", "/home"})
     public String home() {
 
-        return "home";
+        return "core/home";
     }
 
     @RequestMapping(value = "/userPage", method = {RequestMethod.POST, RequestMethod.GET})
-    public String getUserPage(Model model, HttpSession session, @AuthenticationPrincipal org.springframework.security.core.userdetails.User activeUser) {
+    public String getUserPage(
+            Model model,
+            HttpSession session
+            /*@AuthenticationPrincipal org.springframework.security.core.userdetails.User activeUser*/) {
 
-        String photoUrlForUsername = userService.getPhotoUrlForUsername(activeUser.getUsername());
+        String activeUsername = securityService.getActiveUser();
+
+        String photoUrlForUsername = userService.getPhotoUrlForUsername(activeUsername).orElse(null);
         session.setAttribute("userPhoto", photoUrlForUsername);
 
-        model.addAttribute("loggedUsers", loggedUsersRe.getLoggedUsers());
-        return "user_page";
+        Set<String> loggedUsers = loggedUsersRegistry.getLoggedUsers();
+
+        System.out.println("Logged users: " + loggedUsers);
+
+        model.addAttribute("loggedUsers", loggedUsers)
+                .addAttribute("username", activeUsername);
+
+        return "core/user_page";
     }
 
     @GetMapping("/register")
     public String getRegisterPage(Model model) {
+
         model.addAttribute("userDto", new UserDto())
                 .addAttribute("genders", GenderDto.values());
-        return "register_form";
+        return "core/register_form";
     }
 
     @PostMapping("/register")
-    public String postRegister(Model model, @Valid UserDto
-            userDto, BindingResult bindingResult, HttpServletRequest request) {
+    public String postRegister(
+            Model model,
+            @Valid UserDto userDto,
+            BindingResult bindingResult,
+            HttpServletRequest request) {
 
         model.addAttribute("errors", controllerUtil.bindErrorsHibernateFields(bindingResult));
 
         if (userService.findByUsername(userDto.getUsername()).isPresent()) {
             model.addAttribute("usernameTaken", "There is already a user registered with the username provided.");
+            bindingResult.reject("usernameTaken");
         }
 
         userService.findByEmail(userDto.getEmail())
@@ -94,17 +109,17 @@ public class HomeController {
                             }
                         }
                 );
-        return "register_form";
+        return "core/register_form";
     }
 
     @RequestMapping(value = "/login")
     public String login() {
-        return "login_page";
+        return "core/login_page";
     }
 
     @GetMapping(value = "/logout")
     public String logout() {
-        return "login_page";
+        return "core/login_page";
     }
 
     @GetMapping(value = "/confirm")
@@ -127,14 +142,15 @@ public class HomeController {
                         }
                         , () -> model.addAttribute("invalidToken", "This is an invalid confirmation link"));
 
-        return "confirm";
+        return "core/confirm";
     }
 
     @PostMapping(value = "/confirm")
     public String processConfirmationForm(
+            @ModelAttribute PasswordDto password,
             Model model,
-            @RequestParam String token,
-            @ModelAttribute PasswordDto password) {
+            @RequestParam String token
+    ) {
 
         verificationTokenService.getUserAssociatedWithToken(token).ifPresent(userFromDb -> {
 
@@ -143,7 +159,7 @@ public class HomeController {
                             .addAttribute("userName", userFromDb.getUsername());
 
                     if (!password.getPassword().equals(password.getConfirmationPassword())) {
-                        model.addAttribute("NotSamePasswords", "passwords must be the same");
+                        model.addAttribute("NotSamePasswords", "Passwords must be the same");
 
                     } else if (userService.doPasswordMatches(password.getPassword(), userFromDb.getPassword())) {
                         userService.update(userFromDb.getUsername(), User.builder().enabled(true).build());
@@ -155,15 +171,16 @@ public class HomeController {
                     }
                 }
         );
-        return "confirm";
+        return "core/confirm";
     }
+
 
     @GetMapping("/accessDenied")
     public String showAccessDenied(
             @RequestHeader(name = "REQUESTED-URL", required = false) String header,
             Model model) {
         model.addAttribute("headerInfo", header);
-        return "access_denied";
+        return "core/access_denied";
     }
 
 
@@ -175,11 +192,12 @@ public class HomeController {
             @RequestParam String token) {
 
         var errors = controllerUtil.bindErrorsHibernateType(bindingResult);
-        model.addAttribute("errors", errors);
+        model.addAttribute("errors", errors)
+                .addAttribute("password", new PasswordDto());
 
         verificationTokenService.getUserAssociatedWithToken(token).ifPresentOrElse(userFromDb -> {
 
-                    model.addAttribute("password", new PasswordDto())
+                    model
                             .addAttribute("token", token)
                             .addAttribute("userName", userFromDb.getUsername());
 
@@ -191,10 +209,10 @@ public class HomeController {
                         model.addAttribute("successMessage", "Your password has been changed!");
                     }
                 },
-                () -> model.addAttribute("badToken", "Invalid token. Please provide a valid one")
+                () -> model.addAttribute("invalidToken", "Invalid token. Please provide a valid one")
         );
 
-        return "change_password";
+        return "core/change_password";
     }
 
     @GetMapping("/changePassword")
@@ -203,23 +221,22 @@ public class HomeController {
             @RequestParam String token) {
 
         verificationTokenService.getUserAssociatedWithToken(token)
-                .ifPresentOrElse(user -> {
-                            model.addAttribute("password", new PasswordDto())
-                                    .addAttribute("token", token)
-                                    .addAttribute("userName", user.getUsername());
-                        }
-                        ,
-                        () -> model.addAttribute("invalid link", "this is an invalid link")
+                .ifPresentOrElse(user ->
+                                model
+                                        .addAttribute("token", token)
+                                        .addAttribute("userName", user.getUsername())
+                                        .addAttribute("password", new PasswordDto()),
 
+                        () -> model.addAttribute("invalidLink", "This is an invalid link")
                 );
 
-        return "change_password";
+        return "core/change_password";
     }
 
     @GetMapping("/forgotPassword")
     public String changePassword(Model model) {
         model.addAttribute("email", "");
-        return "forgot";
+        return "core/forgot";
     }
 
     @PostMapping("/sendLinkToChangePassword")
@@ -242,7 +259,7 @@ public class HomeController {
                         },
                         () -> model.addAttribute("wrongEmail", "Email " + email + " doesn't exist"));
 
-        return "forgot";
+        return "core/forgot";
     }
 }
 

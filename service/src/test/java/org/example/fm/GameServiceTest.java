@@ -1,11 +1,11 @@
 package org.example.fm;
 
-import org.example.core.entity.User;
-import org.example.fm.entity.Game;
-import org.example.fm.entity.League;
+import org.example.entity.core.entity.User;
+import org.example.entity.fm.entity.Game;
+import org.example.entity.fm.entity.League;
 import org.example.model.core.GameDto;
 import org.example.model.fm.LeagueDto;
-import org.junit.jupiter.api.Disabled;
+import org.example.repository.fm.GameRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,13 +21,9 @@ import java.util.Set;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.validateMockitoUsage;
-import static reactor.core.publisher.Mono.when;
 
 @ExtendWith(SpringExtension.class)
 class GameServiceTest {

@@ -1,11 +1,10 @@
 package org.example.core;
 
-import org.example.core.entity.User;
-import org.example.core.entity.VerificationToken;
-import org.example.core.enums.Authority;
-import org.example.core.enums.Gender;
-import org.example.fm.entity.Game;
-import org.example.model.core.GameDto;
+import org.example.entity.core.entity.User;
+import org.example.entity.core.entity.VerificationToken;
+import org.example.entity.core.enums.Authority;
+import org.example.entity.core.enums.Gender;
+import org.example.model.core.PasswordDto;
 import org.example.model.core.UserDto;
 import org.example.model.core.VerificationTokenDto;
 import org.example.model.core.enums.AuthorityDto;
@@ -69,6 +68,10 @@ public interface CoreMapper {
                         .birthDate(user.getBirthDate())
                         .email(user.getEmail())
                         .gender(CoreMapper.mapGenderToGenderDto(user.getGender()))
+                        .password(PasswordDto.builder()
+                                .password(user.getPassword())
+                                .confirmationPassword(user.getPassword())
+                                .build())
                         .build()
 
                 : null;

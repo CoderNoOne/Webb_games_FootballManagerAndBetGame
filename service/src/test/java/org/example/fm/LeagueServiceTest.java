@@ -1,9 +1,9 @@
 package org.example.fm;
 
 import org.example.core.exceptions.AppException;
-import org.example.fm.entity.Game;
-import org.example.fm.entity.League;
+import org.example.entity.fm.entity.League;
 import org.example.model.fm.LeagueDto;
+import org.example.repository.fm.LeagueRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
-import static org.springframework.test.web.client.ExpectedCount.once;
 
 @ExtendWith(SpringExtension.class)
 class LeagueServiceTest {

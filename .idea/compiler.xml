@@ -10,27 +10,33 @@
         <module name="mapper" />
         <module name="entity" />
         <module name="exception" />
+        <module name="domain" />
         <module name="service" />
-        <module name="model" />
-        <module name="repository" />
         <module name="controller" />
-        <module name="config" />
+        <module name="configuration" />
         <module name="dto" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="config" target="14" />
+      <module name="domainx" target="14" />
+      <module name="main" target="14" />
+      <module name="repository" target="14" />
       <module name="validator" target="13" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="config" options="-parameters" />
+      <module name="configuration" options="-parameters" />
       <module name="controller" options="-parameters" />
+      <module name="domain" options="-parameters" />
+      <module name="domainx" options="-parameters" />
       <module name="dto" options="-parameters" />
       <module name="entity" options="-parameters" />
       <module name="exception" options="-parameters" />
+      <module name="main" options="-parameters" />
       <module name="mapper" options="-parameters" />
-      <module name="model" options="-parameters" />
       <module name="repository" options="-parameters" />
       <module name="service" options="-parameters" />
       <module name="validator" options="-parameters" />

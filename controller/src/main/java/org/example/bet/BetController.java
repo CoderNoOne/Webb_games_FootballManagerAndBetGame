@@ -1,9 +1,9 @@
 package org.example.bet;
 
 import lombok.RequiredArgsConstructor;
-import org.example.bet.entity.BetScore;
-import org.example.bet.entity.ScoreEntity;
-import org.example.bet.enums.BetLeague;
+import org.example.entity.bet.entity.BetScore;
+import org.example.entity.bet.entity.ScoreEntity;
+import org.example.entity.bet.enums.BetLeague;
 import org.example.core.UserService;
 import org.example.model.bet.BetMatch;
 import org.example.model.bet.BetScoreWrapper;

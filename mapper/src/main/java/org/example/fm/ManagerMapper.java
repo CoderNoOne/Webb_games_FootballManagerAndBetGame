@@ -1,10 +1,10 @@
 package org.example.fm;
 
-import org.example.core.entity.User;
 import org.example.core.exceptions.AppException;
-import org.example.fm.entity.*;
-import org.example.fm.enums.FmMatchStatus;
-import org.example.fm.enums.Position;
+import org.example.entity.core.entity.User;
+import org.example.entity.fm.entity.*;
+import org.example.entity.fm.enums.FmMatchStatus;
+import org.example.entity.fm.enums.Position;
 import org.example.model.admin.TeamBaseDto;
 import org.example.model.core.GameDto;
 import org.example.model.fm.*;

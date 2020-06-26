@@ -1,19 +1,17 @@
 package org.example.fm;
 
 import org.example.core.exceptions.AppException;
-import org.example.fm.entity.Country;
+import org.example.entity.fm.entity.Country;
 import org.example.model.fm.CountryDto;
+import org.example.repository.fm.CountryRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

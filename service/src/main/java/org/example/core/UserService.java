@@ -1,9 +1,12 @@
 package org.example.core;
 
 import lombok.RequiredArgsConstructor;
-import org.example.core.entity.User;
+import org.example.entity.core.entity.User;
 import org.example.core.exceptions.AppException;
 import org.example.model.core.UserDto;
+import org.example.repository.core.UserRepository;
+import org.example.repository.core.projection.UserMail;
+import org.example.repository.core.projection.UserPhotoUrl;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -64,12 +67,12 @@ public class UserService {
         return passwordEncoder.matches(pass1, pass2);
     }
 
-    public String getPhotoUrlForUsername(String username) {
-        return ((String) userRepository.getPhotoUrlByUsername(username));
+    public Optional<String> getPhotoUrlForUsername(String username) {
+        return userRepository.findOptionalByUsername(username).map(UserPhotoUrl::getPhotoUrl);
     }
 
     public List<String> getUserEmails() {
-        return userRepository.getUserEmails();
+        return userRepository.getUserEmails().stream().map(UserMail::getEmail).collect(Collectors.toList());
     }
 
     public Optional<UserDto> getUserDtoByEmail(String email) {

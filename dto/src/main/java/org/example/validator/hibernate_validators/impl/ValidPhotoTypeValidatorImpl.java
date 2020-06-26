@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.io.IOException;
+import java.util.Objects;
 
 @Component
 public class ValidPhotoTypeValidatorImpl implements ConstraintValidator<ValidPhotoType, MultipartFile> {
@@ -15,7 +16,7 @@ public class ValidPhotoTypeValidatorImpl implements ConstraintValidator<ValidPho
     public boolean isValid(MultipartFile file, ConstraintValidatorContext context) {
 
         try {
-            if (file.getBytes().length == 0) {
+            if (/*Objects.isNull(file) ||*/ file.getBytes().length == 0) {
                 return true;
             }
 

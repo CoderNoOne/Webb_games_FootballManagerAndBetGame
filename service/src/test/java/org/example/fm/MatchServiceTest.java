@@ -1,8 +1,9 @@
 package org.example.fm;
 
 import org.example.core.exceptions.AppException;
-import org.example.fm.entity.Match;
+import org.example.entity.fm.entity.Match;
 import org.example.model.fm.MatchDto;
+import org.example.repository.fm.MatchRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

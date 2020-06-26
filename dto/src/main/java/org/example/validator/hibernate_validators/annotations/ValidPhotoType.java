@@ -4,6 +4,7 @@ package org.example.validator.hibernate_validators.annotations;
 
 import org.example.validator.hibernate_validators.impl.ValidPhotoTypeValidatorImpl;
 
+
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.*;

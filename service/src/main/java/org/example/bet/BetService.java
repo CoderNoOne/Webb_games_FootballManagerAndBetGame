@@ -1,14 +1,16 @@
 package org.example.bet;
 
 import lombok.RequiredArgsConstructor;
-import org.example.bet.entity.BetPoints;
-import org.example.bet.entity.BetScore;
-import org.example.bet.entity.ScoreEntity;
-import org.example.bet.enums.BetLeague;
+import org.example.entity.bet.entity.BetPoints;
+import org.example.entity.bet.entity.BetScore;
+import org.example.entity.bet.entity.ScoreEntity;
+import org.example.entity.bet.enums.BetLeague;
 import org.example.model.bet.BetMatch;
 import org.example.model.bet.ResponseBet;
 import org.example.model.bet.ScoreDto;
 import org.example.core.exceptions.AppException;
+import org.example.repository.bet.BetPointsRepository;
+import org.example.repository.bet.ScoreEntityRepository;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpEntity;

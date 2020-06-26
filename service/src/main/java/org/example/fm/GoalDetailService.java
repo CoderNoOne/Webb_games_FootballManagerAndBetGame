@@ -2,13 +2,15 @@ package org.example.fm;
 
 import lombok.RequiredArgsConstructor;
 import org.example.core.exceptions.AppException;
-import org.example.fm.entity.Match;
+import org.example.entity.fm.entity.Match;
 import org.example.model.fm.GoalDetailDto;
+import org.example.repository.fm.GoalDetailRepository;
+import org.example.repository.fm.MatchRepository;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.text.MessageFormat;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,7 +23,7 @@ public class GoalDetailService {
 
     public List<GoalDetailDto> getGoalDetailsForMatchId(Integer matchId) {
 
-        if (matchId == null) {
+        if (Objects.isNull(matchId)) {
             throw new AppException("Match id is null");
         }
 

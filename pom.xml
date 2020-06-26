@@ -2,15 +2,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
+
     <parent>
+
 
         <groupId>org.springframework.boot</groupId>
 
+
         <artifactId>spring-boot-starter-parent</artifactId>
+
 
         <version>2.2.0.RELEASE</version>
 
+
         <relativePath/>
+
 
     </parent>
 
@@ -31,74 +37,133 @@
 
 
     <modules>
-        <module>entity</module>
+
+
         <module>dto</module>
-        <module>repository</module>
+
+
         <module>service</module>
+
+
         <module>exception</module>
+
+
         <module>controller</module>
-        <module>config</module>
+
+
         <module>mapper</module>
+
+
+        <module>domain</module>
+
+
+        <module>configuration</module>
+
 
     </modules>
 
 
     <dependencies>
 
+
         <dependency>
+
 
             <groupId>org.projectlombok</groupId>
 
+
             <artifactId>lombok</artifactId>
+
 
             <version>1.18.12</version>
 
+
         </dependency>
 
+
         <dependency>
+
+
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
+
+
             <artifactId>spring-boot-starter-test</artifactId>
-            <version>2.2.4.RELEASE</version>
-            <scope>test</scope>
-        </dependency>
 
+            <scope>test</scope>
+
+
+        </dependency>
 
     </dependencies>
 
+
     <build>
+
 
         <pluginManagement>
 
+
             <plugins>
+
 
                 <plugin>
 
+
                     <groupId>org.apache.maven.plugins</groupId>
+
 
                     <artifactId>maven-compiler-plugin</artifactId>
 
+
                     <version>3.8.0</version>
+
 
                     <configuration>
 
-                        <source>13</source>
 
-                        <target>13</target>
+                        <source>14</source>
+
+
+                        <target>14</target>
+
 
                         <compilerArgs>--enable-preview</compilerArgs>
 
+
                     </configuration>
+
 
                 </plugin>
 
 
             </plugins>
+
+
         </pluginManagement>
+
+
     </build>
+
+
+    <profiles>
+
+        <profile>
+            <id>prod</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <activatedProperties>prod</activatedProperties>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>test</id>
+            <properties>
+                <activatedProperties>test</activatedProperties>
+            </properties>
+        </profile>
+    </profiles>
 
 
 </project>
