@@ -76,7 +76,7 @@ You can find the application docker image under the link:
 To download the docker image open the terminal and enter the following command:
 
 ```
-docker push codernoone/web_app:v1
+docker pull codernoone/web_app:v1
 
 ```
 
